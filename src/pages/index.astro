@@ -1,0 +1,135 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Will — personal homepage">
+  <section class="hero wrap">
+    <p class="eyebrow">PERSONAL HOMEPAGE / 2026</p>
+    <h1>Hi, I’m Will.</h1>
+    <p class="lede">
+      I study things, build things, and keep notes on whatever I find hard to stop thinking about.
+    </p>
+    <p class="intro">
+      Right now that usually means AI, scientific computing, physical systems, music, film,
+      and the occasional side project that probably started as “this should only take a weekend.”
+    </p>
+    <div class="hero-links">
+      <a class="button dark" href="#projects">See what I’m making</a>
+      <a class="button" href="/about">A little more about me</a>
+    </div>
+  </section>
+
+  <section class="marquee" aria-label="Current interests">
+    <div>AI × SCIENCE · WORLD MODELS · MUSIC · FILM · COMPUTATIONAL IMAGING · BOOKS · SMALL TOOLS ·</div>
+  </section>
+
+  <section id="projects" class="section wrap">
+    <div class="section-head">
+      <p class="eyebrow">01 / THINGS I’VE MADE</p>
+      <h2>Projects</h2>
+      <p>Research projects, experiments, small tools, and work that taught me something.</p>
+    </div>
+
+    <div class="project-grid">
+      <article class="project featured">
+        <div class="project-number">01</div>
+        <div>
+          <p class="tag">RESEARCH · PDE · OPTICS</p>
+          <h3>Hybrid optical–electronic PDE operator</h3>
+          <p>
+            An experiment in using passive optical global mixing together with a very small electronic decoder
+            for learning operators of partial differential equations under severe hardware constraints.
+          </p>
+          <p class="muted">What interested me most was not whether optics could “beat AI”, but where optical computation still helps once the electronic budget becomes genuinely tiny.</p>
+        </div>
+      </article>
+
+      <article class="project">
+        <div class="project-number">02</div>
+        <div>
+          <p class="tag">WEB · 3D · COURSE PROJECT</p>
+          <h3>Pompeii garden reconstruction</h3>
+          <p>A small interactive reconstruction combining AIGC video, 3D scene work, and a browser-based garden walkthrough.</p>
+        </div>
+      </article>
+
+      <article class="project">
+        <div class="project-number">03</div>
+        <div>
+          <p class="tag">OPEN SOURCE · AI FILM</p>
+          <h3>Long-form AI filmmaking workflow</h3>
+          <p>An exploration of what a genuinely integrated, model-agnostic workflow for long-form AI film production could look like.</p>
+        </div>
+      </article>
+
+      <article class="project placeholder">
+        <div class="project-number">+</div>
+        <div>
+          <p class="tag">NEXT</p>
+          <h3>Room for something new</h3>
+          <p>This is intentionally unfinished. A homepage should be able to grow with the person who owns it.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="notes" class="section wrap split-section">
+    <div class="section-head sticky">
+      <p class="eyebrow">02 / THINGS I’M THINKING ABOUT</p>
+      <h2>Notes</h2>
+      <p>Not a formal blog. More like a public notebook for ideas that survive long enough to deserve a URL.</p>
+    </div>
+    <div class="note-list">
+      <a class="note" href="#">
+        <span>Why I don’t want my personal site to look like a CV</span>
+        <time>soon</time>
+      </a>
+      <a class="note" href="#">
+        <span>What remains interesting about optical computing?</span>
+        <time>draft</time>
+      </a>
+      <a class="note" href="#">
+        <span>Can AI film workflows ever become boring infrastructure?</span>
+        <time>idea</time>
+      </a>
+      <a class="note" href="#">
+        <span>Books, music, and the strange ways we project ourselves into art</span>
+        <time>idea</time>
+      </a>
+    </div>
+  </section>
+
+  <section id="shelf" class="section wrap">
+    <div class="section-head">
+      <p class="eyebrow">03 / THINGS I KEEP AROUND</p>
+      <h2>Shelf</h2>
+      <p>A few books, records, films, and other things that matter enough to keep returning to.</p>
+    </div>
+
+    <div class="shelf-grid">
+      <div class="shelf-card">
+        <p class="tag">BOOKS</p>
+        <h3>Stories with people in them</h3>
+        <p>Fredrik Backman, history, fiction that feels lived-in, and books that are harder to summarize than to remember.</p>
+      </div>
+      <div class="shelf-card">
+        <p class="tag">MUSIC</p>
+        <h3>Songs with a sense of place</h3>
+        <p>From Linkin Park and Billie Eilish to country songs that sound like somebody actually lived before they wrote them.</p>
+      </div>
+      <div class="shelf-card">
+        <p class="tag">FILM</p>
+        <h3>Big worlds, human stakes</h3>
+        <p>Superhero cinema, historical epics, long-form storytelling, and an ongoing interest in what AI might do to filmmaking.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing wrap">
+    <p class="eyebrow">04 / CURRENTLY</p>
+    <h2>I’m still figuring out what deserves to stay here.</h2>
+    <p>
+      That is part of the point. This site is not meant to prove that I have already become something.
+      It is a place to leave a trail while I’m becoming it.
+    </p>
+  </section>
+</Base>

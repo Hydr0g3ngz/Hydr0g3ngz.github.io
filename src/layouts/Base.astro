@@ -1,0 +1,39 @@
+---
+import '../styles/global.css';
+const {
+  title = 'Will — personal homepage',
+  description = 'A personal homepage for notes, projects, research, music, books, and things worth remembering.'
+} = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f5f1e8" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="noise"></div>
+    <header class="site-header wrap">
+      <a class="brand" href="/">WQ</a>
+      <nav aria-label="Primary">
+        <a href="/#projects">Projects</a>
+        <a href="/#notes">Notes</a>
+        <a href="/#shelf">Shelf</a>
+        <a href="/about">About</a>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="wrap footer">
+      <div>Made slowly, updated whenever there is something worth keeping.</div>
+      <div class="footer-links">
+        <a href="https://github.com/Hydr0g3ngz">GitHub</a>
+        <a href="/about">About</a>
+      </div>
+    </footer>
+  </body>
+</html>
