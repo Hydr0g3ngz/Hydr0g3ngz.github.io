@@ -1,0 +1,37 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  notes: CollectionEntry<'notes'>[];
+}
+
+const { notes } = Astro.props;
+---
+<section class="notes-index wrap">
+  <p class="eyebrow">NOTES</p>
+  <h1>Things I wanted to keep.</h1>
+  <p class="notes-intro">
+    Reading notes, listening notes, films, research, and other fragments collected over time.
+  </p>
+
+  <div class="notes-list">
+    {notes.map((note) => (
+      <article class="note-list-item">
+        <div class="note-list-meta">
+          <span>{note.data.category}</span>
+          <time datetime={note.data.date.toISOString()}>
+            {note.data.date.toLocaleDateString('en-GB', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            })}
+          </time>
+        </div>
+        <div>
+          <h2><a href={`/notes/${note.id}`}>{note.data.title}</a></h2>
+          <p>{note.data.description}</p>
+        </div>
+      </article>
+    ))}
+  </div>
+</section>

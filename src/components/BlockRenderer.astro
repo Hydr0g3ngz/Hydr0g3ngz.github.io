@@ -1,0 +1,33 @@
+---
+import type { Block } from '../content-schema';
+import ClosingBlock from './blocks/ClosingBlock.astro';
+import HeroBlock from './blocks/HeroBlock.astro';
+import ImageTextBlock from './blocks/ImageTextBlock.astro';
+import ListBlock from './blocks/ListBlock.astro';
+import MarqueeBlock from './blocks/MarqueeBlock.astro';
+import ProfileBlock from './blocks/ProfileBlock.astro';
+import QuoteBlock from './blocks/QuoteBlock.astro';
+import ShelfBlock from './blocks/ShelfBlock.astro';
+import TextBlock from './blocks/TextBlock.astro';
+import WorkBlock from './blocks/WorkBlock.astro';
+
+interface Props {
+  block: Block;
+}
+
+const { block } = Astro.props;
+---
+{block.visible && (
+  <>
+    {block.type === 'hero' && <HeroBlock block={block} />}
+    {block.type === 'marquee' && <MarqueeBlock block={block} />}
+    {block.type === 'shelf' && <ShelfBlock block={block} />}
+    {block.type === 'work' && <WorkBlock block={block} />}
+    {block.type === 'closing' && <ClosingBlock block={block} />}
+    {block.type === 'text' && <TextBlock block={block} />}
+    {block.type === 'image_text' && <ImageTextBlock block={block} />}
+    {block.type === 'list' && <ListBlock block={block} />}
+    {block.type === 'quote' && <QuoteBlock block={block} />}
+    {block.type === 'profile' && <ProfileBlock block={block} />}
+  </>
+)}

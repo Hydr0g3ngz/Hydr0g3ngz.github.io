@@ -1,0 +1,30 @@
+---
+import type { HeroBlock } from '../../content-schema';
+
+interface Props {
+  block: HeroBlock;
+}
+
+const { block } = Astro.props;
+---
+<section id={block.id} class="hero wrap">
+  <p class="eyebrow">{block.eyebrow}</p>
+  <h1>{block.heading}</h1>
+  <p class="lede">{block.lede}</p>
+  <p class="intro">{block.intro}</p>
+  {block.links.length > 0 && (
+    <div class="hero-links">
+      {block.links.map((link) => (
+        <a
+          class:list={[
+            link.style === 'text' ? 'hero-text-link' : 'button',
+            { dark: link.style === 'primary' }
+          ]}
+          href={link.href}
+        >
+          {link.label}
+        </a>
+      ))}
+    </div>
+  )}
+</section>

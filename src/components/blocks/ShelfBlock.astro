@@ -1,0 +1,99 @@
+---
+import type { ShelfBlock } from '../../content-schema';
+
+interface Props {
+  block: ShelfBlock;
+}
+
+const { block } = Astro.props;
+---
+<section id={block.id} class="section wrap">
+  <div class="section-head">
+    <p class="eyebrow">{block.eyebrow}</p>
+    <h2>{block.heading}</h2>
+    <p>{block.intro}</p>
+  </div>
+
+  <div class="shelf-grid">
+    {block.categories.map((category) => (
+      <article class="shelf-card">
+        <figure class="shelf-visual">
+          <img
+            src={category.image}
+            alt={category.imageAlt}
+            width={category.imageWidth}
+            height={category.imageHeight}
+            loading="lazy"
+          />
+        </figure>
+        <p class="tag">{category.tag}</p>
+        <h3>{category.title}</h3>
+        <p class="shelf-summary">{category.summary}</p>
+        {category.items.length > 0 && (
+          <ul
+            class:list={['shelf-list', { compact: category.listLayout === 'two-column' }]}
+            aria-label={`${category.tag.toLowerCase()} on Will's shelf`}
+          >
+            {category.items.map((item) => (
+              <li>
+                <cite>{item.title}</cite>
+                {item.originalTitle && (
+                  <span class="original-title" lang="zh-Hans">{item.originalTitle}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+        {category.future && <p class="shelf-future">{category.future}</p>}
+      </article>
+    ))}
+  </div>
+
+  {block.following?.visible && block.following.items.length > 0 && (
+    <aside class="following-strip" aria-labelledby={`${block.id ?? 'shelf'}-following-title`}>
+      <div class="following-intro">
+        <p class="tag">{block.following.tag}</p>
+        <h3 id={`${block.id ?? 'shelf'}-following-title`}>{block.following.heading}</h3>
+        <p>{block.following.intro}</p>
+      </div>
+
+      {block.following.items.map((item) => (
+        <div class="following-item">
+          <img
+            src={item.image}
+            alt={item.imageAlt}
+            width={item.imageWidth}
+            height={item.imageHeight}
+            loading="lazy"
+          />
+          <div>
+            <p class="tag">{item.tag}</p>
+            <h4>{item.title}</h4>
+            <p>{item.summary}</p>
+          </div>
+        </div>
+      ))}
+    </aside>
+  )}
+
+  {block.credits.length > 0 && (
+    <p class="image-credits">
+      {block.creditsLabel}{' '}
+      {block.credits.map((credit, index) => (
+        <>
+          {index > 0 && '; '}
+          <a href={credit.url} target="_blank" rel="noreferrer">{credit.label}</a>
+          {credit.licenseLabel && credit.licenseUrl && (
+            <>
+              {' / '}
+              <a href={credit.licenseUrl} target="_blank" rel="noreferrer">
+                {credit.licenseLabel}
+              </a>
+            </>
+          )}
+        </>
+      ))}
+      .
+    </p>
+  )}
+</section>

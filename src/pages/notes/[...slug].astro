@@ -1,0 +1,44 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import NoteArticle from '../../components/NoteArticle.astro';
+import NotesIndex from '../../components/NotesIndex.astro';
+import Base from '../../layouts/Base.astro';
+
+type NoteEntry = CollectionEntry<'notes'>;
+type Props =
+  | { kind: 'index'; notes: NoteEntry[] }
+  | { kind: 'note'; note: NoteEntry };
+
+export async function getStaticPaths() {
+  const notes = (await getCollection('notes', ({ data }) => data.published)).sort(
+    (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+  );
+
+  if (notes.length === 0) {
+    return [];
+  }
+
+  return [
+    {
+      params: { slug: undefined },
+      props: { kind: 'index', notes }
+    },
+    ...notes.map((note) => ({
+      params: { slug: note.id },
+      props: { kind: 'note', note }
+    }))
+  ];
+}
+
+const props = Astro.props as Props;
+const title = props.kind === 'index' ? 'Notes — Will Qing' : `${props.note.data.title} — Will Qing`;
+const description =
+  props.kind === 'index'
+    ? 'Notes on books, music, film, research, and other things worth keeping.'
+    : props.note.data.description;
+---
+<Base title={title} description={description}>
+  {props.kind === 'index'
+    ? <NotesIndex notes={props.notes} />
+    : <NoteArticle note={props.note} />}
+</Base>

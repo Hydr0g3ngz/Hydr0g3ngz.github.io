@@ -1,0 +1,35 @@
+{
+  "brand": "WQ",
+  "defaultTitle": "Will Qing — personal homepage",
+  "description": "A personal homepage for research, books, music, film, and things worth remembering.",
+  "themeColor": "#f5f1e8",
+  "homeLinks": [
+    {
+      "label": "Shelf",
+      "href": "/#shelf",
+      "order": 10,
+      "visible": true
+    },
+    {
+      "label": "Work",
+      "href": "/#work",
+      "order": 20,
+      "visible": true
+    }
+  ],
+  "notesNavigation": {
+    "label": "Notes",
+    "order": 30
+  },
+  "footerText": "Made slowly, updated whenever there is something worth keeping.",
+  "footerLinks": [
+    {
+      "label": "GitHub",
+      "href": "https://github.com/Hydr0g3ngz"
+    },
+    {
+      "label": "About",
+      "href": "/about"
+    }
+  ]
+}

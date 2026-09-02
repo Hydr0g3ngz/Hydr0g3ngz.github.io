@@ -1,0 +1,42 @@
+{
+  "title": "About",
+  "description": "About Will Qing, an Information Engineering undergraduate at Shanghai Jiao Tong University.",
+  "eyebrow": "ABOUT",
+  "heading": "A person before a profile.",
+  "published": true,
+  "navigation": {
+    "show": true,
+    "label": "About",
+    "order": 40
+  },
+  "sections": [
+    {
+      "type": "profile",
+      "visible": true,
+      "paragraphs": [
+        "I’m Will. I’m currently a student, and most of my work lives somewhere around AI, scientific computing, physical systems, and whatever new problem I become curious enough to investigate.",
+        "I like research, but I don’t want this website to pretend that research is the whole person. I also care a lot about music, books, films, storytelling, and the small pieces of culture that end up becoming part of how we understand ourselves.",
+        "I made this site partly because I wanted one place that could hold all of those things without forcing them into the shape of a résumé."
+      ],
+      "facts": [
+        {
+          "label": "Based",
+          "value": "Shanghai / elsewhere"
+        },
+        {
+          "label": "Studying",
+          "value": "Information Engineering at SJTU"
+        },
+        {
+          "label": "Usually listening to",
+          "value": "something too many times"
+        },
+        {
+          "label": "Contact",
+          "value": "GitHub · @Hydr0g3ngz",
+          "href": "https://github.com/Hydr0g3ngz"
+        }
+      ]
+    }
+  ]
+}

@@ -5,11 +5,19 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "check": "astro check",
+    "validate:content": "node scripts/validate-content.mjs",
+    "validate:output": "node scripts/validate-output.mjs",
+    "build": "npm run validate:content && npm run check && astro build && npm run validate:output",
     "preview": "astro preview"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
     "astro": "^7.2.10"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "js-yaml": "^5.4.1",
+    "typescript": "^6.0.3"
   }
 }

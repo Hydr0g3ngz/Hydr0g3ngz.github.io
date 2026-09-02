@@ -1,9 +1,52 @@
 ---
 import '../styles/global.css';
+import { getCollection, getEntry } from 'astro:content';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const settingsEntry = await getEntry('settings', 'site');
+
+if (!settingsEntry) {
+  throw new Error('Site settings are missing.');
+}
+
+const [pages, notes] = await Promise.all([
+  getCollection('pages', ({ data }) => data.published && data.navigation.show),
+  getCollection('notes', ({ data }) => data.published)
+]);
+
+const settings = settingsEntry.data;
 const {
-  title = 'Will Qing — personal homepage',
-  description = 'A personal homepage for research, books, music, film, and things worth remembering.'
+  title = settings.defaultTitle,
+  description = settings.description
 } = Astro.props;
+
+const homeLinks = settings.homeLinks
+  .filter((link) => link.visible)
+  .map((link) => ({ label: link.label, href: link.href, order: link.order }));
+
+const pageLinks = pages.map((page) => ({
+  label: page.data.navigation.label,
+  href: `/${page.id.replace(/\/index$/, '')}`,
+  order: page.data.navigation.order
+}));
+
+const noteLinks =
+  notes.length > 0
+    ? [
+        {
+          label: settings.notesNavigation.label,
+          href: '/notes',
+          order: settings.notesNavigation.order
+        }
+      ]
+    : [];
+
+const navigation = [...homeLinks, ...pageLinks, ...noteLinks].sort((a, b) => a.order - b.order);
+const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
 ---
 <!doctype html>
 <html lang="en">
@@ -11,27 +54,44 @@ const {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#f5f1e8" />
+    <meta name="theme-color" content={settings.themeColor} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>{title}</title>
   </head>
   <body>
     <div class="noise"></div>
     <header class="site-header wrap">
-      <a class="brand" href="/">WQ</a>
+      <a class="brand" href="/">{settings.brand}</a>
       <nav aria-label="Primary">
-        <a href="/#shelf">Shelf</a>
-        <a href="/#work">Work</a>
-        <a href="/about">About</a>
+        {navigation.map((link) => (
+          <a
+            href={link.href}
+            aria-current={
+              !link.href.includes('#') && currentPath === link.href.replace(/\/$/, '')
+                ? 'page'
+                : undefined
+            }
+          >
+            {link.label}
+          </a>
+        ))}
       </nav>
     </header>
     <main>
       <slot />
     </main>
     <footer class="wrap footer">
-      <div>Made slowly, updated whenever there is something worth keeping.</div>
+      <div>{settings.footerText}</div>
       <div class="footer-links">
-        <a href="https://github.com/Hydr0g3ngz">GitHub</a>
-        <a href="/about">About</a>
+        {settings.footerLinks.map((link) => (
+          <a
+            href={link.href}
+            target={link.href.startsWith('https://') ? '_blank' : undefined}
+            rel={link.href.startsWith('https://') ? 'noreferrer' : undefined}
+          >
+            {link.label}
+          </a>
+        ))}
       </div>
     </footer>
   </body>

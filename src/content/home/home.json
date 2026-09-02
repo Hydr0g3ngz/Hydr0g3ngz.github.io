@@ -1,0 +1,208 @@
+{
+  "title": "Will Qing — personal homepage",
+  "description": "A personal homepage for research, books, music, film, and things worth remembering.",
+  "sections": [
+    {
+      "type": "hero",
+      "visible": true,
+      "eyebrow": "PERSONAL HOMEPAGE / 2026",
+      "heading": "Hi, I’m Will Qing.",
+      "lede": "I’m an undergraduate in Information Engineering at Shanghai Jiao Tong University, interested in how computation can help us understand physical systems.",
+      "intro": "My current research interests include optical computing, machine learning, and AI-based processing of physical signals. Outside research, I spend most of my time reading, listening to music, and, more recently, watching films.",
+      "links": [
+        {
+          "label": "More about me",
+          "href": "/about",
+          "style": "primary"
+        },
+        {
+          "label": "Selected work",
+          "href": "#work",
+          "style": "secondary"
+        }
+      ]
+    },
+    {
+      "type": "marquee",
+      "visible": true,
+      "label": "Current interests",
+      "items": [
+        "OPTICAL COMPUTING",
+        "MACHINE LEARNING",
+        "PHYSICAL SIGNALS",
+        "BOOKS",
+        "MUSIC",
+        "FILM"
+      ]
+    },
+    {
+      "type": "shelf",
+      "id": "shelf",
+      "visible": true,
+      "eyebrow": "01 / THINGS I KEEP AROUND",
+      "heading": "Shelf",
+      "intro": "Reading, music, and film are the main things I keep returning to outside research. This is a small, unfinished record rather than a definitive list.",
+      "categories": [
+        {
+          "tag": "BOOKS",
+          "title": "Books I have kept with me",
+          "summary": "I am drawn to quiet, humane stories about ordinary people. I also read around history, culture, and Song ci poetry.",
+          "image": "/images/books-library.jpg",
+          "imageAlt": "Rows of books in a quiet library",
+          "imageWidth": 1280,
+          "imageHeight": 1280,
+          "listLayout": "single",
+          "items": [
+            {
+              "title": "The Unlikely Pilgrimage of Harold Fry"
+            },
+            {
+              "title": "A Man Called Ove"
+            },
+            {
+              "title": "My Grandmother Asked Me to Tell You She’s Sorry"
+            },
+            {
+              "title": "The Storied Life of A.J. Fikry"
+            }
+          ],
+          "future": "Later: brief notes on what each book left behind."
+        },
+        {
+          "tag": "MUSIC",
+          "title": "A small, changing rotation",
+          "summary": "These are some of the artists I return to at the moment, without trying to turn listening into a complete profile.",
+          "image": "/images/music-turntable.jpg",
+          "imageAlt": "A record playing on a white turntable",
+          "imageWidth": 1280,
+          "imageHeight": 1917,
+          "listLayout": "two-column",
+          "items": [
+            {
+              "title": "Linkin Park"
+            },
+            {
+              "title": "Billie Eilish"
+            },
+            {
+              "title": "Ella Langley"
+            },
+            {
+              "title": "Olivia Dean"
+            }
+          ],
+          "future": "Later: albums, songs, and reasons for returning to them."
+        },
+        {
+          "tag": "FILM",
+          "title": "Still learning how to watch",
+          "summary": "I have only recently started paying closer attention to film, so this is deliberately a beginning rather than a canon.",
+          "image": "/images/film-cinema.jpg",
+          "imageAlt": "Empty seats in a softly lit cinema",
+          "imageWidth": 1280,
+          "imageHeight": 720,
+          "listLayout": "single",
+          "items": [
+            {
+              "title": "Spider-Man: Brand New Day"
+            },
+            {
+              "title": "All Wishes Come True",
+              "originalTitle": "《八仙！》"
+            },
+            {
+              "title": "Once Upon a Time in the Middle East",
+              "originalTitle": "《欢迎来龙餐馆》"
+            }
+          ],
+          "future": "Later: short viewing notes, once I know what I want to say."
+        }
+      ],
+      "following": {
+        "visible": true,
+        "tag": "OTHER INTERESTS",
+        "heading": "Also following",
+        "intro": "A smaller corner for the teams and drivers I keep up with.",
+        "items": [
+          {
+            "tag": "FOOTBALL",
+            "title": "Manchester United",
+            "summary": "Room for match, season, and supporter notes later.",
+            "image": "/images/football-old-trafford.jpg",
+            "imageAlt": "Old Trafford seen from above",
+            "imageWidth": 1280,
+            "imageHeight": 959
+          },
+          {
+            "tag": "FORMULA 1",
+            "title": "McLaren · Lando Norris",
+            "summary": "Room for race-weekend impressions later.",
+            "image": "/images/f1-norris-mclaren.jpg",
+            "imageAlt": "Lando Norris driving a McLaren Formula 1 car",
+            "imageWidth": 1280,
+            "imageHeight": 853
+          }
+        ]
+      },
+      "creditsLabel": "Images:",
+      "credits": [
+        {
+          "label": "Gwyneth Perry, CC0",
+          "url": "https://commons.wikimedia.org/wiki/File:Library_book_stacks.jpg"
+        },
+        {
+          "label": "Lee Campbell, CC0",
+          "url": "https://commons.wikimedia.org/wiki/File:White_turntable_playing_music_(Unsplash).jpg"
+        },
+        {
+          "label": "Eden, Janine and Jim, CC BY 2.0",
+          "url": "https://commons.wikimedia.org/wiki/File:Empty_Movie_Theater_Seats_(54279616742).jpg"
+        },
+        {
+          "label": "Old Trafford — Photo: Arne Müseler / arne-mueseler.com",
+          "url": "https://arne-mueseler.com/",
+          "licenseLabel": "CC-BY-SA-3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en"
+        },
+        {
+          "label": "Eustace Bagge, CC BY 4.0",
+          "url": "https://commons.wikimedia.org/wiki/File:Lando_Norris_2025_Italian_Grand_Prix_qualifying.jpg"
+        }
+      ]
+    },
+    {
+      "type": "work",
+      "id": "work",
+      "visible": true,
+      "eyebrow": "02 / SELECTED WORK",
+      "intro": "A few research and course projects I have worked on.",
+      "items": [
+        {
+          "year": "2025–2026",
+          "kind": "Research",
+          "title": "Optoelectronic sensing for digital pathology scanning",
+          "summary": "Contributed to a hybrid optoelectronic architecture designed to move focus estimation, acquisition anomaly warnings, and slide-quality assessment into the scanning stage. My work focused on differentiable optical modeling, joint optical–electronic training, simulation benchmarks, and parts of the scanning-control and lightweight-readout design."
+        },
+        {
+          "year": "2025",
+          "kind": "Course project",
+          "title": "Vision-based robotic grasping and sorting",
+          "summary": "Built an end-to-end system with ACT and a LeRobot SO-101 arm, covering teleoperation data collection, policy training, model conversion, deployment on a Moore Threads Yangtze SoC, and real-robot integration for sorting colored blocks."
+        },
+        {
+          "year": "2025",
+          "kind": "Course project",
+          "title": "Multi-view refrigerator-door angle estimation",
+          "summary": "Collected and annotated four-view images, trained YOLOv8-Seg to segment the door and key structures, and used SVD-based triangulation to reconstruct the 3D geometry and estimate the opening angle."
+        }
+      ]
+    },
+    {
+      "type": "closing",
+      "visible": true,
+      "eyebrow": "03 / CURRENTLY",
+      "heading": "I’m still figuring out what deserves to stay here.",
+      "body": "That is part of the point. This site is not meant to prove that I have already become something. It is a place to leave a trail while I’m becoming it."
+    }
+  ]
+}

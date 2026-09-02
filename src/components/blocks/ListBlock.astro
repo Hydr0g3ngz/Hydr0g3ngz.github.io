@@ -1,0 +1,25 @@
+---
+import type { ListBlock } from '../../content-schema';
+
+interface Props {
+  block: ListBlock;
+}
+
+const { block } = Astro.props;
+---
+<section id={block.id} class="section list-section wrap">
+  <div class="content-section-head">
+    {block.eyebrow && <p class="eyebrow">{block.eyebrow}</p>}
+    <h2>{block.heading}</h2>
+    {block.intro && <p class="list-intro">{block.intro}</p>}
+  </div>
+  <div class:list={['content-list-grid', `columns-${block.columns}`]}>
+    {block.items.map((item) => (
+      <article class="content-list-item">
+        {item.meta && <p class="tag">{item.meta}</p>}
+        <h3>{item.href ? <a href={item.href}>{item.title}</a> : item.title}</h3>
+        <p>{item.text}</p>
+      </article>
+    ))}
+  </div>
+</section>

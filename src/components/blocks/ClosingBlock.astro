@@ -1,0 +1,14 @@
+---
+import type { ClosingBlock } from '../../content-schema';
+
+interface Props {
+  block: ClosingBlock;
+}
+
+const { block } = Astro.props;
+---
+<section id={block.id} class="closing wrap">
+  <p class="eyebrow">{block.eyebrow}</p>
+  <h2>{block.heading}</h2>
+  <p>{block.body}</p>
+</section>

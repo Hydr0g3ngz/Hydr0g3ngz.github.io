@@ -1,0 +1,36 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+
+interface Props {
+  note: CollectionEntry<'notes'>;
+}
+
+const { note } = Astro.props;
+const { Content } = await render(note);
+---
+<article class="note-article wrap">
+  <header class="note-header">
+    <div class="note-list-meta">
+      <span>{note.data.category}</span>
+      <time datetime={note.data.date.toISOString()}>
+        {note.data.date.toLocaleDateString('en-GB', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })}
+      </time>
+    </div>
+    <h1>{note.data.title}</h1>
+    <p>{note.data.description}</p>
+  </header>
+
+  {note.data.cover && (
+    <figure class="note-cover">
+      <img src={note.data.cover} alt={note.data.coverAlt ?? ''} />
+    </figure>
+  )}
+
+  <div class="note-body prose">
+    <Content />
+  </div>
+</article>

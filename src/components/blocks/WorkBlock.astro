@@ -1,0 +1,32 @@
+---
+import type { WorkBlock } from '../../content-schema';
+
+interface Props {
+  block: WorkBlock;
+}
+
+const { block } = Astro.props;
+---
+<section id={block.id} class="section work-section wrap">
+  <div class="work-head">
+    <p class="eyebrow">{block.eyebrow}</p>
+    <p>{block.intro}</p>
+  </div>
+
+  <div class="work-list">
+    {block.items.map((item) => (
+      <article class="work-item">
+        <div class="work-meta">
+          <time>{item.year}</time>
+          <span>{item.kind}</span>
+        </div>
+        <div class="work-copy">
+          <h3>
+            {item.href ? <a href={item.href}>{item.title}</a> : item.title}
+          </h3>
+          <p>{item.summary}</p>
+        </div>
+      </article>
+    ))}
+  </div>
+</section>
