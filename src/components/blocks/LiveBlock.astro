@@ -1,0 +1,87 @@
+---
+import type { LiveBlock } from '../../content-schema';
+
+interface Props {
+  block: LiveBlock;
+}
+
+const { block } = Astro.props;
+---
+<section id={block.id} class="section live-section wrap">
+  <header class="live-heading">
+    <p class="eyebrow">{block.eyebrow}</p>
+    <h2>{block.heading}</h2>
+    <p>{block.intro}</p>
+  </header>
+
+  {block.records.length > 0 ? (
+    <div class="live-grid">
+      {block.records.map((record, index) => (
+        <figure class="live-record">
+          <div class="live-image">
+            {record.video ? (
+              <video
+                controls
+                playsinline
+                preload="metadata"
+                poster={record.image}
+                aria-label={`Concert clip: ${record.title}`}
+              >
+                <source src={record.video} type={record.video.toLowerCase().endsWith('.webm') ? 'video/webm' : 'video/mp4'} />
+                <a href={record.video}>Open the concert clip</a>
+              </video>
+            ) : (
+              <img
+                src={record.image}
+                alt={record.imageAlt}
+                width={record.imageWidth}
+                height={record.imageHeight}
+                loading="lazy"
+              />
+            )}
+            <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+          </div>
+          <figcaption>
+            {(record.date || record.venue) && <p class="live-meta">{[record.date, record.venue].filter(Boolean).join(' · ')}</p>}
+            <h3>{record.title}</h3>
+            {record.artist && <p class="live-artist">{record.artist}</p>}
+            {record.note && <p class="live-note">{record.note}</p>}
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+  ) : (
+    <div class="live-empty">
+      <span aria-hidden="true">＋</span>
+      <p>{block.emptyNote}</p>
+    </div>
+  )}
+</section>
+
+<style>
+  .live-section { padding-top: 88px; }
+  .live-heading { display: grid; grid-template-columns: minmax(0, .75fr) minmax(0, 1.25fr); gap: 54px; align-items: end; margin-bottom: 44px; }
+  .live-heading .eyebrow { grid-column: 1; }
+  .live-heading h2 { grid-column: 1; font-size: clamp(2.6rem, 4.3vw, 4rem); line-height: 1.02; }
+  .live-heading > p:last-child { grid-column: 2; grid-row: 2; max-width: 540px; margin: 0; color: var(--muted); font-size: 1rem; }
+  .live-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px 28px; }
+  .live-record { min-width: 0; margin: 0; }
+  .live-image { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #0d0d0c; }
+  .live-image img { width: 100%; height: 100%; display: block; object-fit: cover; filter: saturate(.72) contrast(.98); }
+  .live-image video { width: 100%; height: 100%; display: block; object-fit: contain; background: #0d0d0c; }
+  .live-image span { position: absolute; right: 10px; top: 8px; color: #fff; font: .72rem Georgia, serif; text-shadow: 0 1px 8px #000; pointer-events: none; }
+  .live-record figcaption { padding-top: 17px; }
+  .live-meta { margin: 0; color: var(--muted); font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; }
+  .live-record h3 { margin-top: 8px; font: 1.35rem/1.2 Georgia, serif; }
+  .live-artist, .live-note { margin: 6px 0 0; color: var(--muted); font-size: .88rem; }
+  .live-note { line-height: 1.65; }
+  .live-empty { min-height: 180px; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 24px; padding: 28px; border-block: 1px solid var(--line); color: var(--muted); }
+  .live-empty span { font: 2.6rem/1 Georgia, serif; color: var(--ink); }
+  .live-empty p { max-width: 430px; margin: 0; font: italic 1.2rem/1.5 Georgia, serif; }
+  @media (max-width: 760px) {
+    .live-heading { display: block; }
+    .live-heading > p:last-child { margin-top: 20px; }
+    .live-grid { grid-template-columns: 1fr; }
+    .live-empty { min-height: 140px; padding-inline: 0; }
+  }
+</style>

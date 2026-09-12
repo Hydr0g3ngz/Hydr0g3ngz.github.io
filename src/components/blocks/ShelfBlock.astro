@@ -78,24 +78,15 @@ const { block } = Astro.props;
   )}
 
   {block.credits.length > 0 && (
-    <p class="image-credits">
-      {block.creditsLabel}{' '}
-      {block.credits.map((credit, index) => (
-        <>
-          {index > 0 && '; '}
-          <a href={credit.url} target="_blank" rel="noreferrer">{credit.label}</a>
-          {credit.licenseLabel && credit.licenseUrl && (
-            <>
-              {' / '}
-              <a href={credit.licenseUrl} target="_blank" rel="noreferrer">
-                {credit.licenseLabel}
-              </a>
-            </>
-          )}
-        </>
-      ))}
-      .
-    </p>
+    <template class="image-credit-metadata" data-label={block.creditsLabel} data-studio-ignore>
+      <ul>
+        {block.credits.map((credit) => (
+          <li data-source={credit.url} data-license={credit.licenseLabel} data-license-url={credit.licenseUrl}>
+            {credit.label}
+          </li>
+        ))}
+      </ul>
+    </template>
   )}
 </section>
 

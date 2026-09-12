@@ -162,7 +162,11 @@ test('books, full poem text and existing personal notes remain unchanged and out
   assert.deepEqual([...document.querySelectorAll('.book-blurb')].map((el) => el.textContent), block.books.map((book) => book.blurb));
   assert.deepEqual([...document.querySelectorAll('.excerpt-original')].map((el) => el.textContent), block.excerpts.flatMap((poem) => poem.text.split(/\n\s*\n/)));
   assert.ok([...document.querySelectorAll('.poem-stanzas')].every((el) => !el.closest('details, [hidden]')));
-  assert.deepEqual([...document.querySelectorAll('.personal-reflection > p:last-child')].map((el) => el.textContent), [block.books[0].reflection, block.excerpts[0].reflection]);
+  const expectedReflections = [
+    ...block.books.flatMap((book) => book.reflection ? [book.reflection] : []),
+    ...block.excerpts.flatMap((poem) => poem.reflection ? [poem.reflection] : []),
+  ];
+  assert.deepEqual([...document.querySelectorAll('.personal-reflection > p:last-child')].map((el) => el.textContent), expectedReflections);
   assert.equal(document.querySelector('.reading-paths .personal-reflection'), null);
 });
 

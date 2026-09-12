@@ -41,6 +41,20 @@ test('valid content passes while hidden content and drafts may have unfinished a
   assert.equal(result.images, 1);
 });
 
+test('published live videos require a safe existing local media file', async (t) => {
+  const { put, check } = await fixture(t);
+  const live = {
+    type: 'live', id: 'live', visible: true, heading: 'Live', intro: 'Concert clips.',
+    records: [{ title: 'A concert', video: '/uploads/live/clip.mp4', image: '/images/picture.png', imageAlt: 'A concert stage' }]
+  };
+  await put('public/uploads/live/clip.mp4', Buffer.from('short video fixture'));
+  await put('src/content/pages/live.json', { ...page, sections: [live] });
+  assert.equal(check().ok, true, check().errors.join('\n'));
+  assert.equal(check().videos, 1);
+  await put('src/content/pages/live.json', { ...page, sections: [{ ...live, records: [{ ...live.records[0], video: '/uploads/live/missing.mp4' }] }] });
+  assert.ok(check().errors.some((error) => error.includes('video file does not exist')));
+});
+
 test('the shared schema catches malformed JSON content and invalid note metadata', async (t) => {
   const { put, putNote, check } = await fixture(t);
   await put('src/content/pages/about.json', { ...page, sections: [{ type: 'not-a-block' }] });

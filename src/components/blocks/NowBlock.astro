@@ -1,0 +1,74 @@
+---
+import type { NowBlock } from '../../content-schema';
+
+interface Props {
+  block: NowBlock;
+}
+
+const { block } = Astro.props;
+---
+<section id={block.id} class="section now-section wrap">
+  <header class="now-heading">
+    <div>
+      <p class="eyebrow">{block.eyebrow}</p>
+      <h2>{block.heading}</h2>
+    </div>
+    <div class="now-context">
+      {block.intro && <p>{block.intro}</p>}
+      {block.updated && <p class="now-updated">Updated {block.updated}</p>}
+    </div>
+  </header>
+
+  <div class="now-grid">
+    {block.groups.map((group, groupIndex) => (
+      <article class="now-group">
+        <p class="now-label"><span aria-hidden="true">{String(groupIndex + 1).padStart(2, '0')}</span>{group.label}</p>
+        <ul>
+          {group.entries.map((entry) => (
+            <li>
+              <span class="now-title">{entry.title}</span>
+              {entry.originalTitle && <span class="now-original" lang="zh-Hans">{entry.originalTitle}</span>}
+              {entry.meta && <span class="now-meta">{entry.meta}</span>}
+            </li>
+          ))}
+        </ul>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .now-section { padding-block: 80px 88px; }
+  .now-heading { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .72fr); gap: 72px; align-items: end; margin-bottom: 42px; }
+  .now-heading h2 { max-width: 650px; font-size: clamp(2.6rem, 4.4vw, 4.1rem); line-height: 1; }
+  .now-context { justify-self: end; max-width: 430px; color: var(--muted); font-size: .98rem; }
+  .now-context > p { margin: 0; }
+  .now-updated { margin-top: 14px !important; font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; }
+  .now-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .now-group { min-width: 0; padding: 24px 24px 30px; border-right: 1px solid var(--line); }
+  .now-group:first-child { padding-left: 0; }
+  .now-group:last-child { padding-right: 0; border-right: 0; }
+  .now-label { display: flex; gap: 10px; margin: 0 0 24px; color: var(--muted); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; }
+  .now-label span { font-family: Georgia, serif; letter-spacing: 0; }
+  .now-group ul { list-style: none; margin: 0; padding: 0; }
+  .now-group li + li { margin-top: 22px; }
+  .now-title { display: block; font: 1.18rem/1.25 Georgia, 'Times New Roman', serif; letter-spacing: -.02em; }
+  .now-original { display: block; margin-top: 5px; color: var(--muted); font-size: .78rem; }
+  .now-meta { display: block; margin-top: 6px; color: var(--muted); font-size: .78rem; line-height: 1.5; }
+  @media (max-width: 900px) {
+    .now-heading { grid-template-columns: 1fr; gap: 22px; }
+    .now-context { justify-self: start; }
+    .now-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .now-group:nth-child(2n) { border-right: 0; padding-right: 0; }
+    .now-group:nth-child(2n + 1) { padding-left: 0; }
+    .now-group:nth-child(n + 3) { border-top: 1px solid var(--line); }
+  }
+  @media (max-width: 560px) {
+    .now-section { padding-block: 62px 68px; }
+    .now-heading h2 { font-size: 2.65rem; }
+    .now-grid { display: block; }
+    .now-group, .now-group:first-child, .now-group:last-child, .now-group:nth-child(2n), .now-group:nth-child(2n + 1) { padding: 22px 0 26px; border: 0; border-bottom: 1px solid var(--line); }
+    .now-group:last-child { border-bottom: 0; }
+    .now-label { margin-bottom: 17px; }
+  }
+</style>

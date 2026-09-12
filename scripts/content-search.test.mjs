@@ -32,6 +32,21 @@ test('Chinese matches navigate to actual section leaves, including array content
   assert.deepEqual(arrayHit.path, ['sections', '0', 'paragraphs', '1']);
 });
 
+test('Now snapshots, lyric excerpts and future live records remain searchable in Studio', () => {
+  const doc = page('listening', {
+    title: 'Listening',
+    sections: [
+      { type: 'now', groups: [{ label: 'Thinking about', entries: [{ title: 'A lifetime research direction' }] }] },
+      { type: 'listening', artists: [{ name: 'An artist', track: 'A song', lyricExcerpt: 'A line worth remembering' }] },
+      { type: 'live', emptyNote: 'Photographs will arrive later', records: [{ title: 'A concert', artist: 'A live performer', date: 'September 2026', venue: 'A small hall' }] },
+    ],
+  });
+  assert.deepEqual(search([doc], 'lifetime research').results[0].path, ['sections', '0', 'groups', '0', 'entries', '0', 'title']);
+  assert.deepEqual(search([doc], 'worth remembering').results[0].path, ['sections', '1', 'artists', '0', 'lyricExcerpt']);
+  assert.deepEqual(search([doc], 'Photographs will arrive').results[0].path, ['sections', '2', 'emptyNote']);
+  assert.deepEqual(search([doc], 'small hall').results[0].path, ['sections', '2', 'records', '0', 'venue']);
+});
+
 test('document titles rank before nested titles, which rank before prose; one best result per document', () => {
   const docs = [page('body', { title: 'First', body: 'Music' }), page('nested', { title: 'Second', sections: [{ heading: 'Music', body: 'Music' }] }), page('title', { title: 'Music', body: 'Music' })];
   const result = search(docs, 'music');

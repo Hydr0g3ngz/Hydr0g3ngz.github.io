@@ -29,7 +29,8 @@
           ],
           "color": "moss",
           "sourceLabel": "About the book · Penguin Random House",
-          "sourceUrl": "https://www.penguinrandomhouse.com/books/220033/the-unlikely-pilgrimage-of-harold-fry-by-rachel-joyce/"
+          "sourceUrl": "https://www.penguinrandomhouse.com/books/220033/the-unlikely-pilgrimage-of-harold-fry-by-rachel-joyce/",
+          "reflection": "It brought me back to reading after three years of numbness, and helped carry me through a difficult stretch of life."
         },
         {
           "title": "A Man Called Ove",
@@ -42,7 +43,8 @@
           ],
           "color": "ink",
           "sourceLabel": "About the book · Simon & Schuster",
-          "sourceUrl": "https://www.simonandschuster.com/books/A-Man-Called-Ove/Fredrik-Backman/9781476738017"
+          "sourceUrl": "https://www.simonandschuster.com/books/A-Man-Called-Ove/Fredrik-Backman/9781476738017",
+          "reflection": "It helped me face what life gives and takes away with a little more steadiness."
         },
         {
           "title": "My Grandmother Asked Me to Tell You She’s Sorry",
@@ -55,7 +57,8 @@
           ],
           "color": "clay",
           "sourceLabel": "About the book · Simon & Schuster",
-          "sourceUrl": "https://www.simonandschuster.com/books/My-Grandmother-Asked-Me-to-Tell-You-Shes-Sorry/Fredrik-Backman/9781501115080"
+          "sourceUrl": "https://www.simonandschuster.com/books/My-Grandmother-Asked-Me-to-Tell-You-Shes-Sorry/Fredrik-Backman/9781501115080",
+          "reflection": "It moved me in a way no other book has ever quite replaced."
         },
         {
           "title": "The Storied Life of A.J. Fikry",
@@ -68,7 +71,8 @@
           ],
           "color": "ochre",
           "sourceLabel": "About the book · Hachette",
-          "sourceUrl": "https://www.hachettebookgroup.com/titles/gabrielle-zevin/the-storied-life-of-a-j-fikry/9781616203948/"
+          "sourceUrl": "https://www.hachettebookgroup.com/titles/gabrielle-zevin/the-storied-life-of-a-j-fikry/9781616203948/",
+          "reflection": "It gave me the courage to begin again."
         }
       ],
       "readingPaths": [

@@ -78,7 +78,7 @@ const poemTitleId = (index: number) => poemIds[index] && `${poemIds[index]}-titl
         <ul class="book-themes" aria-label="Themes">{book.themes.map(theme => <li>{theme}</li>)}</ul>
         <p class="book-blurb">{book.blurb}</p>
         <a class="culture-source" href={book.sourceUrl} target="_blank" rel="noopener noreferrer">{book.sourceLabel}<span aria-hidden="true"> ↗</span></a>
-        {book.reflection && <div class="personal-reflection"><p class="eyebrow">WILL’S MARGIN NOTE</p><p>{book.reflection}</p></div>}
+        {book.reflection && <div class="personal-reflection"><p class="eyebrow">NOTE</p><p>{book.reflection}</p></div>}
       </div>
     </article>)}
   </div>}
@@ -117,7 +117,7 @@ const poemTitleId = (index: number) => poemIds[index] && `${poemIds[index]}-titl
         <p class="poem-context-body">{excerpt.context}</p>
         {excerpt.contextSourceUrl && <a class="culture-source poem-context-source" href={excerpt.contextSourceUrl} target="_blank" rel="noopener noreferrer">{excerpt.contextSourceLabel?.trim() || 'Background source'}<span aria-hidden="true"> ↗</span></a>}
       </details>}
-      {excerpt.reflection && <div class="personal-reflection"><p class="eyebrow">WILL’S MARGIN NOTE</p><p>{excerpt.reflection}</p></div>}
+      {excerpt.reflection && <div class="personal-reflection"><p class="eyebrow">NOTE</p><p>{excerpt.reflection}</p></div>}
     </figure>)}</div>
   </div>}
 </section>

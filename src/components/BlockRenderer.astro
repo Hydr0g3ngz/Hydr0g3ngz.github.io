@@ -12,6 +12,8 @@ import TextBlock from './blocks/TextBlock.astro';
 import WorkBlock from './blocks/WorkBlock.astro';
 import ReadingBlock from './blocks/ReadingBlock.astro';
 import ListeningBlock from './blocks/ListeningBlock.astro';
+import NowBlock from './blocks/NowBlock.astro';
+import LiveBlock from './blocks/LiveBlock.astro';
 
 interface Props {
   block: Block;
@@ -33,5 +35,7 @@ const { block } = Astro.props;
     {block.type === 'profile' && <ProfileBlock block={block} />}
     {block.type === 'reading' && <ReadingBlock block={block} />}
     {block.type === 'listening' && <ListeningBlock block={block} />}
+    {block.type === 'now' && <NowBlock block={block} />}
+    {block.type === 'live' && <LiveBlock block={block} />}
   </>
 )}

@@ -8,6 +8,7 @@ import { homeSchema, noteSchema, pageSchema, siteSettingsSchema } from '../src/c
 import { redirectMap } from './redirects.mjs';
 
 const MAX_FILE_BYTES = 2 * 1024 * 1024;
+const MAX_VIDEO_BYTES = 80 * 1024 * 1024;
 const RESERVED_ROUTES = new Set(['index', 'notes', '404', '_astro', '__studio', 'api', 'preview', 'studio', 'images', 'uploads']);
 const JSON_EXTENSIONS = new Set(['.json']);
 const NOTE_EXTENSIONS = new Set(['.md', '.mdx']);
@@ -17,6 +18,7 @@ export function validateContent({ root = resolve(import.meta.dirname, '..') } = 
   const projectRoot = realpathSync(resolve(root));
   const errors = [];
   const checkedImages = new Set();
+  const checkedVideos = new Set();
   const documents = [];
   const label = (file) => relative(projectRoot, file).replaceAll('\\', '/');
   const report = (source, message) => errors.push(`${source}: ${message}`);
@@ -119,6 +121,22 @@ export function validateContent({ root = resolve(import.meta.dirname, '..') } = 
     } catch (error) { report(source, error.code === 'ENOENT' ? `image file does not exist at ${value}` : `${value}: ${error.message}`); }
   }
 
+  function validateVideo(value, source, { visible = true } = {}) {
+    if (typeof value !== 'string') return;
+    if (!/^\/uploads\/.+\.(?:mp4|webm)$/i.test(value) || /[\\%?#\u0000-\u001f\u007f]/.test(value) || value.slice(1).split('/').some((part) => !part || part === '.' || part === '..')) {
+      report(source, `video "${value}" must be an MP4 or WebM file directly inside /uploads/`);
+      return;
+    }
+    if (!visible) return;
+    try {
+      const disk = checkedPath(`public${value}`);
+      const info = lstatSync(disk);
+      if (!info.isFile()) throw new Error('video is not a regular file');
+      if (info.size > MAX_VIDEO_BYTES) throw new Error('video is larger than 80 MB; optimize it before publishing');
+      checkedVideos.add(disk);
+    } catch (error) { report(source, error.code === 'ENOENT' ? `video file does not exist at ${value}` : `${value}: ${error.message}`); }
+  }
+
   function walkImages(value, source, visible) {
     if (!value || typeof value !== 'object' || value instanceof Date) return;
     if (Array.isArray(value)) { value.forEach((child, index) => walkImages(child, `${source}[${index}]`, visible)); return; }
@@ -126,6 +144,7 @@ export function validateContent({ root = resolve(import.meta.dirname, '..') } = 
     for (const [field, alt] of [['image', 'imageAlt'], ['cover', 'coverAlt']]) {
       if (typeof value[field] === 'string') validateImage(value[field], value[alt], `${source}.${field}`, { visible: shown });
     }
+    if (typeof value.video === 'string') validateVideo(value.video, `${source}.video`, { visible: shown });
     for (const [field, child] of Object.entries(value)) walkImages(child, `${source}.${field}`, shown);
   }
 
@@ -230,7 +249,7 @@ export function validateContent({ root = resolve(import.meta.dirname, '..') } = 
     }
   }
   validatePublicBoundary();
-  return { ok: errors.length === 0, errors, pages: pages.length, notes: notes.filter((entry) => !entry.file.split(sep).at(-1).startsWith('_')).length, images: checkedImages.size };
+  return { ok: errors.length === 0, errors, pages: pages.length, notes: notes.filter((entry) => !entry.file.split(sep).at(-1).startsWith('_')).length, images: checkedImages.size, videos: checkedVideos.size };
 }
 
 if (import.meta.url === pathToFileURL(resolve(process.argv[1] ?? '')).href) {
@@ -238,5 +257,5 @@ if (import.meta.url === pathToFileURL(resolve(process.argv[1] ?? '')).href) {
   if (!result.ok) {
     console.error(`Content validation failed:\n\n${result.errors.map((error) => `- ${error}`).join('\n')}`);
     process.exitCode = 1;
-  } else console.log(`Content validation passed: ${result.pages} page(s), ${result.notes} note(s), ${result.images} referenced image(s).`);
+  } else console.log(`Content validation passed: ${result.pages} page(s), ${result.notes} note(s), ${result.images} referenced image(s), ${result.videos} referenced video(s).`);
 }

@@ -77,7 +77,11 @@ test('permalinks leave original headings, full stanzas, books and reflections un
   });
   assert.deepEqual([...document.querySelectorAll('.book-copy h3')].map((node) => node.textContent), block.books.map((book) => book.title));
   assert.deepEqual([...document.querySelectorAll('.book-blurb')].map((node) => node.textContent), block.books.map((book) => book.blurb));
-  assert.deepEqual([...document.querySelectorAll('.personal-reflection > p:last-child')].map((node) => node.textContent), [block.books[0].reflection, block.excerpts[0].reflection]);
+  const expectedReflections = [
+    ...block.books.flatMap((book) => book.reflection ? [book.reflection] : []),
+    ...block.excerpts.flatMap((poem) => poem.reflection ? [poem.reflection] : []),
+  ];
+  assert.deepEqual([...document.querySelectorAll('.personal-reflection > p:last-child')].map((node) => node.textContent), expectedReflections);
   assert.equal(document.querySelectorAll('.poem-stanzas').length, 4);
   assert.ok([...document.querySelectorAll('.poem-stanzas')].every(poem => !poem.closest('details, [hidden]')), 'the complete poems stay expanded, independently of optional background disclosures');
   assert.equal(document.querySelectorAll('script').length, 0, 'reading navigation needs no script');

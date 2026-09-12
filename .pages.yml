@@ -5,6 +5,12 @@ media:
     output: /images
     extensions: [jpg, jpeg, png, webp, avif]
     rename: safe
+  - name: live-posters
+    label: Live posters
+    input: public/uploads/live
+    output: /uploads/live
+    extensions: [jpg, jpeg, png, webp, avif]
+    rename: safe
 
 settings:
   content:
@@ -241,11 +247,11 @@ components:
                 label: Original height
                 type: number
       - name: creditsLabel
-        label: Image credits prefix
+        label: Image metadata label (hidden)
         type: string
         default: "Images:"
       - name: credits
-        label: Image credits
+        label: Image source metadata (developer tools only)
         type: object
         list:
           collapsible:
@@ -561,7 +567,7 @@ components:
             label: Short introduction
             type: text
             required: true
-            description: Write an original introduction; use the margin note below for your own response.
+            description: Write an original introduction; use the note below for your own response.
           - name: themes
             label: Themes
             type: string
@@ -592,7 +598,7 @@ components:
             required: true
             description: A full HTTPS URL.
           - name: reflection
-            label: Your margin note
+            label: Your note
             type: text
             description: Optional. Appears as Will’s personal note only when filled in.
       - name: readingPaths
@@ -666,7 +672,7 @@ components:
           - name: context
             label: About this poem (optional)
             type: text
-            description: Brief sourced background, separate from your personal margin note. Appears in a collapsed disclosure; leave blank to omit it.
+            description: Brief sourced background, separate from your personal note. Appears in a collapsed disclosure; leave blank to omit it.
           - name: contextSourceLabel
             label: Background source label (optional)
             type: string
@@ -676,7 +682,7 @@ components:
             type: string
             description: The reference supporting the background, not a personal review.
           - name: reflection
-            label: Your margin note
+            label: Your note
             type: text
 
   listening:
@@ -735,6 +741,10 @@ components:
           - name: note
             label: Short factual note (optional)
             type: text
+          - name: lyricExcerpt
+            label: Lyric excerpt (optional)
+            type: text
+            description: A short excerpt displayed as typography, preserving line breaks.
           - name: reflection
             label: Your listening note
             type: text
@@ -747,6 +757,139 @@ components:
             label: Earlier-format source link (optional)
             type: string
             description: Kept for older saved entries. Used only when there is no Bilibili or NetEase Music link.
+
+  now:
+    type: object
+    label: Now — current snapshot
+    fields:
+      - name: visible
+        label: Visible
+        type: boolean
+        default: true
+      - name: id
+        label: Anchor ID
+        type: string
+        default: now
+        pattern: "^[a-z][a-z0-9-]*$"
+      - name: eyebrow
+        label: Small heading
+        type: string
+        default: RIGHT NOW
+      - name: heading
+        type: string
+        required: true
+        default: A few things in the present.
+      - name: intro
+        type: text
+      - name: updated
+        label: Updated label
+        type: string
+        description: For example, September 2026.
+      - name: groups
+        label: Current categories
+        type: object
+        list:
+          min: 1
+          max: 6
+          collapsible:
+            collapsed: true
+            summary: "{label}"
+        fields:
+          - name: label
+            type: string
+            required: true
+          - name: entries
+            type: object
+            list:
+              min: 1
+              max: 6
+              collapsible:
+                collapsed: true
+                summary: "{title}"
+            fields:
+              - name: title
+                type: string
+                required: true
+              - name: originalTitle
+                label: Original-language title
+                type: string
+              - name: meta
+                label: Artist, author, or short detail
+                type: string
+
+  live:
+    type: object
+    label: Live archive — concert photographs
+    fields:
+      - name: visible
+        label: Visible
+        type: boolean
+        default: true
+      - name: id
+        label: Anchor ID
+        type: string
+        default: live
+        pattern: "^[a-z][a-z0-9-]*$"
+      - name: eyebrow
+        label: Small heading
+        type: string
+        default: LIVE / FIELD NOTES
+      - name: heading
+        type: string
+        required: true
+        default: When the music was in the room.
+      - name: intro
+        type: text
+        required: true
+        default: A place for photographs and short notes from concerts I attended.
+      - name: emptyNote
+        label: Empty-state sentence
+        type: text
+        default: No photographs here yet. The space is ready.
+      - name: records
+        label: Concert records
+        type: object
+        list:
+          max: 24
+          collapsible:
+            collapsed: true
+            summary: "{date} — {title}"
+        fields:
+          - name: title
+            label: Concert or moment
+            type: string
+            required: true
+          - name: artist
+            type: string
+          - name: date
+            type: string
+          - name: venue
+            type: string
+          - name: note
+            type: text
+          - name: video
+            label: Video path
+            type: string
+            description: Optional MP4 or WebM path inside /uploads, for example /uploads/live/clip.mp4.
+          - name: image
+            label: Poster image
+            type: image
+            required: true
+            options:
+              media: live-posters
+              extensions: [jpg, jpeg, png, webp, avif]
+              rename: safe
+          - name: imageAlt
+            label: Image description
+            type: string
+            required: true
+            description: Describe the photograph for visitors using screen readers.
+          - name: imageWidth
+            label: Original width
+            type: number
+          - name: imageHeight
+            label: Original height
+            type: number
 
 content:
   - name: core
@@ -804,6 +947,10 @@ content:
                 component: reading
               - name: listening
                 component: listening
+              - name: now
+                component: now
+              - name: live
+                component: live
 
       - name: about
         label: About
@@ -1016,6 +1163,10 @@ content:
             component: reading
           - name: listening
             component: listening
+          - name: now
+            component: now
+          - name: live
+            component: live
 
   - name: notes
     label: Notes

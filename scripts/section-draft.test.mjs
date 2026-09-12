@@ -24,14 +24,16 @@ const components = {
   quote: object([...base, required('quote', 'text')]),
   profile: object([...base, field('paragraphs', 'text', { list: { min: 1 } }), list('facts', [required('label'), required('value')])]),
   reading: object([...base, heading, intro, list('books', [required('title'), required('author'), required('blurb'), required('sourceLabel'), required('sourceUrl')], { max: 24 }), list('excerpts', [required('text'), required('author'), required('work'), required('sourceLabel'), required('sourceUrl')], { max: 24 })]),
-  listening: object([...base, heading, intro, list('artists', [required('name'), required('track'), field('youtubeUrl'), field('alternateUrl'), field('alternateLabel', 'string', { default: 'Music link' })], { max: 24 })])
+  listening: object([...base, heading, intro, list('artists', [required('name'), required('track'), field('youtubeUrl'), field('alternateUrl'), field('alternateLabel', 'string', { default: 'Music link' }), field('lyricExcerpt', 'text')], { max: 24 })]),
+  now: object([...base, eyebrow, heading, list('groups', [required('label'), list('entries', [required('title')], { min: 1, max: 6 })], { min: 1, max: 6 })]),
+  live: object([...base, eyebrow, heading, intro, field('emptyNote', 'text', { default: 'No photographs here yet.' }), list('records', [required('title'), image, imageAlt], { max: 24 })])
 };
 const media = [{ path: '/uploads/fixture-image.png', name: 'Project image' }];
 const make = (type, extra = {}) => createSectionDraft({ type, component: components[type], components, media, sections: [], ...extra });
 
-test('all twelve proven block types generate schema-valid drafts without changing inputs', () => {
+test('all fourteen proven block types generate schema-valid drafts without changing inputs', () => {
   const before = structuredClone({ components, media });
-  assert.equal(Object.keys(components).length, 12);
+  assert.equal(Object.keys(components).length, 14);
   for (const type of Object.keys(components)) {
     const section = make(type), parsed = blockSchema.safeParse(section);
     assert.equal(parsed.success, true, `${type}: ${JSON.stringify(parsed.error?.issues)}`);

@@ -5,7 +5,7 @@
     {
       "type": "hero",
       "visible": true,
-      "eyebrow": "PERSONAL HOMEPAGE / 2026",
+      "eyebrow": "PERSONAL HOMEPAGE",
       "heading": "Hi, I’m Will Qing.",
       "lede": "I’m an undergraduate in Information Engineering at Shanghai Jiao Tong University, interested in how computation can help us understand physical systems.",
       "intro": "My current research interests include optical computing, machine learning, and AI-based processing of physical signals. Outside research, I spend most of my time reading, listening to music, and, more recently, watching films.",
@@ -36,10 +36,62 @@
       ]
     },
     {
+      "type": "now",
+      "id": "now",
+      "visible": true,
+      "eyebrow": "01 / NOW",
+      "heading": "A few things in the present.",
+      "intro": "A small snapshot of what I am reading, listening to, and watching lately.",
+      "updated": "September 2026",
+      "groups": [
+        {
+          "label": "READING",
+          "entries": [
+            {
+              "title": "My Altay",
+              "originalTitle": "《我的阿勒泰》",
+              "meta": "Li Juan"
+            },
+            {
+              "title": "Distant Sunflower Fields",
+              "originalTitle": "《遥远的向日葵地》",
+              "meta": "Li Juan"
+            }
+          ]
+        },
+        {
+          "label": "LISTENING",
+          "entries": [
+            {
+              "title": "petal",
+              "meta": "Ariana Grande"
+            },
+            {
+              "title": "Butterfly Season",
+              "meta": "Ella Langley & Miranda Lambert"
+            }
+          ]
+        },
+        {
+          "label": "WATCHING",
+          "entries": [
+            {
+              "title": "All Wishes Come True!",
+              "originalTitle": "《八仙！》"
+            },
+            {
+              "title": "Once Upon a Time in the Middle East",
+              "originalTitle": "《欢迎来龙餐馆》"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "type": "shelf",
       "id": "shelf",
       "visible": true,
-      "eyebrow": "01 / THINGS I KEEP AROUND",
+      "eyebrow": "02 / THINGS I KEEP AROUND",
       "heading": "Shelf",
       "intro": "Reading, music, and film are the main things I keep returning to outside research. This is a small, unfinished record rather than a definitive list.",
       "categories": [
@@ -97,7 +149,7 @@
               "originalTitle": "孙燕姿"
             }
           ],
-          "future": "The listening room collects selected songs and links to listen.",
+          "future": "The listening room holds selected songs and a small archive of concert clips.",
           "href": "/listening",
           "linkLabel": "See the current rotation"
         },
@@ -183,7 +235,7 @@
       "type": "work",
       "id": "work",
       "visible": true,
-      "eyebrow": "02 / SELECTED WORK",
+      "eyebrow": "03 / SELECTED WORK",
       "intro": "A few research and course projects I have worked on.",
       "items": [
         {
@@ -209,7 +261,7 @@
     {
       "type": "closing",
       "visible": true,
-      "eyebrow": "03 / CURRENTLY",
+      "eyebrow": "04 / CURRENTLY",
       "heading": "I’m still figuring out what deserves to stay here.",
       "body": "That is part of the point. This site is not meant to prove that I have already become something. It is a place to leave a trail while I’m becoming it."
     }

@@ -9,6 +9,13 @@ const localImage = z
   .string()
   .regex(/^\/(images|uploads)\//, 'Images must come from /images or /uploads.');
 
+const localVideo = z.string().refine(
+  (value) => /^\/uploads\/.+\.(?:mp4|webm)$/i.test(value)
+    && !/[\\%?#\u0000-\u001f\u007f]/.test(value)
+    && value.slice(1).split('/').every((part) => part && part !== '.' && part !== '..'),
+  'Videos must be MP4 or WebM files inside /uploads.'
+);
+
 const isHttpsUrl = (value: string) => {
   if (/[\u0000-\u0020\u007f\\]/.test(value)) return false;
   try {
@@ -245,6 +252,7 @@ export const listeningBlockSchema = z.object({
     name: z.string().min(1),
     track: z.string().min(1),
     note: z.string().optional(),
+    lyricExcerpt: z.string().max(500).optional(),
     videoId: z.string().regex(/^[a-zA-Z0-9_-]{11}$/, 'Use the eleven-character YouTube video ID.').optional(),
     officialUrl: httpsUrl.optional(),
     youtubeUrl: httpsUrl.optional(),
@@ -252,6 +260,48 @@ export const listeningBlockSchema = z.object({
     alternateLabel: z.string().min(1).optional(),
     reflection: z.string().optional()
   })).max(24).default([])
+});
+
+const nowEntrySchema = z.object({
+  title: z.string().min(1),
+  originalTitle: z.string().optional(),
+  meta: z.string().optional()
+});
+
+export const nowBlockSchema = z.object({
+  type: z.literal('now'),
+  ...baseBlock,
+  eyebrow: z.string().default('RIGHT NOW'),
+  heading: z.string().min(1),
+  intro: z.string().optional(),
+  updated: z.string().optional(),
+  groups: z.array(z.object({
+    label: z.string().min(1),
+    entries: z.array(nowEntrySchema).min(1).max(6)
+  })).min(1).max(6)
+});
+
+const liveRecordSchema = z.object({
+  title: z.string().min(1),
+  artist: z.string().optional(),
+  date: z.string().optional(),
+  venue: z.string().optional(),
+  note: z.string().optional(),
+  video: localVideo.optional(),
+  image: localImage,
+  imageAlt: z.string().min(1),
+  imageWidth: z.number().int().positive().optional(),
+  imageHeight: z.number().int().positive().optional()
+});
+
+export const liveBlockSchema = z.object({
+  type: z.literal('live'),
+  ...baseBlock,
+  eyebrow: z.string().default('LIVE / FIELD NOTES'),
+  heading: z.string().min(1),
+  intro: z.string().min(1),
+  emptyNote: z.string().default('No photographs here yet. The space is ready.'),
+  records: z.array(liveRecordSchema).max(24).default([])
 });
 
 export const blockSchema = z.discriminatedUnion('type', [
@@ -266,7 +316,9 @@ export const blockSchema = z.discriminatedUnion('type', [
   quoteBlockSchema,
   profileBlockSchema,
   readingBlockSchema,
-  listeningBlockSchema
+  listeningBlockSchema,
+  nowBlockSchema,
+  liveBlockSchema
 ]);
 
 export const homeSchema = z.object({
@@ -355,3 +407,5 @@ export type QuoteBlock = z.infer<typeof quoteBlockSchema>;
 export type ProfileBlock = z.infer<typeof profileBlockSchema>;
 export type ReadingBlock = z.infer<typeof readingBlockSchema>;
 export type ListeningBlock = z.infer<typeof listeningBlockSchema>;
+export type NowBlock = z.infer<typeof nowBlockSchema>;
+export type LiveBlock = z.infer<typeof liveBlockSchema>;

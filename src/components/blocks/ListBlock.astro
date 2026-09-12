@@ -7,15 +7,15 @@ interface Props {
 
 const { block } = Astro.props;
 ---
-<section id={block.id} class="section list-section wrap">
+<section id={block.id} class:list={['section', 'list-section', 'wrap', { 'film-list-section': block.id === 'film-list' }]}>
   <div class="content-section-head">
     {block.eyebrow && <p class="eyebrow">{block.eyebrow}</p>}
     <h2>{block.heading}</h2>
     {block.intro && <p class="list-intro">{block.intro}</p>}
   </div>
   <div class:list={['content-list-grid', `columns-${block.columns}`]}>
-    {block.items.map((item) => (
-      <article class="content-list-item">
+    {block.items.map((item, index) => (
+      <article class="content-list-item" data-index={String(index + 1).padStart(2, '0')}>
         {item.meta && <p class="tag">{item.meta}</p>}
         <h3>{item.href ? <a href={item.href}>{item.title}</a> : item.title}</h3>
         <p>{item.text}</p>

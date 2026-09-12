@@ -7,6 +7,7 @@ import { redirectMap } from '../scripts/redirects.mjs';
 
 export const MAX_DOCUMENT_BYTES = 1024 * 1024;
 export const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
+export const MAX_VIDEO_BYTES = 80 * 1024 * 1024;
 const reserved = new Set(['index', 'notes', '404', '_astro', '__studio', 'api', 'preview', 'images', 'uploads', 'studio']);
 const imageExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif']);
 
@@ -248,6 +249,15 @@ export async function createStudioStore({ root, schemas } = {}) {
         const full = await containedPath(projectRoot, `public${path}`);
         const stat = await lstat(full);
         if (!stat.isFile() || stat.size > MAX_IMAGE_BYTES) throw new StudioError(422, `Image ${path} must be a file no larger than 2 MB.`);
+      }
+      if (typeof value.video === 'string') {
+        const path = value.video;
+        if (!/^\/uploads\/.+\.(?:mp4|webm)$/i.test(path) || /[\\%?#\u0000-\u001f\u007f]/.test(path) || path.split('/').some((segment) => segment === '..' || segment === '.')) {
+          throw new StudioError(422, 'Videos must use an MP4 or WebM file inside /uploads.');
+        }
+        const full = await containedPath(projectRoot, `public${path}`);
+        const stat = await lstat(full);
+        if (!stat.isFile() || stat.size > MAX_VIDEO_BYTES) throw new StudioError(422, `Video ${path} must be a file no larger than 80 MB.`);
       }
       for (const child of Object.values(value)) await checkAssets(child);
     }

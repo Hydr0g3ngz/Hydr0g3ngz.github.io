@@ -1,6 +1,6 @@
 {
   "title": "Listening",
-  "description": "Five songs in the current rotation, with YouTube and NetEase Music links.",
+  "description": "Five songs in the current rotation, with listening links and a small live archive.",
   "eyebrow": "MUSIC / CURRENT ROTATION",
   "heading": "A small rotation.",
   "published": true,
@@ -23,35 +23,91 @@
           "track": "Waiting for the End",
           "youtubeUrl": "https://www.youtube.com/watch?v=5qF_qbaWt3Q",
           "alternateUrl": "https://music.163.com/song?id=16686624",
-          "alternateLabel": "网易云音乐"
+          "alternateLabel": "网易云音乐",
+          "lyricExcerpt": "All I wanna do is trade this life for something new\nHolding on to what I haven't got"
         },
         {
           "name": "Billie Eilish",
           "track": "everything i wanted",
           "youtubeUrl": "https://www.youtube.com/watch?v=EgBJmlPo8Xw",
           "alternateUrl": "https://music.163.com/song?id=1403435714",
-          "alternateLabel": "网易云音乐"
+          "alternateLabel": "网易云音乐",
+          "lyricExcerpt": "I had a dream\nI got everything I wanted"
         },
         {
           "name": "Olivia Dean",
           "track": "I've Seen It",
           "youtubeUrl": "https://www.youtube.com/watch?v=_hgu16lRfbQ",
           "alternateUrl": "https://music.163.com/song?id=2749055731",
-          "alternateLabel": "网易云音乐"
+          "alternateLabel": "网易云音乐",
+          "lyricExcerpt": "Brings out the worst\nBrings out the best\nI understand it less and less"
         },
         {
           "name": "Lorde",
           "track": "Liability",
           "youtubeUrl": "https://www.youtube.com/watch?v=BtvJaNeELic",
           "alternateUrl": "https://music.163.com/song?id=464377371",
-          "alternateLabel": "网易云音乐"
+          "alternateLabel": "网易云音乐",
+          "lyricExcerpt": "They say, \"You're a little much for me\nYou're a liability\nYou're a little much for me\""
         },
         {
           "name": "Stefanie Sun / 孙燕姿",
           "track": "日落",
           "youtubeUrl": "https://www.youtube.com/watch?v=wVpUg6tP6_M",
           "alternateUrl": "https://music.163.com/song?id=2666095018",
-          "alternateLabel": "网易云音乐"
+          "alternateLabel": "网易云音乐",
+          "lyricExcerpt": "尽管被夜取代 不表示光不存在\n你的爱让我明白\n视线之外 无形同载"
+        }
+      ]
+    },
+    {
+      "type": "live",
+      "id": "live",
+      "visible": true,
+      "eyebrow": "LIVE / FIELD NOTES",
+      "heading": "When the music was in the room.",
+      "intro": "A small archive of concert clips I recorded from the audience — less a review than a record of being there.",
+      "emptyNote": "No photographs here yet. The space is ready.",
+      "records": [
+        {
+          "title": "Stefanie Sun",
+          "date": "12 April 2026",
+          "venue": "Suzhou",
+          "video": "/uploads/live/stefanie-sun-suzhou-2026-04-12.mp4",
+          "image": "/uploads/live/stefanie-sun-suzhou-2026-04-12-poster.jpg",
+          "imageAlt": "Stefanie Sun performing on stage in Suzhou, seen from the audience.",
+          "imageWidth": 404,
+          "imageHeight": 720
+        },
+        {
+          "title": "Imagine Dragons",
+          "date": "15 March 2026",
+          "venue": "Shanghai",
+          "video": "/uploads/live/imagine-dragons-shanghai-2026-03-15.mp4",
+          "image": "/uploads/live/imagine-dragons-shanghai-2026-03-15-poster.jpg",
+          "imageAlt": "Imagine Dragons performing on a blue-lit stage in Shanghai.",
+          "imageWidth": 404,
+          "imageHeight": 720
+        },
+        {
+          "title": "Anson Seabra",
+          "date": "26 September 2025",
+          "venue": "Hangzhou",
+          "video": "/uploads/live/anson-seabra-hangzhou-2025-09-26.mp4",
+          "image": "/uploads/live/anson-seabra-hangzhou-2025-09-26-poster.jpg",
+          "imageAlt": "Anson Seabra performing on a lit stage in Hangzhou, seen above the crowd.",
+          "imageWidth": 1280,
+          "imageHeight": 720
+        },
+        {
+          "title": "Ed Sheeran",
+          "date": "1 March 2025",
+          "venue": "Hangzhou",
+          "video": "/uploads/live/ed-sheeran-hangzhou-2025-03-01.mp4",
+          "image": "/uploads/live/ed-sheeran-hangzhou-2025-03-01-poster.jpg",
+          "imageAlt": "Ed Sheeran performing under pink stage lights in Hangzhou.",
+          "imageWidth": 404,
+          "imageHeight": 720
         }
       ]
     }
