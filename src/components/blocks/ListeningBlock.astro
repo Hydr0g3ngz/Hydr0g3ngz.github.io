@@ -2,6 +2,7 @@
 import type { ListeningBlock } from '../../content-schema';
 interface Props { block: ListeningBlock; }
 const { block } = Astro.props;
+const youtubeLink = (song: ListeningBlock['artists'][number]) => song.youtubeUrl || (song.videoId ? `https://www.youtube.com/watch?v=${song.videoId}` : undefined);
 ---
 <section id={block.id} class="section culture-section listening-section wrap">
   <div class="culture-heading">
@@ -9,234 +10,38 @@ const { block } = Astro.props;
     <h2>{block.heading}</h2>
     <p>{block.intro}</p>
   </div>
-  <div class="record-grid">
-    {block.artists.map((artist, index) => <article class="record-card">
-      <div class="record-art" aria-hidden="true"><span class:list={['record-label', `record-color-${index % 4}`]}><span>{artist.name}</span></span><span class="record-index">SIDE {String.fromCharCode(65 + index)}</span></div>
-      <div class="record-copy">
-        <p class="culture-meta">{artist.name}</p>
-        <h3>{artist.track}</h3>
-        <p class="record-note">{artist.note}</p>
-        {artist.videoId && <official-video data-video-id={artist.videoId} data-title={`${artist.name} — ${artist.track}`}>
-          <button class="culture-button" type="button" data-load-video aria-expanded="false">Load official video <span aria-hidden="true">↗</span></button>
-          <div class="video-frame" hidden></div>
-          <button class="culture-text-button" type="button" data-close-video hidden>Close player</button>
-        </official-video>}
-        <a class="culture-source" href={artist.officialUrl} target="_blank" rel="noopener noreferrer">Open on the official site<span aria-hidden="true"> ↗</span></a>
-        {artist.reflection && <div class="personal-reflection"><p class="eyebrow">WILL’S LISTENING NOTE</p><p>{artist.reflection}</p></div>}
+  <ol class="rotation-list" aria-label="Will's selected songs">
+    {block.artists.map((song, index) => <li class="rotation-track">
+      <span class="rotation-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+      <div class="rotation-copy">
+        <p class="culture-meta">{song.name}</p>
+        <h3>{song.track}</h3>
+        {song.note && <p class="rotation-note">{song.note}</p>}
+        {song.reflection && <div class="personal-reflection"><p class="eyebrow">WILL’S LISTENING NOTE</p><p>{song.reflection}</p></div>}
       </div>
-    </article>)}
-  </div>
-  {block.artists.some(artist => artist.videoId) && <p class="player-footnote">Videos load from YouTube only when you choose to open a player. They do not autoplay. If a video is unavailable in your region, use the official link.</p>}
-  {block.sketches.length > 0 && <div class="sound-lab">
-    <div class="sound-lab-heading"><p class="eyebrow">SMALL SOUND STUDIES</p><h2>A little room for sound.</h2><p>{block.sketchIntro}</p></div>
-    <div class="sketch-grid">
-      {block.sketches.map((sketch, index) => <sound-sketch class="sketch-card" data-recipe={sketch.recipe} data-duration={sketch.duration} data-title={sketch.title} data-state="stopped">
-        <p class="culture-meta">STUDY {String(index + 1).padStart(2, '0')} · {sketch.duration} SEC</p>
-        <div class="sketch-wave" aria-hidden="true">{Array.from({length:32}, (_, j) => <i style={`--bar-height:${18 + Math.round(50 * Math.abs(Math.sin(j * .71 + index)) + 25 * Math.abs(Math.cos(j * .3)))}%; --bar-delay:${j * .055}s`}></i>)}</div>
-        <h3>{sketch.title}</h3>
-        <p class="sketch-description">{sketch.description}</p>
-        <div class="sketch-controls">
-          <button class="culture-button" type="button" data-toggle-sketch aria-label={`Play ${sketch.title}`}><span data-play-label>Play</span><span aria-hidden="true" data-play-icon>▶</span></button>
-          <button class="culture-text-button" type="button" data-stop-sketch disabled aria-label={`Stop ${sketch.title}`}>Stop</button>
-          <span class="sketch-time" data-time aria-hidden="true">0:00 / 0:{String(sketch.duration).padStart(2, '0')}</span>
-        </div>
-        <progress class="sketch-progress" max={sketch.duration} value="0" aria-label={`${sketch.title} playback progress`}></progress>
-        <label class="sketch-volume"><span>Volume</span><input type="range" min="0" max="100" value="40" step="1" aria-label={`${sketch.title} volume`} /></label>
-        <p class="sketch-status" role="status" aria-live="polite">Ready when you are.</p>
-        <noscript><p>Enable JavaScript to play these locally generated sketches.</p></noscript>
-      </sound-sketch>)}
-    </div>
-  </div>}
+      <div class="rotation-links" aria-label={`Listen to ${song.track}`}>
+        {youtubeLink(song) && <a href={youtubeLink(song)} target="_blank" rel="noopener noreferrer">YouTube <span aria-hidden="true">↗</span></a>}
+        {song.alternateUrl && <a href={song.alternateUrl} target="_blank" rel="noopener noreferrer">{song.alternateLabel || 'Listen'} <span aria-hidden="true">↗</span></a>}
+        {!youtubeLink(song) && song.officialUrl && <a href={song.officialUrl} target="_blank" rel="noopener noreferrer">Source <span aria-hidden="true">↗</span></a>}
+      </div>
+    </li>)}
+  </ol>
+  <p class="rotation-footnote">Listen on the platform you prefer. Links open in a new tab; availability may vary by region or account.</p>
 </section>
 
-<script>
-  const mediaEvent = 'will:media-stop';
-  const claimAudio = (owner: HTMLElement) => document.dispatchEvent(new CustomEvent(mediaEvent, { detail: owner }));
-
-  class OfficialVideo extends HTMLElement {
-    private events?: AbortController;
-    connectedCallback() {
-      this.events?.abort();
-      this.events = new AbortController();
-      const options = { signal: this.events.signal };
-      this.querySelector('[data-load-video]')?.addEventListener('click', () => this.open(), options);
-      this.querySelector('[data-close-video]')?.addEventListener('click', () => this.close(true), options);
-      document.addEventListener(mediaEvent, (event) => { if ((event as CustomEvent).detail !== this) this.close(); }, options);
-      document.addEventListener('visibilitychange', () => { if (document.hidden) this.close(); }, options);
-      window.addEventListener('pagehide', () => this.close(), options);
-    }
-    disconnectedCallback() { this.close(); this.events?.abort(); }
-    private open() {
-      const id = this.dataset.videoId;
-      if (!id || !/^[a-zA-Z0-9_-]{11}$/.test(id)) return;
-      claimAudio(this);
-      const holder = this.querySelector<HTMLElement>('.video-frame');
-      if (!holder) return;
-      const frame = document.createElement('iframe');
-      frame.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=0&rel=0`;
-      frame.title = this.dataset.title || 'Official music video';
-      frame.allow = 'encrypted-media; picture-in-picture; fullscreen';
-      frame.referrerPolicy = 'strict-origin-when-cross-origin';
-      frame.allowFullscreen = true;
-      holder.replaceChildren(frame);
-      holder.hidden = false;
-      const load = this.querySelector<HTMLButtonElement>('[data-load-video]');
-      if (load) { load.hidden = true; load.setAttribute('aria-expanded', 'true'); }
-      const close = this.querySelector<HTMLButtonElement>('[data-close-video]');
-      if (close) close.hidden = false;
-      frame.focus();
-    }
-    private close(focus = false) {
-      const holder = this.querySelector<HTMLElement>('.video-frame');
-      if (holder) { holder.replaceChildren(); holder.hidden = true; }
-      const load = this.querySelector<HTMLButtonElement>('[data-load-video]');
-      if (load) { load.hidden = false; load.setAttribute('aria-expanded', 'false'); if (focus) load.focus(); }
-      const close = this.querySelector<HTMLButtonElement>('[data-close-video]');
-      if (close) close.hidden = true;
-    }
-  }
-
-  class SoundSketch extends HTMLElement {
-    private context: AudioContext | null = null;
-    private master: GainNode | null = null;
-    private timer: ReturnType<typeof setInterval> | undefined;
-    private started = 0;
-    private busy = false;
-    private events?: AbortController;
-    private get duration() { return Math.max(8, Math.min(45, Number(this.dataset.duration) || 24)); }
-    connectedCallback() {
-      this.events?.abort();
-      this.events = new AbortController();
-      const options = { signal: this.events.signal };
-      this.querySelector('[data-toggle-sketch]')?.addEventListener('click', () => this.toggle(), options);
-      this.querySelector('[data-stop-sketch]')?.addEventListener('click', () => this.stop(), options);
-      this.querySelector<HTMLInputElement>('input[type="range"]')?.addEventListener('input', () => {
-        if (this.context && this.master) this.master.gain.setTargetAtTime(this.volume(), this.context.currentTime, .03);
-      }, options);
-      document.addEventListener(mediaEvent, (event) => { if ((event as CustomEvent).detail !== this) this.stop(); }, options);
-      document.addEventListener('visibilitychange', () => { if (document.hidden) this.stop(); }, options);
-      window.addEventListener('pagehide', () => this.stop(), options);
-      if (!window.AudioContext) {
-        this.setStatus('This browser does not support sound sketches. The artist links above still work.');
-        const button = this.querySelector<HTMLButtonElement>('[data-toggle-sketch]');
-        if (button) button.disabled = true;
-      }
-    }
-    disconnectedCallback() { this.stop(); this.events?.abort(); }
-    private volume() { return Number(this.querySelector<HTMLInputElement>('input[type="range"]')?.value ?? 40) / 100; }
-    private setStatus(value: string) { const el = this.querySelector('.sketch-status'); if (el) el.textContent = value; }
-    private updateControls(state: 'playing' | 'paused' | 'stopped') {
-      this.dataset.state = state;
-      const verb = state === 'playing' ? 'Pause' : state === 'paused' ? 'Resume' : 'Play';
-      const label = this.querySelector('[data-play-label]');
-      if (label) label.textContent = verb;
-      const icon = this.querySelector('[data-play-icon]');
-      if (icon) icon.textContent = state === 'playing' ? 'Ⅱ' : '▶';
-      this.querySelector('[data-toggle-sketch]')?.setAttribute('aria-label', `${verb} ${this.dataset.title}`);
-      const stop = this.querySelector<HTMLButtonElement>('[data-stop-sketch]');
-      if (stop) stop.disabled = state === 'stopped';
-    }
-    private updateTime() {
-      const elapsed = Math.max(0, Math.min(this.duration, this.context ? this.context.currentTime - this.started : 0));
-      const progress = this.querySelector<HTMLProgressElement>('progress');
-      if (progress) progress.value = elapsed;
-      const time = this.querySelector('[data-time]');
-      if (time) time.textContent = `0:${String(Math.floor(elapsed)).padStart(2, '0')} / 0:${String(this.duration).padStart(2, '0')}`;
-      if (elapsed >= this.duration) this.stop('Finished. Play again whenever you like.');
-    }
-    private async toggle() {
-      if (this.busy) return;
-      this.busy = true;
-      try {
-        if (this.context) {
-          const context = this.context;
-          if (context.state === 'running') {
-            await context.suspend();
-            if (this.context === context) { this.updateControls('paused'); this.setStatus('Paused.'); }
-          } else {
-            claimAudio(this);
-            await context.resume();
-            if (this.context === context) { this.updateControls('playing'); this.setStatus('Playing.'); }
-          }
-        } else {
-          claimAudio(this);
-          const context = new AudioContext();
-          this.context = context;
-          await context.resume();
-          if (this.context !== context || document.hidden) { if (this.context === context) this.stop(); return; }
-          this.started = context.currentTime + .04;
-          this.master = context.createGain();
-          this.master.gain.value = this.volume();
-          const fade = context.createGain();
-          fade.gain.setValueAtTime(1, this.started);
-          fade.gain.setValueAtTime(1, this.started + this.duration - .6);
-          fade.gain.linearRampToValueAtTime(0, this.started + this.duration);
-          this.master.connect(fade).connect(context.destination);
-          this.compose(context, this.master);
-          this.updateControls('playing');
-          this.setStatus('Playing.');
-          this.timer = setInterval(() => this.updateTime(), 150);
-        }
-      } catch {
-        this.stop('Sound could not start. Press Play to try again.');
-      } finally { this.busy = false; }
-    }
-    private stop(message?: string) {
-      const wasActive = !!this.context;
-      const context = this.context;
-      this.context = null;
-      this.master = null;
-      if (this.timer) clearInterval(this.timer);
-      this.timer = undefined;
-      if (context && context.state !== 'closed') void context.close().catch(() => {});
-      this.updateControls('stopped');
-      this.updateTime();
-      if (message || wasActive) this.setStatus(message || 'Stopped.');
-    }
-    private compose(context: AudioContext, output: GainNode) {
-      const frequency = (midi: number) => 440 * 2 ** ((midi - 69) / 12);
-      const tone = (midi: number, offset: number, length: number, level: number, type: OscillatorType = 'sine', pan = 0, attack = .018, ratio = 1) => {
-        const start = this.started + offset;
-        const oscillator = context.createOscillator();
-        const envelope = context.createGain();
-        const stereo = context.createStereoPanner();
-        oscillator.type = type;
-        oscillator.frequency.value = frequency(midi) * ratio;
-        stereo.pan.value = pan;
-        envelope.gain.setValueAtTime(0, start);
-        envelope.gain.linearRampToValueAtTime(level, start + attack);
-        envelope.gain.exponentialRampToValueAtTime(.0001, start + length);
-        oscillator.connect(envelope).connect(stereo).connect(output);
-        oscillator.start(start);
-        oscillator.stop(start + length + .02);
-        oscillator.onended = () => { oscillator.disconnect(); envelope.disconnect(); stereo.disconnect(); };
-      };
-      if (this.dataset.recipe === 'drift') {
-        const chords = [[48, 55, 59, 64], [45, 52, 55, 60], [41, 48, 52, 57], [43, 50, 55, 59]];
-        for (let beat = 0; beat < this.duration - 1; beat += 4) {
-          const chord = chords[Math.floor(beat / 4) % chords.length];
-          chord.forEach((note, i) => tone(note, beat, 5, .055, 'sine', (i - 1.5) * .35, 1));
-          tone(chord[3] + 12, beat + 1.2, 2.5, .018, 'sine', .45, .2);
-        }
-      } else if (this.dataset.recipe === 'pulse') {
-        const notes = [36, 36, 43, 36, 41, 41, 43, 48];
-        for (let step = 0; step * .48 < this.duration - .6; step++) {
-          const t = step * .48;
-          tone(notes[step % notes.length], t, .34, .1, 'triangle');
-          tone(91, t + .24, .055, .025, 'sine', step % 2 ? -.35 : .35);
-          if (step % 4 === 2) tone(67 + (Math.floor(step / 8) % 3) * 2, t, .8, .07, 'sine', -.2);
-        }
-      } else {
-        const notes = [72, 79, 76, 83, 74, 79, 71, 76, 72, 84, 79, 76];
-        for (let step = 0; step * .66 < this.duration - 1.5; step++) {
-          const note = notes[step % notes.length];
-          const pan = Math.sin(step * .8) * .65;
-          tone(note, step * .66, 1.8, .12, 'sine', pan);
-          tone(note, step * .66, .85, .025, 'sine', -pan, .008, 2.002);
-        }
-      }
-    }
-  }
-  if (!customElements.get('official-video')) customElements.define('official-video', OfficialVideo);
-  if (!customElements.get('sound-sketch')) customElements.define('sound-sketch', SoundSketch);
-</script>
+<style>
+  .rotation-list { list-style: none; margin: 2.5rem 0 0; padding: 0; border-top: 1px solid var(--line, #d9d5c9); }
+  .rotation-track { display: grid; grid-template-columns: 2.25rem minmax(0, 1fr) auto; align-items: center; gap: 1.75rem; padding: 2rem 0; border-bottom: 1px solid var(--line, #d9d5c9); }
+  .rotation-number { align-self: start; padding-top: .2rem; color: var(--muted); font: .75rem/1.6 var(--font-mono, monospace); }
+  .rotation-copy { min-width: 0; }
+  .rotation-copy h3 { margin: .45rem 0 0; font-family: var(--font-serif, Georgia, serif); font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 400; line-height: 1.3; }
+  .rotation-copy .culture-meta { margin: 0; }
+  .rotation-note { color: var(--muted); font-size: .9rem; margin: .65rem 0 0; line-height: 1.7; }
+  .rotation-links { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: flex-end; }
+  .rotation-links a { border: 1px solid var(--line, #d9d5c9); border-radius: 999px; padding: .55rem .85rem; font-size: .78rem; text-decoration: none; white-space: nowrap; transition: background .15s; }
+  .rotation-links a:hover { background: rgba(89, 101, 71, .08); }
+  .rotation-links a span { margin-left: .5rem; }
+  .rotation-footnote { font-size: .8rem; color: var(--muted); line-height: 1.7; margin-top: 1.25rem; }
+  @media (max-width: 680px) { .rotation-track { grid-template-columns: 1.5rem minmax(0, 1fr); gap: .8rem; padding: 1.5rem 0; } .rotation-links { grid-column: 2; justify-content: flex-start; } }
+  @media (prefers-reduced-motion: reduce) { .rotation-links a { transition: none; } }
+</style>

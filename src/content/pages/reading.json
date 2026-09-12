@@ -1,6 +1,6 @@
 {
   "title": "Reading",
-  "description": "A small shelf of humane stories, with a commonplace book of Song ci fragments.",
+  "description": "Four novels and four complete Song ci poems by Su Shi, Chen Yuyi, Wang Anshi, and Li Qingzhao.",
   "eyebrow": "BOOKS & MARGINS",
   "heading": "A few pages worth keeping.",
   "published": true,
@@ -57,28 +57,32 @@
       ],
       "excerpts": [
         {
-          "text": "莫聽穿林打葉聲，\n何妨吟嘯且徐行。",
-          "translation": "Let the rain strike leaves beyond the path.\nWhy not hum a little, and walk on slowly?",
-          "author": "Su Shi · 蘇軾",
-          "work": "Ding feng bo · 定風波",
-          "sourceLabel": "Chinese source · Wikisource",
-          "sourceUrl": "https://zh.wikisource.org/wiki/定風波_(莫聽穿林打葉聲)"
+          "text": "夜饮东坡醒复醉，\n归来仿佛三更。\n家童鼻息已雷鸣。\n敲门都不应，\n倚杖听江声。\n\n长恨此身非我有，\n何时忘却营营？\n夜阑风静縠纹平。\n小舟从此逝，\n江海寄馀生。",
+          "author": "Su Shi · 苏轼",
+          "work": "临江仙 · 夜饮东坡醒复醉",
+          "sourceLabel": "Chinese text · 唐宋名家词选",
+          "sourceUrl": "https://longyusheng.org/ci/sushi/25.html"
         },
         {
-          "text": "無可奈何花落去，\n似曾相識燕歸來。",
-          "translation": "Beyond our keeping, the blossoms fall;\nswallows return with the look of an old acquaintance.",
-          "author": "Yan Shu · 晏殊",
-          "work": "Huan xi sha · 浣溪沙",
-          "sourceLabel": "Chinese source · Stanford Medieval Sourcebook",
-          "sourceUrl": "https://sourcebook.stanford.edu/text/yan_shu_new_song/"
+          "text": "忆昔午桥桥上饮，\n坐中多是豪英。\n长沟流月去无声。\n杏花疏影里，\n吹笛到天明。\n\n二十馀年如一梦，\n此身虽在堪惊。\n闲登小阁看新晴。\n古今多少事，\n渔唱起三更。",
+          "author": "Chen Yuyi · 陈与义",
+          "work": "临江仙 · 忆昔午桥桥上饮",
+          "sourceLabel": "Chinese text · 唐宋名家词选",
+          "sourceUrl": "https://longyusheng.org/ci/chenyuyi/3.html"
         },
         {
-          "text": "知否，知否，\n應是綠肥紅瘦。",
-          "translation": "Have you noticed, have you noticed?\nThe leaves must be fuller now; the blossoms fewer.",
+          "text": "别馆寒砧，\n孤城画角，\n一派秋声入寥廓。\n东归燕从海上去，\n南来雁向沙头落。\n楚台风，\n庾楼月，\n宛如昨。\n\n无奈被些名利缚！\n无奈被它情担阁！\n可惜风流总闲却！\n当初谩留华表语，\n而今误我秦楼约。\n梦阑时，\n酒醒后，\n思量着。",
+          "author": "Wang Anshi · 王安石",
+          "work": "千秋岁引 · 别馆寒砧",
+          "sourceLabel": "Chinese text · 唐宋名家词选",
+          "sourceUrl": "https://longyusheng.org/ci/wanganshi/4.html"
+        },
+        {
+          "text": "天接云涛连晓雾，\n星河欲转千帆舞。\n仿佛梦魂归帝所。\n闻天语，\n殷勤问我归何处？\n\n我报路长嗟日暮，\n学诗漫有惊人句。\n九万里风鹏正举。\n风休住，\n蓬舟吹取三山去。",
           "author": "Li Qingzhao · 李清照",
-          "work": "Ru meng ling · 如夢令",
-          "sourceLabel": "Chinese source · Wikisource",
-          "sourceUrl": "https://zh.wikisource.org/wiki/如夢令_(李清照)/如夢令_(昨夜雨疏風驟)"
+          "work": "渔家傲 · 天接云涛连晓雾",
+          "sourceLabel": "Chinese text · 唐宋名家词选",
+          "sourceUrl": "https://longyusheng.org/ci/liqingzhao/10.html"
         }
       ]
     }

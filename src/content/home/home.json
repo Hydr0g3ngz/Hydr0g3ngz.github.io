@@ -16,8 +16,8 @@
           "style": "primary"
         },
         {
-          "label": "Selected work",
-          "href": "#work",
+          "label": "Books, music & film",
+          "href": "#shelf",
           "style": "secondary"
         }
       ]
@@ -66,7 +66,9 @@
               "title": "The Storied Life of A.J. Fikry"
             }
           ],
-          "future": "The reading room now has short introductions and a few lines of Song ci."
+          "future": "The reading room has book introductions and complete Song ci texts.",
+          "href": "/reading",
+          "linkLabel": "Open the reading room"
         },
         {
           "tag": "MUSIC",
@@ -89,9 +91,15 @@
             },
             {
               "title": "Olivia Dean"
+            },
+            {
+              "title": "Stefanie Sun",
+              "originalTitle": "孙燕姿"
             }
           ],
-          "future": "Step into the listening room for official videos and small sound experiments."
+          "future": "The listening room collects selected songs and links to listen.",
+          "href": "/listening",
+          "linkLabel": "See the current rotation"
         },
         {
           "tag": "FILM",
@@ -107,12 +115,11 @@
               "title": "Spider-Man: Brand New Day"
             },
             {
-              "title": "All Wishes Come True",
-              "originalTitle": "《八仙！》"
+              "title": "Thunderbolts*"
             },
             {
-              "title": "Once Upon a Time in the Middle East",
-              "originalTitle": "《欢迎来龙餐馆》"
+              "title": "The Passengers of the Night",
+              "originalTitle": "《巴黎夜旅人》"
             }
           ],
           "future": "Later: short viewing notes, once I know what I want to say."
@@ -171,29 +178,6 @@
       ]
     },
     {
-      "type": "list",
-      "id": "open-rooms",
-      "visible": true,
-      "eyebrow": "A LITTLE FURTHER IN",
-      "heading": "Two open doors.",
-      "intro": "A few pages to browse at your own pace. The shelf is growing slowly.",
-      "columns": "two",
-      "items": [
-        {
-          "meta": "READING ROOM · STORIES / SONG CI",
-          "title": "Books & margins ↗",
-          "text": "Humane stories, a small commonplace book of Song ci, and space for thoughts to settle.",
-          "href": "/reading"
-        },
-        {
-          "meta": "LISTENING ROOM · ARTISTS / SOUND STUDIES",
-          "title": "Stay for a track ↗",
-          "text": "Official videos from the current rotation and three original, playable sound experiments.",
-          "href": "/listening"
-        }
-      ]
-    },
-    {
       "type": "work",
       "id": "work",
       "visible": true,
@@ -204,19 +188,19 @@
           "year": "2025–2026",
           "kind": "Research",
           "title": "Optoelectronic sensing for digital pathology scanning",
-          "summary": "Contributed to a hybrid optoelectronic architecture designed to move focus estimation, acquisition anomaly warnings, and slide-quality assessment into the scanning stage. My work focused on differentiable optical modeling, joint optical–electronic training, simulation benchmarks, and parts of the scanning-control and lightweight-readout design."
+          "summary": "Worked on optical modeling, joint optical–electronic training, and simulation for an optoelectronic front end that assesses image quality during pathology scanning."
         },
         {
           "year": "2025",
           "kind": "Course project",
           "title": "Vision-based robotic grasping and sorting",
-          "summary": "Built an end-to-end system with ACT and a LeRobot SO-101 arm, covering teleoperation data collection, policy training, model conversion, deployment on a Moore Threads Yangtze SoC, and real-robot integration for sorting colored blocks."
+          "summary": "Used ACT and a LeRobot SO-101 arm to sort colored blocks, working on data collection, policy training, deployment, and robot integration."
         },
         {
           "year": "2025",
           "kind": "Course project",
           "title": "Multi-view refrigerator-door angle estimation",
-          "summary": "Collected and annotated four-view images, trained YOLOv8-Seg to segment the door and key structures, and used SVD-based triangulation to reconstruct the 3D geometry and estimate the opening angle."
+          "summary": "Used YOLOv8-Seg and multi-view triangulation to reconstruct a refrigerator door’s geometry and estimate its opening angle."
         }
       ]
     },

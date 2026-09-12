@@ -183,6 +183,12 @@ components:
           - name: future
             label: Future note
             type: text
+          - name: href
+            label: Room / page link (optional)
+            type: string
+          - name: linkLabel
+            label: Link text
+            type: string
       - name: following
         label: Smaller “Also following” area
         type: object
@@ -590,7 +596,7 @@ components:
             type: text
             description: Optional. Appears as Will’s personal note only when filled in.
       - name: excerpts
-        label: Commonplace book — Song ci fragments
+        label: Commonplace book — complete Song ci poems
         type: object
         list:
           max: 24
@@ -604,9 +610,8 @@ components:
             required: true
             description: Public-domain Song ci; preserve line breaks.
           - name: translation
-            label: Your English rendering
+            label: Your English rendering (optional)
             type: text
-            required: true
             description: The page labels these as English renderings made for this site. Do not paste a copyrighted modern translation.
           - name: author
             label: Poet
@@ -631,7 +636,7 @@ components:
 
   listening:
     type: object
-    label: Listening room — artists and playable sketches
+    label: Listening room — selected songs
     fields:
       - name: visible
         type: boolean
@@ -643,92 +648,55 @@ components:
       - name: eyebrow
         label: Small heading
         type: string
-        default: PRESS PLAY
+        default: CURRENT ROTATION
       - name: heading
         label: Heading
         type: string
         required: true
-        default: Stay for a track.
+        default: A small rotation.
       - name: intro
         label: Introduction
         type: text
         required: true
-        default: A few artists and small listening experiments.
+        default: A few songs I keep coming back to.
       - name: artists
-        label: Artists and starting tracks
+        label: Selected songs
         type: object
         list:
           max: 24
           collapsible:
             collapsed: true
-            summary: "{name} — {track}"
+            summary: "{track} — {name}"
         fields:
           - name: name
             label: Artist
             type: string
             required: true
           - name: track
-            label: Track
+            label: Song title
             type: string
             required: true
+          - name: youtubeUrl
+            label: YouTube link
+            type: string
+            required: true
+            description: Use a verified artist or label upload.
+          - name: alternateUrl
+            label: Bilibili or NetEase Music link
+            type: string
+            required: true
+          - name: alternateLabel
+            label: Domestic platform label
+            type: string
+            required: true
+            default: 网易云音乐
           - name: note
-            label: Listening introduction
+            label: Short factual note (optional)
             type: text
-            required: true
-          - name: videoId
-            label: Official YouTube video ID
-            type: string
-            pattern: "^[a-zA-Z0-9_-]{11}$"
-            description: Optional. The 11 characters after v= in the official video URL. No video loads until a visitor clicks.
-          - name: officialUrl
-            label: Official artist or listening link
-            type: string
-            required: true
           - name: reflection
             label: Your listening note
             type: text
             description: Optional. Only use for your own thoughts.
-      - name: sketchIntro
-        label: Sound studies introduction
-        type: text
-        required: true
-        default: Small, original sound studies generated for this site. These are listening experiments, not recordings by the artists above or compositions by Will.
-      - name: sketches
-        label: Playable sound studies
-        type: object
-        list:
-          max: 6
-          collapsible:
-            collapsed: true
-            summary: "{title} — {recipe}"
-        fields:
-          - name: title
-            type: string
-            required: true
-            default: A small sound study
-          - name: description
-            label: Listening prompt
-            type: text
-            required: true
-            default: Take a moment to notice the space between the notes.
-          - name: recipe
-            label: Sound
-            type: select
-            default: glass
-            options:
-              values:
-                - name: glass
-                  label: Bell-like stereo arpeggio
-                - name: drift
-                  label: Slow overlapping chords
-                - name: pulse
-                  label: Bass and soft rhythmic ticks
-          - name: duration
-            label: Duration in seconds
-            type: number
-            required: true
-            default: 24
-            description: A whole number between 8 and 45.
 
 content:
   - name: core

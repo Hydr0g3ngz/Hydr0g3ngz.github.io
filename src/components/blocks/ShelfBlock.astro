@@ -45,6 +45,7 @@ const { block } = Astro.props;
           </ul>
         )}
         {category.future && <p class="shelf-future">{category.future}</p>}
+        {category.href && <a class="shelf-room-link" href={category.href}>{category.linkLabel || 'Explore'} <span aria-hidden="true">↗</span></a>}
       </article>
     ))}
   </div>
@@ -97,3 +98,8 @@ const { block } = Astro.props;
     </p>
   )}
 </section>
+
+<style>
+  .shelf-room-link { display: inline-flex; align-items: center; gap: .65rem; margin-top: 1.2rem; font-size: .84rem; border-bottom: 1px solid currentColor; padding-bottom: .2rem; text-decoration: none; }
+  .shelf-room-link:hover { color: var(--muted); }
+</style>

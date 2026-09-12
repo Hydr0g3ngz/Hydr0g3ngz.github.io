@@ -28,22 +28,22 @@ const { block } = Astro.props;
       </div>
     </article>)}
   </div>}
-  {block.excerpts.length > 0 && <div class="commonplace">
+  {block.excerpts.length > 0 && <div class="commonplace poetry-collection">
     <div class="commonplace-heading">
-      <p class="eyebrow">A SMALL COMMONPLACE BOOK</p>
-      <h2>Lines to sit with.</h2>
-      <p>Fragments from Song ci. The Chinese originals are in the public domain; the English renderings below were made for this site.</p>
+      <p class="eyebrow">SONG CI · COMPLETE TEXTS</p>
+      <h2>Poems to return to.</h2>
+      <p>Song ci in full, with room for both stanzas. Each text links back to its source.</p>
     </div>
-    <div class="excerpt-list">{block.excerpts.map((excerpt, index) => <figure class="excerpt-card">
-      <div class="excerpt-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</div>
-      <blockquote>
-        <p class="excerpt-original" lang="zh-Hant">{excerpt.text}</p>
-        <p class="excerpt-translation">{excerpt.translation}</p>
-      </blockquote>
-      <figcaption>
-        <span>{excerpt.author} · <cite>{excerpt.work}</cite></span>
-        <a class="culture-source" href={excerpt.sourceUrl} target="_blank" rel="noopener noreferrer">{excerpt.sourceLabel}<span aria-hidden="true"> ↗</span></a>
+    <div class="excerpt-list poem-grid">{block.excerpts.map((excerpt, index) => <figure class="excerpt-card poem-card">
+      <figcaption class="poem-caption">
+        <p class="poem-byline"><span class="poem-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span><span>{excerpt.author}</span></p>
+        <h3 lang="zh-Hans"><cite>{excerpt.work}</cite></h3>
       </figcaption>
+      <blockquote class="poem-stanzas" lang="zh-Hans" cite={excerpt.sourceUrl}>
+        {excerpt.text.split(/\n\s*\n/).map(stanza => <p class="excerpt-original">{stanza}</p>)}
+      </blockquote>
+      {excerpt.translation?.trim() && <p class="excerpt-translation">{excerpt.translation}</p>}
+      <a class="culture-source poem-source" href={excerpt.sourceUrl} target="_blank" rel="noopener noreferrer">{excerpt.sourceLabel}<span aria-hidden="true"> ↗</span></a>
       {excerpt.reflection && <div class="personal-reflection"><p class="eyebrow">WILL’S MARGIN NOTE</p><p>{excerpt.reflection}</p></div>}
     </figure>)}</div>
   </div>}

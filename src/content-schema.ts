@@ -77,7 +77,9 @@ const shelfCategorySchema = z.object({
   imageHeight: z.number().int().positive().optional(),
   listLayout: z.enum(['single', 'two-column']).default('single'),
   items: z.array(shelfItemSchema).default([]),
-  future: z.string().optional()
+  future: z.string().optional(),
+  href: safeLink.optional(),
+  linkLabel: z.string().min(1).optional()
 });
 
 const followingItemSchema = z.object({
@@ -215,7 +217,7 @@ export const readingBlockSchema = z.object({
   })).max(24).default([]),
   excerpts: z.array(z.object({
     text: z.string().min(1),
-    translation: z.string().min(1),
+    translation: z.string().optional(),
     author: z.string().min(1),
     work: z.string().min(1),
     sourceLabel: z.string().min(1),
@@ -227,24 +229,20 @@ export const readingBlockSchema = z.object({
 export const listeningBlockSchema = z.object({
   type: z.literal('listening'),
   ...baseBlock,
-  eyebrow: z.string().default('PRESS PLAY'),
+  eyebrow: z.string().default('CURRENT ROTATION'),
   heading: z.string().min(1),
   intro: z.string().min(1),
   artists: z.array(z.object({
     name: z.string().min(1),
     track: z.string().min(1),
-    note: z.string().min(1),
+    note: z.string().optional(),
     videoId: z.string().regex(/^[a-zA-Z0-9_-]{11}$/, 'Use the eleven-character YouTube video ID.').optional(),
-    officialUrl: httpsUrl,
+    officialUrl: httpsUrl.optional(),
+    youtubeUrl: httpsUrl.optional(),
+    alternateUrl: httpsUrl.optional(),
+    alternateLabel: z.string().min(1).optional(),
     reflection: z.string().optional()
-  })).max(24).default([]),
-  sketchIntro: z.string().default('Small, original sound studies generated for this site. These are listening experiments, not recordings by the artists above or compositions by Will.'),
-  sketches: z.array(z.object({
-    title: z.string().min(1),
-    description: z.string().min(1),
-    recipe: z.enum(['glass', 'drift', 'pulse']),
-    duration: z.number().int().min(8).max(45).default(24)
-  })).max(6).default([])
+  })).max(24).default([])
 });
 
 export const blockSchema = z.discriminatedUnion('type', [

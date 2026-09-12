@@ -1,67 +1,57 @@
 {
   "title": "Listening",
-  "description": "Four artists, official listening links, and three small sound studies to play in the browser.",
-  "eyebrow": "MUSIC & SMALL EXPERIMENTS",
-  "heading": "Stay for a track.",
+  "description": "Five songs in the current rotation, with YouTube and NetEase Music links.",
+  "eyebrow": "MUSIC / CURRENT ROTATION",
+  "heading": "A small rotation.",
   "published": true,
-  "navigation": { "show": true, "label": "Listening", "order": 25 },
+  "navigation": {
+    "show": true,
+    "label": "Listening",
+    "order": 25
+  },
   "sections": [
     {
       "type": "listening",
       "id": "listening-room",
       "visible": true,
-      "eyebrow": "A FEW WAYS IN",
-      "heading": "Different moods, same shelf.",
-      "intro": "Four artists from the current rotation, with a suggested starting track for each. There is no ranking here, and plenty of room for the selection to change.",
+      "eyebrow": "SONGS I KEEP AROUND",
+      "heading": "Five songs, for now.",
+      "intro": "A few songs I keep coming back to. There is room here for the list to change.",
       "artists": [
         {
           "name": "Linkin Park",
-          "track": "Numb",
-          "note": "For the louder end of the shelf. A starting point for listening to the contrast between a restrained opening and a full chorus.",
-          "videoId": "kXYiU_JCYtU",
-          "officialUrl": "https://linkinpark.com/"
+          "track": "Waiting for the End",
+          "youtubeUrl": "https://www.youtube.com/watch?v=5qF_qbaWt3Q",
+          "alternateUrl": "https://music.163.com/song?id=16686624",
+          "alternateLabel": "网易云音乐"
         },
         {
           "name": "Billie Eilish",
-          "track": "BIRDS OF A FEATHER",
-          "note": "A different kind of intensity. Try following the vocal layers, then return to the same track with attention on the pulse underneath.",
-          "videoId": "V9PVRfjEBTI",
-          "officialUrl": "https://www.youtube.com/watch?v=V9PVRfjEBTI"
-        },
-        {
-          "name": "Ella Langley",
-          "track": "you look like you love me",
-          "note": "A duet with Riley Green. A suggested entry into the country corner of the shelf, where a conversation can become the centre of a song.",
-          "videoId": "Dm2TSMerGPQ",
-          "officialUrl": "https://ellalangley.lnk.to/yllylm"
+          "track": "everything i wanted",
+          "youtubeUrl": "https://www.youtube.com/watch?v=EgBJmlPo8Xw",
+          "alternateUrl": "https://music.163.com/song?id=1403435714",
+          "alternateLabel": "网易云音乐"
         },
         {
           "name": "Olivia Dean",
-          "track": "Dive",
-          "note": "For a warmer, slower turn. Start with the official video, then explore a live version to hear what changes when a song shares a room with an audience.",
-          "videoId": "NM4e606yFJg",
-          "officialUrl": "https://www.oliviadeano.com/video/"
-        }
-      ],
-      "sketchIntro": "Three original sound studies generated for this site. These are small listening experiments, not recordings by the artists above or compositions by Will. Press Play: each sketch runs locally in your browser.",
-      "sketches": [
-        {
-          "title": "Glass steps",
-          "description": "Bell-like notes pass from left to right. A small study in the space between sounds.",
-          "recipe": "glass",
-          "duration": 24
+          "track": "I've Seen It",
+          "youtubeUrl": "https://www.youtube.com/watch?v=_hgu16lRfbQ",
+          "alternateUrl": "https://music.163.com/song?id=2749055731",
+          "alternateLabel": "网易云音乐"
         },
         {
-          "title": "Slow light",
-          "description": "Four soft chords overlap and fade. Listen for a new colour arriving before the old one leaves.",
-          "recipe": "drift",
-          "duration": 24
+          "name": "Lorde",
+          "track": "Liability",
+          "youtubeUrl": "https://www.youtube.com/watch?v=BtvJaNeELic",
+          "alternateUrl": "https://music.163.com/song?id=464377371",
+          "alternateLabel": "网易云音乐"
         },
         {
-          "title": "Pocket pulse",
-          "description": "A low repeating line, small ticks, and a few higher notes. Rhythm with very little machinery.",
-          "recipe": "pulse",
-          "duration": 24
+          "name": "Stefanie Sun / 孙燕姿",
+          "track": "日落",
+          "youtubeUrl": "https://www.youtube.com/watch?v=wVpUg6tP6_M",
+          "alternateUrl": "https://music.163.com/song?id=2666095018",
+          "alternateLabel": "网易云音乐"
         }
       ]
     }
