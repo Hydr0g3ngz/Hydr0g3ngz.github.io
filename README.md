@@ -13,6 +13,14 @@ npm run dev
 
 Then open the local URL Astro prints in the terminal.
 
+## Local visual workspace
+
+Double-click **Start Studio.cmd** on Windows, or run `npm run studio -- --open`
+(Node.js 24+). The local Studio previews the actual site while you edit, supports
+sections and nested pages, and includes media, history, project checks, snapshots,
+and export. See [STUDIO_GUIDE.md](./STUDIO_GUIDE.md) for the workflow and recovery.
+The ongoing product roadmap is recorded in [DEVELOPMENT.md](./DEVELOPMENT.md).
+
 ## Edit content in the browser
 
 Content is managed with [Pages CMS](https://app.pagescms.org/) and stored in this repository.

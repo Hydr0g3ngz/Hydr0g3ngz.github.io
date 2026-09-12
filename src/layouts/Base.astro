@@ -1,10 +1,12 @@
 ---
 import '../styles/global.css';
-import { getCollection, getEntry } from 'astro:content';
+import '../styles/culture.css';
+import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
 
 interface Props {
   title?: string;
   description?: string;
+  settingsOverride?: CollectionEntry<'settings'>['data'];
 }
 
 const settingsEntry = await getEntry('settings', 'site');
@@ -18,7 +20,7 @@ const [pages, notes] = await Promise.all([
   getCollection('notes', ({ data }) => data.published)
 ]);
 
-const settings = settingsEntry.data;
+const settings = Astro.props.settingsOverride ?? settingsEntry.data;
 const {
   title = settings.defaultTitle,
   description = settings.description

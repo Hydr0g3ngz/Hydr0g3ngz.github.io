@@ -1,0 +1,69 @@
+{
+  "title": "Listening",
+  "description": "Four artists, official listening links, and three small sound studies to play in the browser.",
+  "eyebrow": "MUSIC & SMALL EXPERIMENTS",
+  "heading": "Stay for a track.",
+  "published": true,
+  "navigation": { "show": true, "label": "Listening", "order": 25 },
+  "sections": [
+    {
+      "type": "listening",
+      "id": "listening-room",
+      "visible": true,
+      "eyebrow": "A FEW WAYS IN",
+      "heading": "Different moods, same shelf.",
+      "intro": "Four artists from the current rotation, with a suggested starting track for each. There is no ranking here, and plenty of room for the selection to change.",
+      "artists": [
+        {
+          "name": "Linkin Park",
+          "track": "Numb",
+          "note": "For the louder end of the shelf. A starting point for listening to the contrast between a restrained opening and a full chorus.",
+          "videoId": "kXYiU_JCYtU",
+          "officialUrl": "https://linkinpark.com/"
+        },
+        {
+          "name": "Billie Eilish",
+          "track": "BIRDS OF A FEATHER",
+          "note": "A different kind of intensity. Try following the vocal layers, then return to the same track with attention on the pulse underneath.",
+          "videoId": "V9PVRfjEBTI",
+          "officialUrl": "https://www.youtube.com/watch?v=V9PVRfjEBTI"
+        },
+        {
+          "name": "Ella Langley",
+          "track": "you look like you love me",
+          "note": "A duet with Riley Green. A suggested entry into the country corner of the shelf, where a conversation can become the centre of a song.",
+          "videoId": "Dm2TSMerGPQ",
+          "officialUrl": "https://ellalangley.lnk.to/yllylm"
+        },
+        {
+          "name": "Olivia Dean",
+          "track": "Dive",
+          "note": "For a warmer, slower turn. Start with the official video, then explore a live version to hear what changes when a song shares a room with an audience.",
+          "videoId": "NM4e606yFJg",
+          "officialUrl": "https://www.oliviadeano.com/video/"
+        }
+      ],
+      "sketchIntro": "Three original sound studies generated for this site. These are small listening experiments, not recordings by the artists above or compositions by Will. Press Play: each sketch runs locally in your browser.",
+      "sketches": [
+        {
+          "title": "Glass steps",
+          "description": "Bell-like notes pass from left to right. A small study in the space between sounds.",
+          "recipe": "glass",
+          "duration": 24
+        },
+        {
+          "title": "Slow light",
+          "description": "Four soft chords overlap and fade. Listen for a new colour arriving before the old one leaves.",
+          "recipe": "drift",
+          "duration": 24
+        },
+        {
+          "title": "Pocket pulse",
+          "description": "A low repeating line, small ticks, and a few higher notes. Rhythm with very little machinery.",
+          "recipe": "pulse",
+          "duration": 24
+        }
+      ]
+    }
+  ]
+}

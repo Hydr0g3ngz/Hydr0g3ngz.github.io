@@ -1,0 +1,86 @@
+{
+  "title": "Reading",
+  "description": "A small shelf of humane stories, with a commonplace book of Song ci fragments.",
+  "eyebrow": "BOOKS & MARGINS",
+  "heading": "A few pages worth keeping.",
+  "published": true,
+  "navigation": { "show": true, "label": "Reading", "order": 20 },
+  "sections": [
+    {
+      "type": "reading",
+      "id": "reading-shelf",
+      "visible": true,
+      "eyebrow": "FOUR BOOKS ON THE SHELF",
+      "heading": "Ordinary lives, closely read.",
+      "intro": "A starting shelf of stories about companionship, loss, and the possibility of beginning again. These short introductions leave room for personal notes to come.",
+      "books": [
+        {
+          "title": "The Unlikely Pilgrimage of Harold Fry",
+          "originalTitle": "《一个人的朝圣》",
+          "author": "Rachel Joyce",
+          "blurb": "A retired man goes out to post a letter and keeps walking. The journey gives old regrets a physical shape: distance, tired feet, unexpected company. A good place to begin for readers drawn to an unhurried story about what people carry, and what they might still put down.",
+          "themes": ["A long walk", "Second chances"],
+          "color": "moss",
+          "sourceLabel": "About the book · Penguin Random House",
+          "sourceUrl": "https://www.penguinrandomhouse.com/books/220033/the-unlikely-pilgrimage-of-harold-fry-by-rachel-joyce/"
+        },
+        {
+          "title": "A Man Called Ove",
+          "originalTitle": "《一个叫欧维的男人决定去死》",
+          "author": "Fredrik Backman",
+          "blurb": "Ove has rules for almost everything, and little patience for the neighbours who keep breaking them. Beneath the friction sits a story about grief and the practical ways people look after one another. For readers who enjoy humour with tenderness just below the surface.",
+          "themes": ["Neighbourhood", "Care"],
+          "color": "ink",
+          "sourceLabel": "About the book · Simon & Schuster",
+          "sourceUrl": "https://www.simonandschuster.com/books/A-Man-Called-Ove/Fredrik-Backman/9781476738017"
+        },
+        {
+          "title": "My Grandmother Asked Me to Tell You She’s Sorry",
+          "originalTitle": "《外婆的道歉信》",
+          "author": "Fredrik Backman",
+          "blurb": "A grandmother’s letters send seven-year-old Elsa into the complicated lives of her neighbours. Fairy tales and ordinary rooms gradually begin to overlap. For readers interested in how stories can make unfamiliar people more understandable, without making them less strange.",
+          "themes": ["Family stories", "Being different"],
+          "color": "clay",
+          "sourceLabel": "About the book · Simon & Schuster",
+          "sourceUrl": "https://www.simonandschuster.com/books/My-Grandmother-Asked-Me-to-Tell-You-Shes-Sorry/Fredrik-Backman/9781501115080"
+        },
+        {
+          "title": "The Storied Life of A.J. Fikry",
+          "originalTitle": "《岛上书店》",
+          "author": "Gabrielle Zevin",
+          "blurb": "A bookseller’s shrinking world opens unexpectedly around a small island bookshop. Books here become a way to find company and pass something on. A natural next read for anyone who likes stories in which a place, and the people who gather there, matter as much as the plot.",
+          "themes": ["Bookshops", "Found company"],
+          "color": "ochre",
+          "sourceLabel": "About the book · Hachette",
+          "sourceUrl": "https://www.hachettebookgroup.com/titles/gabrielle-zevin/the-storied-life-of-a-j-fikry/9781616203948/"
+        }
+      ],
+      "excerpts": [
+        {
+          "text": "莫聽穿林打葉聲，\n何妨吟嘯且徐行。",
+          "translation": "Let the rain strike leaves beyond the path.\nWhy not hum a little, and walk on slowly?",
+          "author": "Su Shi · 蘇軾",
+          "work": "Ding feng bo · 定風波",
+          "sourceLabel": "Chinese source · Wikisource",
+          "sourceUrl": "https://zh.wikisource.org/wiki/定風波_(莫聽穿林打葉聲)"
+        },
+        {
+          "text": "無可奈何花落去，\n似曾相識燕歸來。",
+          "translation": "Beyond our keeping, the blossoms fall;\nswallows return with the look of an old acquaintance.",
+          "author": "Yan Shu · 晏殊",
+          "work": "Huan xi sha · 浣溪沙",
+          "sourceLabel": "Chinese source · Stanford Medieval Sourcebook",
+          "sourceUrl": "https://sourcebook.stanford.edu/text/yan_shu_new_song/"
+        },
+        {
+          "text": "知否，知否，\n應是綠肥紅瘦。",
+          "translation": "Have you noticed, have you noticed?\nThe leaves must be fuller now; the blossoms fewer.",
+          "author": "Li Qingzhao · 李清照",
+          "work": "Ru meng ling · 如夢令",
+          "sourceLabel": "Chinese source · Wikisource",
+          "sourceUrl": "https://zh.wikisource.org/wiki/如夢令_(李清照)/如夢令_(昨夜雨疏風驟)"
+        }
+      ]
+    }
+  ]
+}

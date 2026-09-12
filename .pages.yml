@@ -507,6 +507,229 @@ components:
             label: Optional link
             type: string
 
+  reading:
+    type: object
+    label: Reading room — books and excerpts
+    fields:
+      - name: visible
+        type: boolean
+        default: true
+      - name: id
+        label: Anchor ID
+        type: string
+        pattern: "^[a-z][a-z0-9-]*$"
+      - name: eyebrow
+        label: Small heading
+        type: string
+        default: ON THE SHELF
+      - name: heading
+        label: Heading
+        type: string
+        required: true
+        default: A few pages worth keeping.
+      - name: intro
+        label: Introduction
+        type: text
+        required: true
+        default: A small, changing shelf of books and lines to return to.
+      - name: books
+        label: Books
+        type: object
+        list:
+          max: 24
+          collapsible:
+            collapsed: true
+            summary: "{title} — {author}"
+        fields:
+          - name: title
+            label: Book title
+            type: string
+            required: true
+          - name: originalTitle
+            label: Chinese edition title
+            type: string
+          - name: author
+            type: string
+            required: true
+          - name: blurb
+            label: Short introduction
+            type: text
+            required: true
+            description: Write an original introduction; use the margin note below for your own response.
+          - name: themes
+            label: Themes
+            type: string
+            list:
+              max: 5
+          - name: color
+            label: Book jacket colour
+            type: select
+            default: moss
+            options:
+              values:
+                - name: moss
+                  label: Moss green
+                - name: clay
+                  label: Warm clay
+                - name: ink
+                  label: Blue ink
+                - name: ochre
+                  label: Ochre
+          - name: sourceLabel
+            label: Source link label
+            type: string
+            required: true
+            default: About the book
+          - name: sourceUrl
+            label: Publisher or author link
+            type: string
+            required: true
+            description: A full HTTPS URL.
+          - name: reflection
+            label: Your margin note
+            type: text
+            description: Optional. Appears as Will’s personal note only when filled in.
+      - name: excerpts
+        label: Commonplace book — Song ci fragments
+        type: object
+        list:
+          max: 24
+          collapsible:
+            collapsed: true
+            summary: "{author} — {work}"
+        fields:
+          - name: text
+            label: Original Chinese text
+            type: text
+            required: true
+            description: Public-domain Song ci; preserve line breaks.
+          - name: translation
+            label: Your English rendering
+            type: text
+            required: true
+            description: The page labels these as English renderings made for this site. Do not paste a copyrighted modern translation.
+          - name: author
+            label: Poet
+            type: string
+            required: true
+          - name: work
+            label: Poem title
+            type: string
+            required: true
+          - name: sourceLabel
+            label: Source link label
+            type: string
+            required: true
+            default: Chinese source
+          - name: sourceUrl
+            label: Source HTTPS link
+            type: string
+            required: true
+          - name: reflection
+            label: Your margin note
+            type: text
+
+  listening:
+    type: object
+    label: Listening room — artists and playable sketches
+    fields:
+      - name: visible
+        type: boolean
+        default: true
+      - name: id
+        label: Anchor ID
+        type: string
+        pattern: "^[a-z][a-z0-9-]*$"
+      - name: eyebrow
+        label: Small heading
+        type: string
+        default: PRESS PLAY
+      - name: heading
+        label: Heading
+        type: string
+        required: true
+        default: Stay for a track.
+      - name: intro
+        label: Introduction
+        type: text
+        required: true
+        default: A few artists and small listening experiments.
+      - name: artists
+        label: Artists and starting tracks
+        type: object
+        list:
+          max: 24
+          collapsible:
+            collapsed: true
+            summary: "{name} — {track}"
+        fields:
+          - name: name
+            label: Artist
+            type: string
+            required: true
+          - name: track
+            label: Track
+            type: string
+            required: true
+          - name: note
+            label: Listening introduction
+            type: text
+            required: true
+          - name: videoId
+            label: Official YouTube video ID
+            type: string
+            pattern: "^[a-zA-Z0-9_-]{11}$"
+            description: Optional. The 11 characters after v= in the official video URL. No video loads until a visitor clicks.
+          - name: officialUrl
+            label: Official artist or listening link
+            type: string
+            required: true
+          - name: reflection
+            label: Your listening note
+            type: text
+            description: Optional. Only use for your own thoughts.
+      - name: sketchIntro
+        label: Sound studies introduction
+        type: text
+        required: true
+        default: Small, original sound studies generated for this site. These are listening experiments, not recordings by the artists above or compositions by Will.
+      - name: sketches
+        label: Playable sound studies
+        type: object
+        list:
+          max: 6
+          collapsible:
+            collapsed: true
+            summary: "{title} — {recipe}"
+        fields:
+          - name: title
+            type: string
+            required: true
+            default: A small sound study
+          - name: description
+            label: Listening prompt
+            type: text
+            required: true
+            default: Take a moment to notice the space between the notes.
+          - name: recipe
+            label: Sound
+            type: select
+            default: glass
+            options:
+              values:
+                - name: glass
+                  label: Bell-like stereo arpeggio
+                - name: drift
+                  label: Slow overlapping chords
+                - name: pulse
+                  label: Bass and soft rhythmic ticks
+          - name: duration
+            label: Duration in seconds
+            type: number
+            required: true
+            default: 24
+            description: A whole number between 8 and 45.
+
 content:
   - name: core
     label: Core pages
@@ -559,6 +782,10 @@ content:
                 component: list
               - name: quote
                 component: quote
+              - name: reading
+                component: reading
+              - name: listening
+                component: listening
 
       - name: about
         label: About
@@ -619,6 +846,10 @@ content:
                 component: shelf
               - name: work
                 component: work
+              - name: reading
+                component: reading
+              - name: listening
+                component: listening
 
       - name: site_settings
         label: Site settings
@@ -763,6 +994,10 @@ content:
             component: shelf
           - name: work
             component: work
+          - name: reading
+            component: reading
+          - name: listening
+            component: listening
 
   - name: notes
     label: Notes

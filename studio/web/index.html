@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Will Studio · A place to make things</title><link rel="icon" href="/preview/favicon.svg"><link rel="stylesheet" href="/studio.css"></head>
+<body>
+  <header class="topbar">
+    <a class="studio-brand" href="/" aria-label="Will Studio home"><span class="brand-mark">W</span><span>Will <i>Studio</i></span><span class="local-badge">LOCAL</span></a>
+    <div class="top-actions"><span id="save-state" role="status">Connecting…</span><button id="undo" class="icon-button" title="Undo · Ctrl+Z" aria-label="Undo">↶</button><button id="redo" class="icon-button" title="Redo · Ctrl+Shift+Z" aria-label="Redo">↷</button><button id="check" class="quiet-button">Check site</button><button id="save" class="primary-button">Save locally <kbd>⌘/Ctrl S</kbd></button></div>
+  </header>
+  <div class="workspace">
+    <aside class="sidebar">
+      <div class="workspace-name"><span class="eyebrow">YOUR PERSONAL CORNER</span><h1>Make room for<br>what matters.</h1></div>
+      <div class="sidebar-tabs" role="tablist" aria-label="Workspace"><button class="active" id="pages-tab" role="tab" aria-selected="true">Pages</button><button id="project-tab" role="tab" aria-selected="false">Project</button></div>
+      <div class="page-tools"><input id="page-search" type="search" placeholder="Find a page…" aria-label="Find a page"><button id="new-page" class="icon-button" aria-label="Create a page or note" title="New page or note">+</button></div>
+      <nav id="pages" aria-label="Your pages"></nav>
+      <div class="sidebar-bottom"><button id="media" class="wide-button">▧ &nbsp; Media library</button><button id="help" class="wide-button">? &nbsp; A quick guide</button><a href="https://hydr0g3ngz.github.io/" target="_blank" rel="noreferrer" class="live-link">Visit live website <span>↗</span></a></div>
+    </aside>
+    <main class="canvas-panel">
+      <div class="canvas-toolbar"><div><span class="eyebrow" id="page-kind">PAGE</span><strong id="page-name">Loading your workspace</strong></div><div class="canvas-actions"><div class="segmented" aria-label="Preview width"><button data-device="desktop" class="active" title="Desktop preview">Desktop</button><button data-device="tablet" title="Tablet preview">Tablet</button><button data-device="mobile" title="Mobile preview">Phone</button></div><button id="interact" aria-pressed="false" class="quiet-button">↖ Edit mode</button></div></div>
+      <div id="draft-notice" hidden></div>
+      <div class="canvas-stage" id="canvas-stage"><div class="preview-paper" id="preview-paper"><div class="preview-address"><span class="traffic-lights"><i></i><i></i><i></i></span><span id="preview-route">/</span><span class="preview-badge">LOCAL PREVIEW</span></div><iframe id="preview" title="Live page preview — select a section to edit" src="about:blank"></iframe></div><div class="preview-loading" id="preview-loading"><span class="spinner"></span><p>Setting the page on your desk…</p></div></div>
+      <div class="canvas-footnote"><span id="preview-state">Unsaved changes are previewed locally.</span><span>Click to select · double-click text to write</span></div>
+    </main>
+    <aside class="inspector-panel"><div class="inspector-tabs"><button id="structure-tab" class="active">Structure</button><button id="details-tab">Page details</button><button id="history-tab" title="Saved versions">History</button></div><div id="inspector"></div></aside>
+  </div>
+  <dialog id="modal"><form method="dialog" class="modal-heading"><h2 id="modal-title">Studio</h2><button class="icon-button" aria-label="Close dialog">×</button></form><div id="modal-content"></div></dialog>
+  <div id="toast" role="status" aria-live="polite" hidden></div>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

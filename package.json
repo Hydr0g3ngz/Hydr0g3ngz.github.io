@@ -3,7 +3,10 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "engines": { "node": ">=24" },
   "scripts": {
+    "studio": "node studio/server.mjs",
+    "test:studio": "node --test scripts/studio-server.test.mjs scripts/markdown.test.mjs scripts/content-validation.test.mjs && node scripts/test-project-tools.mjs",
     "dev": "astro dev",
     "check": "astro check",
     "validate:content": "node scripts/validate-content.mjs",
@@ -13,10 +16,13 @@
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
-    "astro": "^7.2.10"
+    "astro": "^7.2.10",
+    "marked": "^18.0.12",
+    "sanitize-html": "^2.17.7"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@types/sanitize-html": "^2.16.1",
     "js-yaml": "^5.4.1",
     "typescript": "^6.0.3"
   }

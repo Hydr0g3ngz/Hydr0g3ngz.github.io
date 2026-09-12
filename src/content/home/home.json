@@ -66,7 +66,7 @@
               "title": "The Storied Life of A.J. Fikry"
             }
           ],
-          "future": "Later: brief notes on what each book left behind."
+          "future": "The reading room now has short introductions and a few lines of Song ci."
         },
         {
           "tag": "MUSIC",
@@ -91,7 +91,7 @@
               "title": "Olivia Dean"
             }
           ],
-          "future": "Later: albums, songs, and reasons for returning to them."
+          "future": "Step into the listening room for official videos and small sound experiments."
         },
         {
           "tag": "FILM",
@@ -167,6 +167,29 @@
         {
           "label": "Eustace Bagge, CC BY 4.0",
           "url": "https://commons.wikimedia.org/wiki/File:Lando_Norris_2025_Italian_Grand_Prix_qualifying.jpg"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "id": "open-rooms",
+      "visible": true,
+      "eyebrow": "A LITTLE FURTHER IN",
+      "heading": "Two open doors.",
+      "intro": "A few pages to browse at your own pace. The shelf is growing slowly.",
+      "columns": "two",
+      "items": [
+        {
+          "meta": "READING ROOM · STORIES / SONG CI",
+          "title": "Books & margins ↗",
+          "text": "Humane stories, a small commonplace book of Song ci, and space for thoughts to settle.",
+          "href": "/reading"
+        },
+        {
+          "meta": "LISTENING ROOM · ARTISTS / SOUND STUDIES",
+          "title": "Stay for a track ↗",
+          "text": "Official videos from the current rotation and three original, playable sound experiments.",
+          "href": "/listening"
         }
       ]
     },

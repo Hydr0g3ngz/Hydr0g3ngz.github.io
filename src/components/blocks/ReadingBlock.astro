@@ -1,0 +1,50 @@
+---
+import type { ReadingBlock } from '../../content-schema';
+interface Props { block: ReadingBlock; }
+const { block } = Astro.props;
+---
+<section id={block.id} class="section culture-section reading-section wrap">
+  <div class="culture-heading">
+    <p class="eyebrow">{block.eyebrow}</p>
+    <h2>{block.heading}</h2>
+    <p>{block.intro}</p>
+  </div>
+  {block.books.length > 0 && <div class="book-grid">
+    {block.books.map((book, index) => <article class="book-card">
+      <div class:list={['book-jacket', `jacket-${book.color}`]} aria-hidden="true">
+        <span class="jacket-number">{String(index + 1).padStart(2, '0')}</span>
+        <span class="jacket-title">{book.title}</span>
+        <span class="jacket-rule"></span>
+        <span class="jacket-author">{book.author}</span>
+      </div>
+      <div class="book-copy">
+        <p class="culture-meta">{book.author}</p>
+        <h3>{book.title}</h3>
+        {book.originalTitle && <p class="book-original" lang="zh-CN">{book.originalTitle}</p>}
+        <ul class="book-themes" aria-label="Themes">{book.themes.map(theme => <li>{theme}</li>)}</ul>
+        <p class="book-blurb">{book.blurb}</p>
+        <a class="culture-source" href={book.sourceUrl} target="_blank" rel="noopener noreferrer">{book.sourceLabel}<span aria-hidden="true"> ↗</span></a>
+        {book.reflection && <div class="personal-reflection"><p class="eyebrow">WILL’S MARGIN NOTE</p><p>{book.reflection}</p></div>}
+      </div>
+    </article>)}
+  </div>}
+  {block.excerpts.length > 0 && <div class="commonplace">
+    <div class="commonplace-heading">
+      <p class="eyebrow">A SMALL COMMONPLACE BOOK</p>
+      <h2>Lines to sit with.</h2>
+      <p>Fragments from Song ci. The Chinese originals are in the public domain; the English renderings below were made for this site.</p>
+    </div>
+    <div class="excerpt-list">{block.excerpts.map((excerpt, index) => <figure class="excerpt-card">
+      <div class="excerpt-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</div>
+      <blockquote>
+        <p class="excerpt-original" lang="zh-Hant">{excerpt.text}</p>
+        <p class="excerpt-translation">{excerpt.translation}</p>
+      </blockquote>
+      <figcaption>
+        <span>{excerpt.author} · <cite>{excerpt.work}</cite></span>
+        <a class="culture-source" href={excerpt.sourceUrl} target="_blank" rel="noopener noreferrer">{excerpt.sourceLabel}<span aria-hidden="true"> ↗</span></a>
+      </figcaption>
+      {excerpt.reflection && <div class="personal-reflection"><p class="eyebrow">WILL’S MARGIN NOTE</p><p>{excerpt.reflection}</p></div>}
+    </figure>)}</div>
+  </div>}
+</section>

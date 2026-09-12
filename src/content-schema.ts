@@ -9,8 +9,21 @@ const localImage = z
   .string()
   .regex(/^\/(images|uploads)\//, 'Images must come from /images or /uploads.');
 
+const isHttpsUrl = (value: string) => {
+  if (/[\u0000-\u0020\u007f\\]/.test(value)) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && !!url.hostname && !url.username && !url.password;
+  } catch { return false; }
+};
+
+const httpsUrl = z.string().refine(isHttpsUrl, 'Use a valid HTTPS URL.');
+
 const safeLink = z.string().min(1).refine(
-  (value) => value.startsWith('/') || value.startsWith('#') || value.startsWith('https://'),
+  (value) => !/[\u0000-\u0020\u007f\\]/.test(value) && (
+    (value.startsWith('/') && !value.startsWith('//')) ||
+    value.startsWith('#') || isHttpsUrl(value)
+  ),
   'Links must be internal paths, page anchors, or HTTPS URLs.'
 );
 
@@ -27,9 +40,9 @@ const linkSchema = z.object({
 
 const imageCreditSchema = z.object({
   label: z.string().min(1),
-  url: z.url(),
+  url: httpsUrl,
   licenseLabel: z.string().optional(),
-  licenseUrl: z.url().optional()
+  licenseUrl: httpsUrl.optional()
 });
 
 export const heroBlockSchema = z.object({
@@ -183,6 +196,57 @@ export const profileBlockSchema = z.object({
     .default([])
 });
 
+export const readingBlockSchema = z.object({
+  type: z.literal('reading'),
+  ...baseBlock,
+  eyebrow: z.string().default('ON THE SHELF'),
+  heading: z.string().min(1),
+  intro: z.string().min(1),
+  books: z.array(z.object({
+    title: z.string().min(1),
+    originalTitle: z.string().optional(),
+    author: z.string().min(1),
+    blurb: z.string().min(1),
+    themes: z.array(z.string().min(1)).max(5).default([]),
+    color: z.enum(['moss', 'clay', 'ink', 'ochre']).default('moss'),
+    sourceLabel: z.string().min(1),
+    sourceUrl: httpsUrl,
+    reflection: z.string().optional()
+  })).max(24).default([]),
+  excerpts: z.array(z.object({
+    text: z.string().min(1),
+    translation: z.string().min(1),
+    author: z.string().min(1),
+    work: z.string().min(1),
+    sourceLabel: z.string().min(1),
+    sourceUrl: httpsUrl,
+    reflection: z.string().optional()
+  })).max(24).default([])
+});
+
+export const listeningBlockSchema = z.object({
+  type: z.literal('listening'),
+  ...baseBlock,
+  eyebrow: z.string().default('PRESS PLAY'),
+  heading: z.string().min(1),
+  intro: z.string().min(1),
+  artists: z.array(z.object({
+    name: z.string().min(1),
+    track: z.string().min(1),
+    note: z.string().min(1),
+    videoId: z.string().regex(/^[a-zA-Z0-9_-]{11}$/, 'Use the eleven-character YouTube video ID.').optional(),
+    officialUrl: httpsUrl,
+    reflection: z.string().optional()
+  })).max(24).default([]),
+  sketchIntro: z.string().default('Small, original sound studies generated for this site. These are listening experiments, not recordings by the artists above or compositions by Will.'),
+  sketches: z.array(z.object({
+    title: z.string().min(1),
+    description: z.string().min(1),
+    recipe: z.enum(['glass', 'drift', 'pulse']),
+    duration: z.number().int().min(8).max(45).default(24)
+  })).max(6).default([])
+});
+
 export const blockSchema = z.discriminatedUnion('type', [
   heroBlockSchema,
   marqueeBlockSchema,
@@ -193,7 +257,9 @@ export const blockSchema = z.discriminatedUnion('type', [
   imageTextBlockSchema,
   listBlockSchema,
   quoteBlockSchema,
-  profileBlockSchema
+  profileBlockSchema,
+  readingBlockSchema,
+  listeningBlockSchema
 ]);
 
 export const homeSchema = z.object({
@@ -280,3 +346,5 @@ export type ImageTextBlock = z.infer<typeof imageTextBlockSchema>;
 export type ListBlock = z.infer<typeof listBlockSchema>;
 export type QuoteBlock = z.infer<typeof quoteBlockSchema>;
 export type ProfileBlock = z.infer<typeof profileBlockSchema>;
+export type ReadingBlock = z.infer<typeof readingBlockSchema>;
+export type ListeningBlock = z.infer<typeof listeningBlockSchema>;

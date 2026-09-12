@@ -1,0 +1,41 @@
+---
+import { readFile } from 'node:fs/promises';
+import { renderNoteMarkdown } from '../src/lib/markdown';
+import { getEntry } from 'astro:content';
+import Base from '../src/layouts/Base.astro';
+import BlockRenderer from '../src/components/BlockRenderer.astro';
+import PageHeader from '../src/components/PageHeader.astro';
+import { homeSchema, pageSchema, noteSchema, siteSettingsSchema } from '../src/content-schema';
+
+export const prerender = false;
+const rev = Astro.url.searchParams.get('rev');
+if (!rev || !/^[a-f0-9]{24}$/.test(rev)) return new Response('Invalid preview revision.', { status: 400 });
+let preview;
+try { preview = JSON.parse(await readFile(new URL(`../.studio/previews/${rev}.json`, import.meta.url), 'utf8')); }
+catch { return new Response('This preview has expired. Return to Studio and select the page again.', { status: 404 }); }
+const kind = preview.kind ?? (preview.id.startsWith('home/') ? 'home' : preview.id.startsWith('notes/') ? 'note' : 'page');
+const parsed = kind === 'home' ? homeSchema.parse(preview.data) : kind === 'note' ? noteSchema.parse(preview.data) : kind === 'settings' ? null : pageSchema.parse(preview.data);
+const data = parsed ?? preview.data;
+const sections = kind === 'settings' ? (await getEntry('home', 'home'))?.data.sections ?? [] : 'sections' in data ? data.sections : [];
+const settingsOverride = kind === 'settings' ? siteSettingsSchema.parse(preview.data) : undefined;
+const markdown = kind === 'note' ? await renderNoteMarkdown(preview.data.body ?? '') : '';
+const wireData = JSON.stringify(preview.data).replaceAll('<', '\\u003c');
+---
+<Base title={data.title ?? data.defaultTitle} description={data.description} settingsOverride={settingsOverride}>
+  {kind === 'page' && <div data-studio-block="page"><PageHeader eyebrow={data.eyebrow} heading={data.heading} /></div>}
+  {sections.map((block: any, index: number) => <div class="studio-section" data-studio-block={index}><BlockRenderer block={block} /></div>)}
+  {kind === 'note' && <article class="note-article wrap" data-studio-block="page">
+    <header class="note-header"><div class="note-list-meta"><span>{data.category}</span><time datetime={data.date.toISOString()}>{data.date.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}</time></div><h1>{data.title}</h1><p>{data.description}</p></header>
+    {data.cover && <figure class="note-cover"><img src={data.cover} alt={data.coverAlt} /></figure>}
+    <div class="note-body prose" set:html={markdown} />
+  </article>}
+  <script is:inline type="application/json" id="studio-content-data" data-document-id={preview.id} data-preview-rev={rev} set:html={wireData} />
+  <script src="./preview-bridge.js"></script>
+</Base>
+<style is:global>
+  .studio-section { display: contents; }
+  [data-studio-block].studio-selected > :first-child { outline: 2px solid #789383; outline-offset: -2px; }
+  body[data-studio-mode="edit"] [data-studio-path]:hover { cursor: text; outline: 1px dashed #6c8b79; outline-offset: 3px; }
+  [contenteditable="true"] { outline: 2px solid #4a7860 !important; min-width: 16px; }
+  body[data-studio-mode="edit"] .marquee div { animation-play-state: paused; }
+</style>

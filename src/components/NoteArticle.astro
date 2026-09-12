@@ -1,12 +1,13 @@
 ---
-import { render, type CollectionEntry } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import { renderNoteMarkdown } from '../lib/markdown';
 
 interface Props {
   note: CollectionEntry<'notes'>;
 }
 
 const { note } = Astro.props;
-const { Content } = await render(note);
+const body = await renderNoteMarkdown(note.body ?? '');
 ---
 <article class="note-article wrap">
   <header class="note-header">
@@ -30,7 +31,5 @@ const { Content } = await render(note);
     </figure>
   )}
 
-  <div class="note-body prose">
-    <Content />
-  </div>
+  <div class="note-body prose" set:html={body} />
 </article>

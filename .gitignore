@@ -5,3 +5,4 @@ dist/
 *.log
 output/
 .playwright-cli/
+.studio/
