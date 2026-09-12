@@ -7,8 +7,8 @@
       "visible": true,
       "eyebrow": "PERSONAL HOMEPAGE",
       "heading": "Hi, I’m Will Qing.",
-      "lede": "I’m an undergraduate in Information Engineering at Shanghai Jiao Tong University, interested in how computation can help us understand physical systems.",
-      "intro": "My current research interests include optical computing, machine learning, and AI-based processing of physical signals. Outside research, I spend most of my time reading, listening to music, and, more recently, watching films.",
+      "lede": "I’m an undergraduate in Information Engineering at Shanghai Jiao Tong University.",
+      "intro": "I’m interested in how machine learning can be used to understand signals and physical systems, and I’m currently exploring optical computing. Outside research, I spend most of my time reading, listening to music, and, more recently, watching films.",
       "links": [
         {
           "label": "More about me",
@@ -27,9 +27,9 @@
       "visible": true,
       "label": "Current interests",
       "items": [
-        "OPTICAL COMPUTING",
         "MACHINE LEARNING",
-        "PHYSICAL SIGNALS",
+        "SIGNALS & PHYSICAL SYSTEMS",
+        "OPTICAL COMPUTING",
         "BOOKS",
         "MUSIC",
         "FILM"
@@ -41,7 +41,7 @@
       "visible": true,
       "eyebrow": "01 / NOW",
       "heading": "A few things in the present.",
-      "intro": "A small snapshot of what I am reading, listening to, and watching lately.",
+      "intro": "What I’m reading, listening to, and watching lately.",
       "updated": "September 2026",
       "groups": [
         {
@@ -93,7 +93,7 @@
       "visible": true,
       "eyebrow": "02 / THINGS I KEEP AROUND",
       "heading": "Shelf",
-      "intro": "Reading, music, and film are the main things I keep returning to outside research. This is a small, unfinished record rather than a definitive list.",
+      "intro": "Reading, music, and film are what I return to most often outside research.",
       "categories": [
         {
           "tag": "BOOKS",
@@ -124,8 +124,8 @@
         },
         {
           "tag": "MUSIC",
-          "title": "A small, changing rotation",
-          "summary": "These are some of the artists I return to at the moment, without trying to turn listening into a complete profile.",
+          "title": "In rotation",
+          "summary": "Artists I return to at the moment.",
           "image": "/images/music-turntable.jpg",
           "imageAlt": "A record playing on a white turntable",
           "imageWidth": 1280,
@@ -149,14 +149,14 @@
               "originalTitle": "孙燕姿"
             }
           ],
-          "future": "The listening room holds selected songs and a small archive of concert clips.",
+          "future": "The listening room pairs selected songs with concert clips I recorded.",
           "href": "/listening",
           "linkLabel": "See the current rotation"
         },
         {
           "tag": "FILM",
-          "title": "Still learning how to watch",
-          "summary": "I have only recently started paying closer attention to film, so this is deliberately a beginning rather than a canon.",
+          "title": "Three recent films",
+          "summary": "I have only recently started paying closer attention to film.",
           "image": "/images/film-cinema.jpg",
           "imageAlt": "Empty seats in a softly lit cinema",
           "imageWidth": 1280,
@@ -174,7 +174,7 @@
               "originalTitle": "《巴黎夜旅人》"
             }
           ],
-          "future": "Later: short viewing notes, once I know what I want to say.",
+          "future": "The film page holds brief introductions and official links.",
           "href": "/film",
           "linkLabel": "Open the film list"
         }
@@ -183,12 +183,12 @@
         "visible": true,
         "tag": "OTHER INTERESTS",
         "heading": "Also following",
-        "intro": "A smaller corner for the teams and drivers I keep up with.",
+        "intro": "Manchester United, McLaren, and Lando Norris.",
         "items": [
           {
             "tag": "FOOTBALL",
             "title": "Manchester United",
-            "summary": "Room for match, season, and supporter notes later.",
+            "summary": "The football club I follow.",
             "image": "/images/football-old-trafford.jpg",
             "imageAlt": "Old Trafford seen from above",
             "imageWidth": 1280,
@@ -197,7 +197,7 @@
           {
             "tag": "FORMULA 1",
             "title": "McLaren · Lando Norris",
-            "summary": "Room for race-weekend impressions later.",
+            "summary": "The Formula 1 team and driver I follow.",
             "image": "/images/f1-norris-mclaren.jpg",
             "imageAlt": "Lando Norris driving a McLaren Formula 1 car",
             "imageWidth": 1280,

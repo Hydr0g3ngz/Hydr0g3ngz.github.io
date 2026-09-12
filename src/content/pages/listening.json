@@ -1,8 +1,8 @@
 {
   "title": "Listening",
-  "description": "Five songs in the current rotation, with listening links and a small live archive.",
+  "description": "Five selected songs, listening links, and concert clips recorded from the audience.",
   "eyebrow": "MUSIC / CURRENT ROTATION",
-  "heading": "A small rotation.",
+  "heading": "In rotation.",
   "published": true,
   "navigation": {
     "show": true,
@@ -15,8 +15,8 @@
       "id": "listening-room",
       "visible": true,
       "eyebrow": "SONGS I KEEP AROUND",
-      "heading": "Five songs, for now.",
-      "intro": "A few songs I keep coming back to. There is room here for the list to change.",
+      "heading": "Five songs.",
+      "intro": "Songs I keep coming back to, with links for listening.",
       "artists": [
         {
           "name": "Linkin Park",
@@ -66,7 +66,7 @@
       "visible": true,
       "eyebrow": "LIVE / FIELD NOTES",
       "heading": "When the music was in the room.",
-      "intro": "A small archive of concert clips I recorded from the audience — less a review than a record of being there.",
+      "intro": "Concert clips I recorded from the audience — less a review than a record of being there.",
       "emptyNote": "No photographs here yet. The space is ready.",
       "records": [
         {

@@ -5,12 +5,6 @@
   "themeColor": "#f5f1e8",
   "homeLinks": [
     {
-      "label": "Shelf",
-      "href": "/#shelf",
-      "order": 10,
-      "visible": true
-    },
-    {
       "label": "Work",
       "href": "/#work",
       "order": 35,
@@ -21,7 +15,7 @@
     "label": "Notes",
     "order": 30
   },
-  "footerText": "Made slowly, updated whenever there is something worth keeping.",
+  "footerText": "Will Qing · Personal homepage.",
   "footerLinks": [
     {
       "label": "GitHub",

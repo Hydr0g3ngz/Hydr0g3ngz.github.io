@@ -1,8 +1,8 @@
 {
   "title": "Film",
-  "description": "A small film list: Spider-Man: Brand New Day, Thunderbolts*, and The Passengers of the Night.",
+  "description": "Three films: Spider-Man: Brand New Day, Thunderbolts*, and The Passengers of the Night.",
   "eyebrow": "FILM / A BEGINNING",
-  "heading": "Still learning how to watch.",
+  "heading": "Learning how to watch.",
   "published": true,
   "navigation": {
     "show": true,
@@ -14,9 +14,9 @@
       "type": "list",
       "id": "film-list",
       "visible": true,
-      "eyebrow": "THREE FILMS, FOR NOW",
+      "eyebrow": "THREE FILMS",
       "heading": "On the list.",
-      "intro": "Film is still a new interest for me. These are brief introductions rather than reviews; each title links to its official film page.",
+      "intro": "Film is a new interest for me. These are brief introductions rather than reviews; each title links to its official film page.",
       "columns": "one",
       "items": [
         {
