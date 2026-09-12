@@ -679,16 +679,13 @@ components:
           - name: youtubeUrl
             label: YouTube link
             type: string
-            required: true
             description: Use a verified artist or label upload.
           - name: alternateUrl
             label: Bilibili or NetEase Music link
             type: string
-            required: true
           - name: alternateLabel
             label: Domestic platform label
             type: string
-            required: true
             default: 网易云音乐
           - name: note
             label: Short factual note (optional)
@@ -697,6 +694,14 @@ components:
             label: Your listening note
             type: text
             description: Optional. Only use for your own thoughts.
+          - name: videoId
+            label: Earlier-format YouTube ID (optional)
+            type: string
+            description: Only needed for older saved entries. The YouTube link above takes precedence; leave empty for new songs.
+          - name: officialUrl
+            label: Earlier-format source link (optional)
+            type: string
+            description: Kept for older saved entries. Used only when there is no Bilibili or NetEase Music link.
 
 content:
   - name: core

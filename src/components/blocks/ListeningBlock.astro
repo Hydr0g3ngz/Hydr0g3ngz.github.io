@@ -22,7 +22,7 @@ const youtubeLink = (song: ListeningBlock['artists'][number]) => song.youtubeUrl
       <div class="rotation-links" aria-label={`Listen to ${song.track}`}>
         {youtubeLink(song) && <a href={youtubeLink(song)} target="_blank" rel="noopener noreferrer">YouTube <span aria-hidden="true">↗</span></a>}
         {song.alternateUrl && <a href={song.alternateUrl} target="_blank" rel="noopener noreferrer">{song.alternateLabel || 'Listen'} <span aria-hidden="true">↗</span></a>}
-        {!youtubeLink(song) && song.officialUrl && <a href={song.officialUrl} target="_blank" rel="noopener noreferrer">Source <span aria-hidden="true">↗</span></a>}
+        {!song.alternateUrl && song.officialUrl && <a href={song.officialUrl} target="_blank" rel="noopener noreferrer">Source <span aria-hidden="true">↗</span></a>}
       </div>
     </li>)}
   </ol>

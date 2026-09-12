@@ -8,6 +8,12 @@ an independently built static website. Studio and its local state are not deploy
 
 On Windows, double-click **Start Studio.cmd** in this folder. It opens Studio in your
 browser. Keep its terminal open while working; close it to stop the local service.
+The launcher verifies the Node version and locked dependencies. After a dependency
+update it installs the exact locked packages; subsequent launches skip installation.
+Before replacing dependencies, it checks for a running Studio/Astro preview and
+stops with a clear explanation if one is found. It never kills another process.
+Close other Studio instances before opening an updated checkout. A failed install
+does not receive a success stamp; the next launch verifies the files again.
 
 Alternatively:
 
@@ -57,9 +63,47 @@ Use **Page details** to edit titles, descriptions, publication state, and naviga
 Drafts can be previewed without publishing them. Changing a title does not silently
 change its URL.
 
+### Write without Markdown syntax
+
+Notes now have **Visual** and **Markdown** modes. In Visual mode, select text and use
+the toolbar for headings, emphasis, lists, quotations, links, images, and code.
+Choose **Expand** for a roomy writing space; Escape returns to the page. The body
+still saves as portable Markdown, not a proprietary editor document.
+
+The writer has its own typing undo/redo. The top-level Studio undo also covers the
+whole document. Switching modes without editing leaves the original Markdown
+unchanged. Tables, embedded HTML, and other unsupported constructs stay in Markdown
+mode so the visual editor does not silently remove them. Image insertion asks for
+alt text and can use the local media library. The first launch builds the editor
+locally; no editing service or account is required.
+
+### Move, copy, or remove a page
+
+**Page actions** offers address changes, duplication, and recoverable deletion.
+Each operation opens a review listing saved-file changes and linked references.
+Save any affected browser drafts before applying. The server checks all file
+revisions again at application time and refuses stale plans.
+
+- **Move / change address** moves one page or note, including into a nested folder.
+  Related internal links are rewritten. Published old URLs get a static redirect
+  after deployment. This does not implicitly move other pages in the folder.
+- **Duplicate as a draft** makes an unpublished copy, excluded from navigation.
+- **Move to trash** is blocked until incoming references are resolved. It keeps
+  the full document locally; **Recently removed** lets you review a restore.
+
+Home, site settings, and About have protected addresses. Restoring from trash never
+overwrites another document. The operation journal under `.studio/transactions`
+supports rollback if a file operation fails or Studio is interrupted; external edits
+are preserved and a recovery conflict is reported instead of overwritten.
+
+Old addresses are recorded in `src/redirects.json`, included in content exports and
+snapshots. On GitHub Pages these are HTML redirect pages, not server-level HTTP 301
+rules, following [Astro's static redirect behaviour](https://docs.astro.build/en/guides/routing/#configured-redirects).
+Redirects are validated for loops, collisions, and published destinations.
+
 ## Try the page, manage images, and check the project
 
-Use **Interact** to try music players, links, and other visitor controls. Return to
+Use **Interact** to try links and other visitor controls. Return to
 **Edit mode** to select content. Desktop, Tablet, and Phone controls resize the canvas;
 on narrower windows the desktop canvas fits the available workspace.
 
@@ -94,15 +138,18 @@ separately. These are local recovery tools, not a replacement for a second backu
 
 ## The reading and listening rooms
 
-Reading entries distinguish short editorial introductions from personal reflections.
-The Song ci excerpts include their source and translations prepared for this site.
-The optional reflection fields are ready for your own words.
+Reading entries distinguish short editorial book introductions from personal
+reflections. The four Song ci poems are complete, preserve both stanzas, and link
+to their source edition. English renderings are optional; no personal notes are
+filled in on your behalf.
 
-Listening includes official recordings loaded only after a click and three original
-Web Audio sketches generated for this site. They are not attributed to Will or to
-the listed artists. The sketches run locally; official videos need access to YouTube
-and may be unavailable in some regions or browsers. An external source link remains
-available. Starting another player stops the existing one.
+Listening is a compact list of Will's selected songs. Each current entry has a
+verified YouTube link and a NetEase Music link; playback happens on those platforms,
+subject to regional/account availability. There are no synthesized sound demos,
+music sketchpads, or embedded players. Change songs and add your own reflections
+through **Selected songs** in the Listening block.
+The earlier-format fields at the bottom are only for entries restored from older
+history. New YouTube and domestic-platform URLs take precedence over those fields.
 
 ## Development and current boundaries
 
@@ -111,13 +158,21 @@ up without rebuilding a separate editor schema. Draft previews use the real Astr
 components and isolated preview revisions. Notes share a sanitized Markdown renderer
 between preview and publication.
 
+Studio currently edits filename-routed JSON pages and Markdown (`.md`) notes.
+MDX, custom `slug` overrides, and unsupported content filenames are rejected rather
+than silently omitted or rewritten; handle them in an external editor before
+reopening Studio. The reserved notes placeholder is not shown.
+
 ```sh
 npm run test:studio
 npm run build
 ```
 
-This is a working first local Studio release. Complete release management, page
-renaming/deletion with link rewrites, import/restore of full project bundles, a
-dedicated rich-text canvas, and broader layout/theme tools remain development work.
+The GitHub Pages deployment runs the Studio regression suite before the production
+build, so a failed quality check does not replace the live site.
+
+This is an evolving local Studio product. Complete release management,
+import/restore of full project bundles, multi-project configuration, and broader
+layout/theme tools remain development work.
 The long-term goal is a complete, easy-to-use website workspace; this release does
 not establish a claim of superiority over every existing tool.

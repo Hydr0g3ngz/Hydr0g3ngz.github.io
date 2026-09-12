@@ -2,7 +2,14 @@ const content = JSON.parse(document.querySelector('#studio-content-data')?.textC
 const identity = { id: document.querySelector('#studio-content-data')?.dataset.documentId, rev: document.querySelector('#studio-content-data')?.dataset.previewRev };
 let mode = 'edit';
 document.body.dataset.studioMode = mode;
-function send(message) { window.parent.postMessage({ source: 'will-studio-preview', ...identity, ...message }, window.location.origin); }
+function send(message) {
+  const payload = { source: 'will-studio-preview', ...identity, ...message };
+  if (['edit', 'editing', 'save'].includes(message.type)) {
+    // Local previews share Studio's origin. Commit within this event turn: a queued
+    // postMessage can arrive after the user has switched to another document.
+    window.parent.dispatchEvent(new window.parent.MessageEvent('message', { data: payload, origin: window.location.origin, source: window }));
+  } else window.parent.postMessage(payload, window.location.origin);
+}
 function leaves(value, prefix = [], output = []) {
   if (typeof value === 'string' && value.trim()) output.push({ path: prefix, value: value.trim() });
   else if (value && typeof value === 'object') Object.entries(value).forEach(([key, child]) => leaves(child, [...prefix, key], output));
@@ -11,11 +18,15 @@ function leaves(value, prefix = [], output = []) {
 document.querySelectorAll('[data-studio-block]').forEach(section => {
   const index = section.dataset.studioBlock;
   const records = index === 'page' ? leaves(content).filter(x => x.path[0] !== 'sections') : leaves(content.sections?.[Number(index)], ['sections', index]);
+  const assigned = new Set();
   const candidates = [...section.querySelectorAll('h1,h2,h3,h4,p,li,span,a,blockquote,figcaption,strong,cite')].reverse();
   for (const element of candidates) {
     if (element.querySelector('[data-studio-path]') || element.closest('.note-body')) continue;
     const matches = records.filter(record => record.value === element.textContent.trim());
-    if (matches.length === 1) element.dataset.studioPath = JSON.stringify(matches[0].path);
+    if (matches.length === 1) {
+      const path = JSON.stringify(matches[0].path);
+      if (!assigned.has(path)) { element.dataset.studioPath = path; assigned.add(path); }
+    }
   }
 });
 document.addEventListener('click', event => {
@@ -28,31 +39,11 @@ document.addEventListener('click', event => {
   const field = element.closest('[data-studio-path]');
   if (section) send({ type: 'select', index: section.dataset.studioBlock, path: field?.dataset.studioPath ? JSON.parse(field.dataset.studioPath) : null });
 }, true);
-document.addEventListener('dblclick', event => {
-  if (mode !== 'edit' || !(event.target instanceof Element)) return;
-  const element = event.target.closest('[data-studio-path]');
-  if (!element || element.children.length) return;
-  element.setAttribute('contenteditable', 'true'); element.focus();
-  const original = element.textContent;
-  const range = document.createRange(); range.selectNodeContents(element);
-  window.getSelection()?.removeAllRanges(); window.getSelection()?.addRange(range);
-  element.addEventListener('paste', paste => {
-    paste.preventDefault(); const selection = window.getSelection(); if (!selection?.rangeCount) return;
-    const range = selection.getRangeAt(0); range.deleteContents(); const text = document.createTextNode(paste.clipboardData?.getData('text/plain') ?? ''); range.insertNode(text); range.setStartAfter(text); range.collapse(true); selection.removeAllRanges(); selection.addRange(range);
-  }, { once: true });
-  element.addEventListener('keydown', key => {
-    if (key.key === 'Escape') { element.textContent = original; element.blur(); }
-    if (key.key === 'Enter' && !key.shiftKey) { key.preventDefault(); element.blur(); }
-  });
-  element.addEventListener('blur', () => {
-    element.removeAttribute('contenteditable');
-    if (element.textContent !== original) send({ type: 'edit', path: JSON.parse(element.dataset.studioPath), value: element.textContent });
-  }, { once: true });
-});
+const inlineEditing = installInlineEditing({ window, identity, isEditMode: () => mode === 'edit', send });
 window.addEventListener('message', event => {
   if (event.source !== window.parent || event.origin !== window.location.origin || event.data?.source !== 'will-studio') return;
   const message = event.data;
-  if (message.type === 'mode') { mode = message.mode; document.body.dataset.studioMode = mode; }
+  if (message.type === 'mode') { if (message.mode !== 'edit') inlineEditing.flush(); mode = message.mode; document.body.dataset.studioMode = mode; }
   if (message.type === 'select') {
     document.querySelectorAll('.studio-selected').forEach(e => e.classList.remove('studio-selected'));
     const section = [...document.querySelectorAll('[data-studio-block]')].find(e => e.dataset.studioBlock === String(message.index));
@@ -63,3 +54,4 @@ window.addEventListener('message', event => {
 let timer;
 window.addEventListener('scroll', () => { clearTimeout(timer); timer = setTimeout(() => send({ type: 'scroll', y: window.scrollY }), 100); }, { passive: true });
 send({ type: 'ready' });
+import { installInlineEditing } from './inline-session.mjs';

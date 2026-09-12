@@ -30,6 +30,7 @@ try {
   await put('.env', 'THIS_MUST_NOT_BE_EXPORTED');
   await put('.pages.yml', 'content: []\n');
   await put('IMAGE_CREDITS.md', 'Image credit.\n');
+  await put('src/redirects.json', { version: 1, redirects: [] });
 
   const noGit = await getProjectOverview(root);
   assert.equal(noGit.branch, null);
@@ -42,6 +43,7 @@ try {
   assert.equal(bundle.format, 'will-studio-content-v1');
   assert(bundle.files.some((file) => file.path === 'src/content/pages/books/favorites.json'));
   assert(bundle.files.some((file) => file.path === '.pages.yml'));
+  assert(bundle.files.some((file) => file.path === 'src/redirects.json'));
   assert(!bundle.files.some((file) => file.path.startsWith('public/') || file.path.endsWith('.env')));
   assert(!JSON.stringify(bundle).includes('THIS_MUST_NOT_BE_EXPORTED'));
 

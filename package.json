@@ -3,10 +3,14 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "engines": { "node": ">=24" },
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
+    "build:studio": "node scripts/build-studio.mjs",
+    "test:writer": "node --test scripts/studio-writer.test.mjs",
     "studio": "node studio/server.mjs",
-    "test:studio": "node --test scripts/studio-server.test.mjs scripts/markdown.test.mjs scripts/content-validation.test.mjs && node scripts/test-project-tools.mjs",
+    "test:studio": "node --test scripts/studio-server.test.mjs scripts/document-lifecycle.test.mjs scripts/lifecycle-ui.test.mjs scripts/draft-reconcile.test.mjs scripts/studio-writer.test.mjs scripts/studio-inline.test.mjs scripts/studio-launch.test.mjs scripts/markdown.test.mjs scripts/content-validation.test.mjs scripts/redirects.test.mjs scripts/redirect-build.test.mjs && node scripts/test-project-tools.mjs",
     "dev": "astro dev",
     "check": "astro check",
     "validate:content": "node scripts/validate-content.mjs",
@@ -22,8 +26,19 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@tiptap/core": "^3.31.3",
+    "@tiptap/extension-code-block": "^3.31.3",
+    "@tiptap/extension-image": "^3.31.3",
+    "@tiptap/extension-link": "^3.31.3",
+    "@tiptap/extension-paragraph": "^3.31.3",
+    "@tiptap/extension-placeholder": "^3.31.3",
+    "@tiptap/markdown": "^3.31.3",
+    "@tiptap/starter-kit": "^3.31.3",
     "@types/sanitize-html": "^2.16.1",
+    "dompurify": "^3.4.15",
+    "esbuild": "^0.28.2",
     "js-yaml": "^5.4.1",
+    "jsdom": "^30.0.1",
     "typescript": "^6.0.3"
   }
 }

@@ -3,6 +3,7 @@ import { link, lstat, mkdir, readFile, readdir, realpath, rename, unlink, writeF
 import { dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { dump, load } from 'js-yaml';
+import { redirectMap } from '../scripts/redirects.mjs';
 
 export const MAX_DOCUMENT_BYTES = 1024 * 1024;
 export const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
@@ -60,15 +61,18 @@ export async function containedPath(root, suffix, { allowMissing = false } = {})
   return target;
 }
 
-function parseId(id) {
+export function parseId(id) {
   if (typeof id !== 'string' || id.length > 220 || id.includes('\\') || id.includes('%')) {
     throw new StudioError(400, 'Invalid document path.');
   }
   if (id === 'home/home.json') return { kind: 'home', route: '/' };
   if (id === 'settings/site.json') return { kind: 'settings', route: '/' };
+  if (id.toLowerCase().endsWith('.mdx')) {
+    throw new StudioError(422, `Studio does not edit MDX files (${id}). Handle this unsupported file in an external editor, then reopen Studio. No content was changed.`);
+  }
   const match = /^(pages|notes)\/([a-z0-9][a-z0-9-]*(?:\/[a-z0-9][a-z0-9-]*)*)\.(json|md)$/.exec(id);
   if (!match || (match[1] === 'pages' ? match[3] !== 'json' : match[3] !== 'md')) {
-    throw new StudioError(400, 'Choose a supported content document.');
+    throw new StudioError(400, 'Choose a supported content document. If this file was created outside Studio, handle its unsupported filename in an external editor, then reopen Studio. No content was changed.');
   }
   const slug = match[2].replace(/\/index$/, '');
   if (match[1] === 'pages' && reserved.has(slug.split('/')[0])) {
@@ -77,7 +81,13 @@ function parseId(id) {
   return { kind: match[1] === 'pages' ? 'page' : 'note', route: `${match[1] === 'notes' ? '/notes' : ''}/${slug}` };
 }
 
-function parseDocument(id, contents) {
+function assertEditableAddress(id, data) {
+  if (data && Object.hasOwn(data, 'slug')) {
+    throw new StudioError(422, `Studio does not edit custom slug fields (${id}). Handle this routing override in an external editor, then reopen Studio. No content was changed.`);
+  }
+}
+
+export function parseDocument(id, contents) {
   const { kind } = parseId(id);
   try {
     if (kind !== 'note') return JSON.parse(contents);
@@ -96,13 +106,13 @@ function parseDocument(id, contents) {
   }
 }
 
-function serializeDocument(kind, data) {
+export function serializeDocument(kind, data) {
   if (kind !== 'note') return `${JSON.stringify(data, null, 2)}\n`;
   const { body, ...metadata } = data;
   return `---\n${dump(metadata, { noRefs: true, lineWidth: -1, quotingType: '"' })}---\n\n${body.trimEnd()}\n`;
 }
 
-async function atomicWrite(root, suffix, contents, { create = false, expectedRevision } = {}) {
+export async function atomicWrite(root, suffix, contents, { create = false, expectedRevision } = {}) {
   const target = await containedPath(root, suffix, { allowMissing: true });
   await mkdir(dirname(target), { recursive: true });
   await containedPath(root, relative(root, dirname(target)));
@@ -147,8 +157,9 @@ export async function createStudioStore({ root, schemas } = {}) {
     });
     const results = [];
     for (const entry of entries) {
-      if (entry.name.startsWith('.') || entry.name.startsWith('_') || entry.isSymbolicLink()) continue;
       const child = `${directory}/${entry.name}`;
+      if (entry.name.startsWith('.') || entry.isSymbolicLink()) continue;
+      if (child === 'src/content/notes/_placeholder.md' || (entry.name.startsWith('_') && !directory.startsWith('src/content/'))) continue;
       if (entry.isDirectory()) results.push(...await files(child, extensions));
       else if (extensions.has(extname(entry.name).toLowerCase())) results.push(child);
     }
@@ -162,6 +173,7 @@ export async function createStudioStore({ root, schemas } = {}) {
     if (Buffer.byteLength(contents) > MAX_DOCUMENT_BYTES) throw new StudioError(413, 'Document is larger than 1 MB.');
     const data = parseDocument(id, contents);
     assertPlainData(data);
+    assertEditableAddress(id, data);
     return { id, ...identity, name: data.title ?? data.brand ?? id, data, revision: revisionOf(contents) };
   }
 
@@ -170,7 +182,7 @@ export async function createStudioStore({ root, schemas } = {}) {
       ...await files('src/content/home', new Set(['.json'])),
       ...await files('src/content/pages', new Set(['.json'])),
       ...await files('src/content/settings', new Set(['.json'])),
-      ...await files('src/content/notes', new Set(['.md']))
+      ...await files('src/content/notes', new Set(['.md', '.mdx']))
     ];
     return Promise.all(paths.map((path) => readDocument(path.replace('src/content/', ''))));
   }
@@ -178,6 +190,7 @@ export async function createStudioStore({ root, schemas } = {}) {
   async function validate(id, input, { preview = false } = {}) {
     const { kind } = parseId(id);
     assertPlainData(input);
+    assertEditableAddress(id, input);
     if (!input || typeof input !== 'object' || Array.isArray(input)) throw new StudioError(400, 'Document data must be an object.');
     if (Buffer.byteLength(JSON.stringify(input)) > MAX_DOCUMENT_BYTES) throw new StudioError(413, 'Document is larger than 1 MB.');
     const validator = { home: schema.homeSchema, page: schema.pageSchema, settings: schema.siteSettingsSchema, note: schema.noteSchema }[kind];
@@ -193,6 +206,25 @@ export async function createStudioStore({ root, schemas } = {}) {
     }
     if (kind === 'page' && data.published && data.sections.length === 0) {
       throw new StudioError(422, 'A published page needs at least one section.', [{ path: 'sections', message: 'Add a section before publishing.' }]);
+    }
+    if (!preview && ['page', 'note'].includes(kind)) {
+      const manifestPath = await containedPath(projectRoot, 'src/redirects.json', { allowMissing: true });
+      let manifest;
+      try { manifest = JSON.parse(await readFile(manifestPath, 'utf8')); }
+      catch (error) { if (error.code !== 'ENOENT') throw new StudioError(422, 'The redirects file needs to be corrected before changing publication status.'); }
+      if (manifest) {
+        let map;
+        try { map = redirectMap(manifest); } catch (error) { throw new StudioError(422, error.message); }
+        const route = parseId(id).route;
+        if (Object.hasOwn(map, route)) throw new StudioError(409, 'An existing redirect uses this page address. Choose a new address or update that redirect first.');
+        if (data.published === false) {
+          const targets = Object.values(map);
+          if (targets.includes(route)) throw new StudioError(422, 'This page has redirects from previous published addresses. Keep it published until those redirects are updated.');
+          if (kind === 'note' && targets.includes('/notes') && !(await documents()).some((document) => document.kind === 'note' && document.id !== id && document.data.published === true)) {
+            throw new StudioError(422, 'The notes index has published redirects. Keep at least one note published until those redirects are updated.');
+          }
+        }
+      }
     }
     if (kind === 'page') {
       const route = parseId(id).route;
@@ -264,6 +296,8 @@ export async function createStudioStore({ root, schemas } = {}) {
   return {
     root: projectRoot,
     exclusive: locked,
+    documents,
+    validateDocument: validate,
     readDocument,
     async state() {
       const configPath = await containedPath(projectRoot, '.pages.yml');

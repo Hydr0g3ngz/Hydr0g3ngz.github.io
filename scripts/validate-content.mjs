@@ -5,6 +5,7 @@ import { load as parseYaml } from 'js-yaml';
 import { marked } from 'marked';
 import sanitizeHtml from 'sanitize-html';
 import { homeSchema, noteSchema, pageSchema, siteSettingsSchema } from '../src/content-schema.ts';
+import { redirectMap } from './redirects.mjs';
 
 const MAX_FILE_BYTES = 2 * 1024 * 1024;
 const RESERVED_ROUTES = new Set(['index', 'notes', '404', '_astro', '__studio', 'api', 'preview', 'studio', 'images', 'uploads']);
@@ -195,13 +196,21 @@ export function validateContent({ root = resolve(import.meta.dirname, '..') } = 
   const pages = pageFiles.map((file) => parseDocument(file, 'page', pageSchema)).filter(Boolean);
   const notes = noteFiles.map((file) => parseDocument(file, 'note', noteSchema)).filter(Boolean);
   const routes = new Map();
+  const publishedRoutes = new Set(['/']);
   for (const entry of [...pages, ...notes]) {
     const route = routeFor(entry);
+    if (entry.published) publishedRoutes.add(route);
     if (routes.has(route)) report(label(entry.file), `route "${route}" is also used by ${label(routes.get(route))}`);
     else routes.set(route, entry.file);
     if (entry.kind === 'page' && entry.published && entry.data.sections.length === 0) report(label(entry.file), 'published pages need at least one section');
     if (entry.kind === 'note') validateNoteImages(entry);
   }
+  // The index route is generated only while at least one note is published.
+  if (notes.some((entry) => entry.published)) publishedRoutes.add('/notes');
+  try {
+    const manifest = checkedPath('src/redirects.json', { optional: true });
+    if (manifest) redirectMap(JSON.parse(readText(manifest)), { routes, publishedRoutes });
+  } catch (error) { report('src/redirects.json', error.message); }
   for (const entry of documents) {
     walkImages(entry.data, label(entry.file), entry.published);
     if (!entry.published) continue;

@@ -6,6 +6,7 @@ import { dirname, extname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { assertPlainData, containedPath, createStudioStore, MAX_DOCUMENT_BYTES, MAX_IMAGE_BYTES, StudioError } from './server-core.mjs';
 import { createProjectSnapshot, exportContentBundle, getProjectOverview, listProjectSnapshots } from './project-tools.mjs';
+import { createDocumentLifecycle } from './document-lifecycle.mjs';
 
 const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif', '.avif': 'image/avif', '.woff2': 'font/woff2' };
 
@@ -65,6 +66,12 @@ async function validateBuild(root) {
 
 export async function startStudioServer({ root = resolve(import.meta.dirname, '..'), port = 4310, astroPort = 4311, noAstro = false, schemas } = {}) {
   const store = await createStudioStore({ root, schemas });
+  const lifecycle = await createDocumentLifecycle(store);
+  try {
+    await access(join(store.root, 'studio/web/writer.js'));
+    const { buildStudio } = await import('../scripts/build-studio.mjs');
+    await buildStudio({ root: store.root });
+  } catch (error) { if (error.code !== 'ENOENT') throw error; }
   const token = randomBytes(32).toString('hex');
   let previewReady = false;
   let previewError = '';
@@ -114,7 +121,7 @@ export async function startStudioServer({ root = resolve(import.meta.dirname, '.
           if (request.headers.origin !== origin || !safeToken(request.headers['x-studio-token'], token)) throw new StudioError(403, 'Your Studio session expired or this request came from another website. Reload Studio.');
         }
         if (request.method === 'GET' && url.pathname === '/api/state') {
-          json(response, 200, { ...await store.state(), token, preview: { ready: previewReady, error: previewError }, build: { running: Boolean(buildPromise) } });
+          json(response, 200, { ...await store.exclusive(() => store.state()), token, preview: { ready: previewReady, error: previewError }, build: { running: Boolean(buildPromise) } });
           return;
         }
         if (request.method === 'GET' && url.pathname === '/api/history') {
@@ -122,7 +129,7 @@ export async function startStudioServer({ root = resolve(import.meta.dirname, '.
           return;
         }
         if (request.method === 'GET' && url.pathname === '/api/project') {
-          json(response, 200, await getProjectOverview(store.root));
+          json(response, 200, await store.exclusive(() => getProjectOverview(store.root)));
           return;
         }
         if (request.method === 'GET' && url.pathname === '/api/snapshots') {
@@ -139,6 +146,21 @@ export async function startStudioServer({ root = resolve(import.meta.dirname, '.
           json(response, 200, bundle);
           return;
         }
+        if (request.method === 'GET' && url.pathname === '/api/trash') {
+          json(response, 200, await lifecycle.trash());
+          return;
+        }
+        if (request.method === 'POST' && ['/api/lifecycle/plan', '/api/lifecycle/apply'].includes(url.pathname)) {
+          if (buildPromise) throw new StudioError(409, 'Wait for the website check to finish before changing the page list.');
+          if (!(request.headers['content-type'] ?? '').startsWith('application/json')) throw new StudioError(415, 'Send content as JSON.');
+          let data;
+          try { data = JSON.parse((await readBody(request, MAX_DOCUMENT_BYTES)).toString('utf8')); }
+          catch (error) { if (error instanceof StudioError) throw error; throw new StudioError(400, 'Invalid JSON.'); }
+          if (!data || typeof data !== 'object' || Array.isArray(data)) throw new StudioError(400, 'Send a JSON object.');
+          assertPlainData(data);
+          json(response, 200, await lifecycle[url.pathname.endsWith('/plan') ? 'plan' : 'apply'](data));
+          return;
+        }
         if (request.method === 'POST' && url.pathname === '/api/media') {
           if (buildPromise) throw new StudioError(409, 'Wait for the website check to finish before uploading an image.');
           let filename;
@@ -149,7 +171,7 @@ export async function startStudioServer({ root = resolve(import.meta.dirname, '.
         }
         if (request.method === 'POST' && url.pathname === '/api/validate') {
           if (buildPromise) throw new StudioError(409, 'A website check is already running.');
-          buildPromise = validateBuild(store.root);
+          buildPromise = store.exclusive(() => validateBuild(store.root));
           try { json(response, 200, await buildPromise); } finally { buildPromise = undefined; }
           return;
         }
@@ -180,7 +202,7 @@ export async function startStudioServer({ root = resolve(import.meta.dirname, '.
       }
       const file = url.pathname === '/' ? 'index.html' : decoded.replace(/^\//, '');
       // Only public Studio files are served directly. Astro handles website assets.
-      if (file === 'index.html' || (!file.includes('/') && ['.css', '.js', '.mjs', '.svg', '.woff2'].includes(extname(file)))) {
+      if (file === 'index.html' || ['generated/writer.js', 'generated/writer.css'].includes(file) || (!file.includes('/') && ['.css', '.js', '.mjs', '.svg', '.woff2'].includes(extname(file)))) {
         let path;
         try { path = await containedPath(store.root, `studio/web/${file}`); }
         catch (error) { if (error.status === 404 && file !== 'index.html') { proxy(request, response, `${url.pathname}${url.search}`); return; } throw error; }

@@ -54,6 +54,16 @@ test('the shared schema catches malformed JSON content and invalid note metadata
   assert.ok(result.errors.some((error) => error.includes('require YAML frontmatter')));
 });
 
+test('redirects to the notes index are valid only when at least one note is public', async (t) => {
+  const { put, putNote, check } = await fixture(t);
+  await put('src/redirects.json', { version: 1, redirects: [{ from: '/journal', to: '/notes' }] });
+  assert.ok(check().errors.some((error) => error.includes('missing or unpublished page: /notes')));
+  await putNote('first.md');
+  assert.equal(check().ok, true, check().errors.join('\n'));
+  await putNote('first.md', { ...note, published: false });
+  assert.ok(check().errors.some((error) => error.includes('missing or unpublished page: /notes')));
+});
+
 test('route aliases, casing, note index aliases, slug overrides, and reserved subpaths are checked', async (t) => {
   const { put, putNote, check } = await fixture(t);
   await put('src/content/pages/reading.json', page);
@@ -109,4 +119,20 @@ test('local Studio files remain allowed locally but cannot enter the public webs
   assert.equal(check().ok, true);
   await put('public/.studio/previews/leaked.json', { private: true });
   assert.ok(check().errors.some((error) => error.includes('must not be copied into the public website')));
+});
+
+test('redirect manifest cannot shadow pages or lead to drafts, missing pages, or loops', async (t) => {
+  const { put, check } = await fixture(t);
+  const saveRedirects = redirects => put('src/redirects.json', { version: 1, redirects });
+  await saveRedirects([{ from: '/old-about', to: '/about' }]);
+  assert.equal(check().ok, true);
+  await saveRedirects([{ from: '/about', to: '/elsewhere' }]);
+  assert.ok(check().errors.some(error => error.includes('conflicts')));
+  await put('src/content/pages/draft.json', { ...page, published: false });
+  for (const target of ['/draft', '/missing']) {
+    await saveRedirects([{ from: '/old', to: target }]);
+    assert.ok(check().errors.some(error => error.includes('missing or unpublished')));
+  }
+  await saveRedirects([{ from: '/a', to: '/b' }, { from: '/b', to: '/a' }]);
+  assert.ok(check().errors.some(error => error.includes('loop')));
 });

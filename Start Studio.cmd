@@ -2,18 +2,17 @@
 cd /d "%~dp0"
 where node >nul 2>nul
 if errorlevel 1 (
-  echo Node.js is required. Install the current LTS version from https://nodejs.org/
+  echo Node.js 24 or newer is required. Install it from https://nodejs.org/
   pause
   exit /b 1
 )
-if not exist "node_modules\astro" (
-  echo Installing project dependencies...
-  call npm ci
-  if errorlevel 1 (
-    echo Installation failed. Please check your connection and try again.
-    pause
-    exit /b 1
-  )
+node -e "process.exit(Number(process.versions.node.split('.')[0]) >= 24 ? 0 : 1)"
+if errorlevel 1 (
+  echo Studio requires Node.js 24 or newer. Please update Node.js and try again.
+  pause
+  exit /b 1
 )
-call npm run studio -- --open
-if errorlevel 1 pause
+node scripts\studio-launch.mjs
+set "studioExitCode=%errorlevel%"
+if not "%studioExitCode%"=="0" pause
+exit /b %studioExitCode%
