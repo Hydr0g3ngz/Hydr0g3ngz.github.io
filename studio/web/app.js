@@ -1,4 +1,6 @@
 import { createLifecycle } from './lifecycle.js';
+import { createCommandPalette } from './command-palette.js';
+import { migrateLegacyDrafts, workspaceStorage } from './workspace-storage.js';
 const $ = selector => document.querySelector(selector);
 const clone = value => structuredClone(value);
 const state = { documents: [], media: [], config: {}, token: '', current: null, drafts: new Map(), selected: null, tab: 'structure', mode: 'edit', scroll: 0, previewSequence: 0, activePreview: null, activeView: 'pages', previewTimer: null };
@@ -6,6 +8,8 @@ const names = { hero: 'Introduction', marquee: 'Moving line', shelf: 'Personal s
 const descriptions = { hero: 'An opening with room to breathe.', marquee: 'A quiet line of interests.', shelf: 'Books, music and things you keep.', work: 'Projects without the résumé feeling.', closing: 'Leave a small thought behind.', text: 'A heading and a few paragraphs.', image_text: 'Let an image sit beside your words.', list: 'A flexible collection of linked cards.', quote: 'A sentence worth keeping.', profile: 'An introduction and a few facts.', reading: 'Books, complete poems and personal notes.', listening: 'Selected songs, listening links and personal notes.' };
 const icons = { hero: 'Aa', marquee: '≈', shelf: '▥', work: '↗', closing: '…', text: 'Tt', image_text: '▧', list: '☷', quote: '“', profile: '◎', reading: '▤', listening: '♫' };
 let writerModule;
+let browserDraftStorage;
+let navigationIntent = 0;
 let inlineEditing = null;
 const activeWriters = new Set();
 function disposeWriters() { for (const editor of activeWriters) editor.destroy(); activeWriters.clear(); }
@@ -62,14 +66,14 @@ function setAt(object, path, value) {
 function draftKey(id) { return `will-studio-v1:${id}`; }
 function ensureDraft(doc) {
   if (state.drafts.has(doc.id)) return state.drafts.get(doc.id);
-  let restored; try { restored = JSON.parse(localStorage.getItem(draftKey(doc.id)) || 'null'); } catch {}
+  let restored; try { restored = JSON.parse(browserDraftStorage.getItem(draftKey(doc.id)) || 'null'); } catch {}
   const value = { data: clone(doc.data), revision: doc.revision, saved: JSON.stringify(doc.data), undo: [], redo: [], restored: false, conflict: false };
   if (restored?.data && JSON.stringify(restored.data) !== value.saved) {
     value.data = restored.data; value.restored = true; value.conflict = restored.revision !== doc.revision; value.revision = restored.revision;
   }
   state.drafts.set(doc.id, value); return value;
 }
-function persist() { const d = draft(); try { if (JSON.stringify(d.data) === d.saved) localStorage.removeItem(draftKey(state.current)); else localStorage.setItem(draftKey(state.current), JSON.stringify({ data: d.data, revision: d.revision, time: Date.now() })); } catch { toast('Browser draft storage is full. Save locally to keep your changes.', true); } }
+function persist() { const d = draft(); try { if (JSON.stringify(d.data) === d.saved) browserDraftStorage.removeItem(draftKey(state.current)); else browserDraftStorage.setItem(draftKey(state.current), JSON.stringify({ data: d.data, revision: d.revision, time: Date.now() })); } catch { toast('Browser draft storage is full. Save locally to keep your changes.', true); } }
 function updateStatus() {
   const d = draft(); if (!d) return;
   const dirty = JSON.stringify(d.data) !== d.saved || inlineEditing?.dirty;
@@ -113,7 +117,7 @@ function defaultValue(input, key = input.name) {
   if (field.type === 'image') return state.media[0]?.path || '/images/books-library.jpg';
   if (key === 'href' || /Url$/.test(key) || key === 'url') return 'https://example.com';
   if (key === 'imageAlt' || key === 'coverAlt') return 'Describe the image here';
-  if (key === 'videoId') return 'eVTXPUF4Oz4';
+  if (key === 'videoId') return '';
   return key === 'heading' || key === 'title' ? 'A new thought' : key === 'body' || key === 'text' || key === 'intro' || key === 'summary' ? 'Write something worth keeping.' : key === 'eyebrow' || key === 'tag' ? 'A SMALL COLLECTION' : key === 'label' ? 'Read more' : field.required ? 'Add your words here' : '';
 }
 function renderPages() {
@@ -132,7 +136,8 @@ function renderPages() {
   }
 }
 function selectDocument(id) {
-  if (!flushInlineEdit()) return;
+  if (!documentById(id) || !flushInlineEdit()) return false;
+  navigationIntent++;
   lastEdit = { path: '', at: 0 };
   inlineEditing = null;
   state.previewSequence++; state.activePreview = null; $('#preview-loading').hidden = false;
@@ -142,6 +147,7 @@ function selectDocument(id) {
   $('#canvas-stage').querySelector('.project-view')?.remove(); $('#preview-paper').hidden = false;
   $('#page-name').textContent = currentDoc().name || currentDoc().data.title; $('#page-kind').textContent = currentDoc().kind.toUpperCase(); $('#preview-route').textContent = currentDoc().route || '/';
   renderPages(); renderInspector(); updateStatus(); schedulePreview(0);
+  return true;
 }
 function renderInspector() {
   disposeWriters();
@@ -336,7 +342,7 @@ async function renderHistory(holder) {
   const historyId = state.current;
   holder.append(node('p', { class: 'notice', text: 'Each local save keeps the previous file. Restoring a version also backs up the current one.' }));
   holder.append(button('Reload version from disk', async () => { try { const fresh = await api('/api/state'); const doc = fresh.documents.find(d => d.id === historyId); adoptDiskVersion(doc); toast('Reloaded from disk. Your previous browser draft is in History.'); } catch (error) { toast(error.message, true); } }, { class: 'quiet-button' }));
-  let recovered = []; try { recovered = JSON.parse(localStorage.getItem(`will-studio-recovery:${historyId}`) || '[]'); } catch {}
+  let recovered = []; try { recovered = JSON.parse(browserDraftStorage.getItem(`will-studio-recovery:${historyId}`) || '[]'); } catch {}
   if (recovered.length) holder.append(node('h3', { text: 'Recovered browser drafts' }));
   for (const entry of recovered) holder.append(node('div', { class: 'history-entry' }, [node('div', {}, [new Date(entry.time).toLocaleString(), node('small', { text: 'Unsaved draft preserved before restoring' })]), button('Open draft', () => { if (state.current !== historyId) return; mutate(data => { for (const key of Object.keys(data)) delete data[key]; Object.assign(data, clone(entry.data)); }, { render: true }); toast('Recovered draft opened. Save locally when ready.'); })]));
   try { const result = await api(`/api/history?id=${encodeURIComponent(historyId)}`); const items = result.history || result.versions || result; if (!items.length) holder.append(node('p', { class: 'empty', text: 'No saved versions yet. A backup is created the next time you save.' }));
@@ -347,10 +353,10 @@ function adoptDiskVersion(doc) {
   if (!doc?.id) throw new Error('The document is no longer available on disk.');
   const previous = state.drafts.get(doc.id);
   if (previous && JSON.stringify(previous.data) !== previous.saved) {
-    const key = `will-studio-recovery:${doc.id}`; const recovered = JSON.parse(localStorage.getItem(key) || '[]'); recovered.unshift({ time: Date.now(), data: previous.data });
-    localStorage.setItem(key, JSON.stringify(recovered.slice(0, 10)));
+    const key = `will-studio-recovery:${doc.id}`; const recovered = JSON.parse(browserDraftStorage.getItem(key) || '[]'); recovered.unshift({ time: Date.now(), data: previous.data });
+    browserDraftStorage.setItem(key, JSON.stringify(recovered));
   }
-  Object.assign(documentById(doc.id), doc); localStorage.removeItem(draftKey(doc.id)); state.drafts.delete(doc.id); const restored = ensureDraft(doc);
+  Object.assign(documentById(doc.id), doc); browserDraftStorage.removeItem(draftKey(doc.id)); state.drafts.delete(doc.id); const restored = ensureDraft(doc);
   if (previous) restored.undo = [...previous.undo, clone(previous.data)].slice(-80);
   if (state.current === doc.id) selectDocument(doc.id); else renderPages();
 }
@@ -374,7 +380,7 @@ async function projectView() {
 function help() { const content = node('div', {}, [node('p', { class: 'modal-intro', text: 'Your website is the canvas. Your files remain the source of truth.' }), node('ol', {}, [node('li', { text: 'Choose a page. Click a section in the preview to open its fields.' }), node('li', { text: 'Double-click simple text to write directly on the page. Use the inspector for images, lists, links and longer passages.' }), node('li', { text: 'Add a section, drag to reorder, or use the up/down arrows. Every change can be undone.' }), node('li', { text: 'Switch to Interact to try links, music and other page controls. Switch back to keep editing.' }), node('li', { text: 'Save locally writes to your project with a backup. Check site validates the saved files. Publishing still happens through your GitHub workflow.' })]), node('div', { class: 'notice', text: 'Browser drafts are kept automatically. File history and project snapshots live in .studio. Keep external backups for long-term safekeeping.' }), node('div', { class: 'shortcut-list' }, ['Save locally', node('kbd', { text: 'Ctrl / ⌘ S' }), 'Undo', node('kbd', { text: 'Ctrl / ⌘ Z' }), 'Redo', node('kbd', { text: 'Ctrl / ⌘ Shift Z' }), 'Close dialog', node('kbd', { text: 'Escape' })])]); openModal('A quiet guide to Studio', content); }
 function dirtyDocumentIds(ids) {
   flushInlineEdit();
-  return inspectBrowserDrafts({ ids, documents: state.documents, drafts: state.drafts, storage: localStorage }).dirtyIds;
+  return inspectBrowserDrafts({ ids, documents: state.documents, drafts: state.drafts, storage: browserDraftStorage }).dirtyIds;
 }
 import { archiveOrphanBrowserDrafts, inspectBrowserDrafts, reconcileLifecycleDrafts } from './draft-reconcile.js';
 function documentsForLifecyclePlan(plan) {
@@ -384,21 +390,55 @@ function documentsForLifecyclePlan(plan) {
   return state.documents.filter(document => !absent.has(document.id));
 }
 const lifecycle = createLifecycle({ api, node, button, openModal, closeModal: () => $('#modal').close(), toast, currentDoc, dirtyIds: dirtyDocumentIds,
-  orphanIds(ids, { plan }) { return inspectBrowserDrafts({ ids, documents: documentsForLifecyclePlan(plan), drafts: state.drafts, storage: localStorage }).orphanIds; },
+  orphanIds(ids, { plan }) { return inspectBrowserDrafts({ ids, documents: documentsForLifecyclePlan(plan), drafts: state.drafts, storage: browserDraftStorage }).orphanIds; },
   archiveOrphans(ids, { plan }) {
-    const result = archiveOrphanBrowserDrafts({ ids, documents: documentsForLifecyclePlan(plan), drafts: state.drafts, storage: localStorage });
+    const result = archiveOrphanBrowserDrafts({ ids, documents: documentsForLifecyclePlan(plan), drafts: state.drafts, storage: browserDraftStorage });
     if (ids.includes(state.current) && currentDoc() && !draft()) ensureDraft(currentDoc());
     return result;
   },
-  beforeApply({ affected }) { return inspectBrowserDrafts({ ids: affected, documents: state.documents, drafts: state.drafts, storage: localStorage }); },
+  beforeApply({ affected }) { return inspectBrowserDrafts({ ids: affected, documents: state.documents, drafts: state.drafts, storage: browserDraftStorage }); },
   async onApplied(result, _payload, inspection) {
     const documents = result.documents || (await api('/api/state')).documents;
-    const reconciliation = reconcileLifecycleDrafts({ previousDocuments: state.documents, nextDocuments: documents, drafts: state.drafts, storage: localStorage, changedIds: result.changedIds, inspection, oldId: result.oldId, newId: result.newId });
+    const reconciliation = reconcileLifecycleDrafts({ previousDocuments: state.documents, nextDocuments: documents, drafts: state.drafts, storage: browserDraftStorage, changedIds: result.changedIds, inspection, oldId: result.oldId, newId: result.newId });
     state.documents = documents;
     const selected = result.document?.id || result.newId || (documentById(state.current) ? state.current : documents.find(doc => doc.kind === 'home')?.id) || documents[0]?.id;
     if (selected) selectDocument(selected);
     return reconciliation.recovered.length ? 'New browser edits were kept in the page’s History.' : reconciliation.conflicts.length ? 'Unrelated browser drafts were kept; review their external-change notices.' : '';
   }
+});
+async function openSearchDocument(id) {
+    if (!flushInlineEdit()) return false;
+    const intent = ++navigationIntent;
+    if (!documentById(id)) {
+      const latest = (await api('/api/state')).documents.find(doc => doc.id === id);
+      if (intent !== navigationIntent) return false;
+      if (!latest) { toast('This page is no longer on disk. Reload Studio to refresh the page list.', true); return false; }
+      state.documents.push(latest);
+    }
+    return selectDocument(id);
+}
+const commandPalette = createCommandPalette({
+  search: query => api(`/api/search?q=${encodeURIComponent(query)}`), toast,
+  openDocument: openSearchDocument,
+  selectField(path, sectionIndex) { if (Array.isArray(path)) selectBlock(Number.isInteger(sectionIndex) ? sectionIndex : 'page', true, path); },
+  onMedia: () => showMedia(),
+  listCommands: () => [
+    { id: 'new', label: 'New page or note', description: 'Start an unpublished page, including a nested subpage.', run: newPage },
+    { id: 'section', label: 'Add a section', description: 'Choose a reusable layout for this page.', disabled: !Array.isArray(draft()?.data.sections), run: showPalette },
+    { id: 'actions', label: 'Page actions', description: 'Change an address, duplicate, or safely remove a page.', run: lifecycle.showActions },
+    { id: 'media', label: 'Media library', description: 'Browse and upload local images.', run: () => showMedia() },
+    { id: 'history', label: 'Saved versions', description: 'Review this page’s file history and recovered drafts.', run: () => { state.tab = 'history'; renderInspector(); } },
+    { id: 'trash', label: 'Recently removed', description: 'Restore a page from the local trash.', run: lifecycle.showTrash },
+    { id: 'project', label: 'Project overview', description: 'Health, Git, snapshots, and content export.', run: projectView },
+    { id: 'check', label: 'Check saved site', description: 'Run the production build without publishing.', run: validate },
+    { id: 'save', label: 'Save current page', description: 'Save locally; this does not publish.', disabled: !draft() || JSON.stringify(draft().data) === draft().saved, run: save },
+    { id: 'help', label: 'Studio guide', description: 'Editing shortcuts and recovery basics.', run: help }
+  ]
+});
+function openCommands() { if (!$('#modal').open && flushInlineEdit()) commandPalette.open(); }
+$('#commands').onclick = openCommands;
+document.addEventListener('keydown', event => {
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k' && !event.defaultPrevented && !event.target.closest?.('.studio-writer')) { event.preventDefault(); openCommands(); }
 });
 $('#page-actions').onclick = lifecycle.showActions; $('#trash').onclick = lifecycle.showTrash;
 $('#undo').onclick = () => historyStep('undo'); $('#redo').onclick = () => historyStep('redo'); $('#save').onclick = save; $('#check').onclick = validate; $('#new-page').onclick = newPage; $('#media').onclick = () => showMedia(); $('#help').onclick = help; $('#page-search').oninput = renderPages; $('#project-tab').onclick = projectView; $('#pages-tab').onclick = () => selectDocument(state.current);
@@ -408,8 +448,19 @@ $('#interact').onclick = () => { if (!flushInlineEdit()) return; state.mode = st
 document.addEventListener('keydown', event => { if (!(event.ctrlKey || event.metaKey)) return; if (event.key.toLowerCase() === 's') { event.preventDefault(); save(); } else if (event.key.toLowerCase() === 'z' && !['INPUT', 'TEXTAREA'].includes(event.target.tagName) && !event.target.isContentEditable && !event.defaultPrevented) { event.preventDefault(); historyStep(event.shiftKey ? 'redo' : 'undo'); } });
 window.addEventListener('beforeunload', event => { flushInlineEdit(); if ([...state.drafts.values()].some(d => JSON.stringify(d.data) !== d.saved)) event.preventDefault(); });
 async function start() {
-  try { const result = await api('/api/state'); Object.assign(state, { documents: result.documents, media: result.media, config: result.config, token: result.token }); selectDocument(state.documents.find(d => d.kind === 'home')?.id || state.documents[0].id); }
+  try {
+    const result = await api('/api/state');
+    browserDraftStorage = workspaceStorage(localStorage, result.workspace?.id);
+    try { migrateLegacyDrafts(localStorage, result.workspace.id, { originalProject: result.workspace.originalProject }); }
+    catch { toast('Older browser drafts could not be migrated. Their original data is still kept in this browser; save new edits locally.', true); }
+    Object.assign(state, { documents: result.documents, media: result.media, config: result.config, token: result.token, workspace: result.workspace });
+    $('#workspace-title').textContent = result.workspace.project.name;
+    document.title = `${result.workspace.project.name} · Will Studio`;
+    const live = $('#live-site'); live.hidden = !result.workspace.project.siteUrl;
+    if (result.workspace.project.siteUrl) live.href = result.workspace.project.siteUrl;
+    selectDocument(state.documents.find(d => d.kind === 'home')?.id || state.documents[0].id);
+  }
   catch (error) { $('#preview-loading').hidden = true; $('#save-state').textContent = 'Could not open workspace'; toast(error.message, true); }
 }
 start();
-export { selectDocument, save, openModal, flushInlineEdit };
+export { selectDocument, save, openModal, flushInlineEdit, openSearchDocument };

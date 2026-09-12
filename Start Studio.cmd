@@ -12,7 +12,7 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-node scripts\studio-launch.mjs
+node scripts\studio-launch.mjs %*
 set "studioExitCode=%errorlevel%"
 if not "%studioExitCode%"=="0" pause
 exit /b %studioExitCode%

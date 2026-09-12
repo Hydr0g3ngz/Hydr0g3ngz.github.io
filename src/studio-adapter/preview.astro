@@ -1,17 +1,17 @@
 ---
 import { readFile } from 'node:fs/promises';
-import { renderNoteMarkdown } from '../src/lib/markdown';
+import { renderNoteMarkdown } from '../lib/markdown';
 import { getEntry } from 'astro:content';
-import Base from '../src/layouts/Base.astro';
-import BlockRenderer from '../src/components/BlockRenderer.astro';
-import PageHeader from '../src/components/PageHeader.astro';
-import { homeSchema, pageSchema, noteSchema, siteSettingsSchema } from '../src/content-schema';
+import Base from '../layouts/Base.astro';
+import BlockRenderer from '../components/BlockRenderer.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { homeSchema, pageSchema, noteSchema, siteSettingsSchema } from '../content-schema';
 
 export const prerender = false;
 const rev = Astro.url.searchParams.get('rev');
 if (!rev || !/^[a-f0-9]{24}$/.test(rev)) return new Response('Invalid preview revision.', { status: 400 });
 let preview;
-try { preview = JSON.parse(await readFile(new URL(`../.studio/previews/${rev}.json`, import.meta.url), 'utf8')); }
+try { preview = JSON.parse(await readFile(new URL(`../../.studio/previews/${rev}.json`, import.meta.url), 'utf8')); }
 catch { return new Response('This preview has expired. Return to Studio and select the page again.', { status: 404 }); }
 const kind = preview.kind ?? (preview.id.startsWith('home/') ? 'home' : preview.id.startsWith('notes/') ? 'note' : 'page');
 const parsed = kind === 'home' ? homeSchema.parse(preview.data) : kind === 'note' ? noteSchema.parse(preview.data) : kind === 'settings' ? null : pageSchema.parse(preview.data);
@@ -30,7 +30,7 @@ const wireData = JSON.stringify(preview.data).replaceAll('<', '\\u003c');
     <div class="note-body prose" set:html={markdown} />
   </article>}
   <script is:inline type="application/json" id="studio-content-data" data-document-id={preview.id} data-preview-rev={rev} set:html={wireData} />
-  <script src="./preview-bridge.js"></script>
+  <script is:inline type="module" src="/__studio/bridge.js"></script>
 </Base>
 <style is:global>
   .studio-section { display: contents; }

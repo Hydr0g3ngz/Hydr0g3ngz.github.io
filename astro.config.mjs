@@ -1,6 +1,6 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
-import studio from './studio/integration.mjs';
+import studio from './src/studio-adapter/integration.mjs';
 import { redirectMap } from './scripts/redirects.mjs';
 import redirects from './src/redirects.json' with { type: 'json' };
 

@@ -3,6 +3,7 @@ import test from 'node:test';
 import { readFile } from 'node:fs/promises';
 import { JSDOM } from 'jsdom';
 import { build } from 'esbuild';
+import { workspaceStorage } from '../studio/web/workspace-storage.js';
 
 const built = await build({ entryPoints: ['studio/preview-bridge.js'], bundle: true, format: 'iife', platform: 'browser', write: false });
 const bridgeScript = built.outputFiles[0].text;
@@ -114,12 +115,14 @@ test('real Studio page switch, Save locally and modal opening synchronously keep
     { id: identity.id, kind: 'home', name: 'Home', route: '/', revision: 'home-1', data: { title: 'Home', sections: [{ type: 'text', heading: 'First version' }] } },
     { id: 'pages/about.json', kind: 'page', name: 'About', route: '/about/', revision: 'about-1', data: { title: 'About', sections: [{ type: 'text', heading: 'About version' }] } }
   ];
+  const workspace = { id: 'a'.repeat(24), project: { name: 'Test project' }, originalProject: false };
+  const scopedStorage = workspaceStorage(window.localStorage, workspace.id);
   const requests = []; let previewNumber = 0; let saveGate;
   globalThis.fetch = async (url, options = {}) => {
     const body = options.body ? JSON.parse(options.body) : undefined;
     requests.push({ url, body, method: options.method });
     let response;
-    if (url === '/api/state') response = { documents: structuredClone(docs), media: [], config: { content: [], components: {} }, token: 'test-session' };
+    if (url === '/api/state') response = { documents: structuredClone(docs), media: [], config: { content: [], components: {} }, token: 'test-session', workspace };
     else if (url === '/api/preview') { const rev = (++previewNumber).toString(16).padStart(24, '0'); response = { rev, url: `/preview/__studio/preview?rev=${rev}` }; }
     else if (url === '/api/document') { if (saveGate) await saveGate; const doc = docs.find(item => item.id === body.id); doc.data = body.data; doc.revision += '-saved'; response = { document: structuredClone(doc) }; }
     else throw new Error(`Unexpected request: ${url}`);
@@ -146,7 +149,7 @@ test('real Studio page switch, Save locally and modal opening synchronously keep
     assert.equal(window.document.querySelector('#save').disabled, false);
     const previous = frame.src;
     app.selectDocument('pages/about.json');
-    const stored = JSON.parse(window.localStorage.getItem(`will-studio-v1:${identity.id}`));
+    const stored = JSON.parse(scopedStorage.getItem(`will-studio-v1:${identity.id}`));
     assert.equal(stored.data.sections[0].heading, 'Kept when switching directly');
     await waitForPreview(previous);
     ({ element, frame } = installCurrent());
@@ -163,21 +166,167 @@ test('real Studio page switch, Save locally and modal opening synchronously keep
     releaseSave(); await pendingSave; saveGate = undefined;
     assert.equal(window.document.querySelector('#save').disabled, false);
     app.flushInlineEdit();
-    assert.equal(JSON.parse(window.localStorage.getItem('will-studio-v1:pages/about.json')).data.sections[0].heading, 'Typed while that save was running');
+    assert.equal(JSON.parse(scopedStorage.getItem('will-studio-v1:pages/about.json')).data.sections[0].heading, 'Typed while that save was running');
     await app.save();
     assert.equal(requests.filter(item => item.url === '/api/document').at(-1).body.data.sections[0].heading, 'Typed while that save was running');
     begin(frame.contentWindow, element); type(frame.contentWindow, element, 'Kept before opening a modal');
     app.openModal('Test action', window.document.createElement('div'));
     assert.equal(window.__willStudioInline?.active ?? frame.contentWindow.__willStudioInline.active, false);
-    assert.equal(JSON.parse(window.localStorage.getItem('will-studio-v1:pages/about.json')).data.sections[0].heading, 'Kept before opening a modal');
+    assert.equal(JSON.parse(scopedStorage.getItem('will-studio-v1:pages/about.json')).data.sections[0].heading, 'Kept before opening a modal');
     window.dispatchEvent(new window.MessageEvent('message', { origin: window.location.origin, source: frame.contentWindow, data: { source: 'will-studio-preview', id: 'pages/about.json', rev: 'wrong-revision', type: 'edit', path: ['sections', '0', 'heading'], value: 'Must be rejected' } }));
-    assert.equal(JSON.parse(window.localStorage.getItem('will-studio-v1:pages/about.json')).data.sections[0].heading, 'Kept before opening a modal');
+    assert.equal(JSON.parse(scopedStorage.getItem('will-studio-v1:pages/about.json')).data.sections[0].heading, 'Kept before opening a modal');
     window.document.querySelector('#modal').close();
     begin(frame.contentWindow, element); type(frame.contentWindow, element, 'Kept before leaving Studio');
     const unload = new window.Event('beforeunload', { cancelable: true });
     window.dispatchEvent(unload);
     assert.equal(unload.defaultPrevented, true);
-    assert.equal(JSON.parse(window.localStorage.getItem('will-studio-v1:pages/about.json')).data.sections[0].heading, 'Kept before leaving Studio');
+    assert.equal(JSON.parse(scopedStorage.getItem('will-studio-v1:pages/about.json')).data.sections[0].heading, 'Kept before leaving Studio');
+  } finally {
+    for (const timer of timers) clearTimeout(timer);
+    globalThis.setTimeout = originalSetTimeout;
+    globalThis.fetch = originalFetch;
+    browser.window.close();
+    for (const [name, descriptor] of savedGlobals) { if (descriptor) Object.defineProperty(globalThis, name, descriptor); else delete globalThis[name]; }
+  }
+});
+
+test('real Studio search keeps inline edits, locates fields, preserves rich-text shortcuts and rejects stale navigation intents', async () => {
+  const html = await readFile(new URL('../studio/web/index.html', import.meta.url), 'utf8');
+  const browser = new JSDOM(html, { url: 'http://127.0.0.1:4310/', runScripts: 'outside-only', pretendToBeVisual: true });
+  const { window } = browser;
+  const savedGlobals = new Map();
+  for (const name of ['window', 'document', 'navigator', 'location', 'localStorage', 'HTMLElement', 'Element', 'Node']) {
+    savedGlobals.set(name, Object.getOwnPropertyDescriptor(globalThis, name));
+    Object.defineProperty(globalThis, name, { value: window[name], configurable: true });
+  }
+  const originalFetch = globalThis.fetch;
+  const originalSetTimeout = globalThis.setTimeout;
+  const timers = new Set();
+  globalThis.setTimeout = (callback, delay, ...args) => { const timer = originalSetTimeout(callback, delay, ...args); timers.add(timer); return timer; };
+  const workspace = { id: 'a'.repeat(24), project: { name: 'Test project' }, originalProject: false };
+  const scopedStorage = workspaceStorage(window.localStorage, workspace.id);
+  const targetId = 'pages/reading/deeper.json';
+  const targetPath = ['sections', '0', 'cards', '0', 'title'];
+  const docs = [
+    { id: identity.id, kind: 'home', name: 'Home', route: '/', revision: 'home-1', data: { title: 'Home', sections: [{ type: 'text', heading: 'First version' }] } },
+    { id: targetId, kind: 'page', name: 'A nested page', route: '/reading/deeper/', revision: 'page-1', data: { title: 'A nested page', sections: [{ type: 'text', heading: 'Books', cards: [{ title: 'A seed of an idea' }] }] } }
+  ];
+  const config = {
+    content: [{ path: 'src/content/pages', type: 'collection', fields: [{ name: 'title', type: 'string' }] }],
+    components: { text: { fields: [{ name: 'heading', type: 'string' }, { name: 'cards', type: 'object', list: true, fields: [{ name: 'title', type: 'string' }] }] } }
+  };
+  const requests = [];
+  const stateLookups = [];
+  let previewNumber = 0;
+  globalThis.fetch = async (url, options = {}) => {
+    const body = options.body ? JSON.parse(options.body) : undefined;
+    requests.push({ url, body, options });
+    let response;
+    if (url === '/api/state') response = stateLookups.length ? await stateLookups.shift() : { documents: structuredClone(docs), media: [], config, token: 'test-session', workspace };
+    else if (url === '/api/preview') { const rev = (++previewNumber).toString(16).padStart(24, '0'); response = { rev, url: `/preview/__studio/preview?rev=${rev}` }; }
+    else if (url.startsWith('/api/search?')) {
+      const query = new URL(url, window.location.origin).searchParams.get('q');
+      response = { results: [{ id: targetId, kind: 'page', title: 'A nested page', route: '/reading/deeper/', path: query === 'title' ? ['title'] : targetPath, ...(query === 'title' ? {} : { sectionIndex: 0 }), excerpt: query === 'title' ? 'A nested page' : 'A seed of an idea', matchStart: 2, matchEnd: 6, published: true }], total: 1, truncated: false };
+    } else throw new Error(`Unexpected request: ${url}`);
+    return new Response(JSON.stringify(response), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+  window.HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', ''); };
+  window.HTMLDialogElement.prototype.close = function () { this.removeAttribute('open'); };
+  const scrolled = [];
+  window.HTMLElement.prototype.scrollIntoView = function () { scrolled.push(this); };
+  const delay = ms => new Promise(resolve => originalSetTimeout(resolve, ms));
+  const until = async check => { for (let count = 0; count < 100; count++) { if (check()) return; await delay(5); } throw new Error('Expected Studio state did not arrive.'); };
+  const key = (target, key, extra = {}) => { const event = new window.KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...extra }); target.dispatchEvent(event); return event; };
+  try {
+    const app = await import(`../studio/web/app.js?search-regression=${Date.now()}`);
+    const doc = window.document;
+    await until(() => doc.querySelector('#preview').src.includes('rev='));
+    const frame = doc.querySelector('#preview');
+    const request = requests.filter(item => item.url === '/api/preview').at(-1);
+    const rev = new URL(frame.src).searchParams.get('rev');
+    const heading = preparePreview(frame.contentWindow, request.body.data, { id: identity.id, rev });
+    begin(frame.contentWindow, heading); type(frame.contentWindow, heading, 'Keep these words before searching');
+    const launch = doc.querySelector('#commands'); launch.focus(); launch.click();
+    assert.equal(frame.contentWindow.__willStudioInline.active, false);
+    assert.equal(JSON.parse(scopedStorage.getItem(`will-studio-v1:${identity.id}`)).data.sections[0].heading, 'Keep these words before searching');
+    assert.equal(window.localStorage.getItem(`will-studio-v1:${identity.id}`), null, 'new edits never use the legacy cross-project key');
+    const palette = doc.querySelector('.command-dialog');
+    const searchInput = palette.querySelector('[role="combobox"]');
+    assert.equal(palette.open, true);
+    searchInput.value = 'seed'; searchInput.dispatchEvent(new window.Event('input', { bubbles: true }));
+    await until(() => palette.querySelector('.command-option-excerpt mark')?.textContent === 'seed');
+    const searchRequest = requests.find(item => item.url === '/api/search?q=seed');
+    assert.equal(searchRequest.options.headers['x-studio-token'], 'test-session');
+    key(searchInput, 'Enter');
+    await until(() => doc.querySelector('#page-name').textContent === 'A nested page' && doc.querySelector('.field-highlight'));
+    assert.equal(palette.open, false);
+    const field = [...doc.querySelectorAll('#inspector [data-field-path]')].find(node => node.dataset.fieldPath === JSON.stringify(targetPath));
+    assert.ok(field.classList.contains('field-highlight'));
+    assert.equal(field.querySelector('input').value, 'A seed of an idea');
+    let parent = field.parentElement;
+    while (parent && parent.id !== 'inspector') { if (parent.tagName === 'DETAILS') assert.equal(parent.open, true); parent = parent.parentElement; }
+    assert.ok(scrolled.includes(field));
+    assert.ok(doc.querySelector('#structure-tab').classList.contains('active'));
+
+    // A top-level title result should open Page details, not a nonexistent section.
+    key(doc.body, 'k', { ctrlKey: true });
+    searchInput.value = 'title'; searchInput.dispatchEvent(new window.Event('input', { bubbles: true }));
+    await until(() => requests.some(item => item.url === '/api/search?q=title') && palette.dataset.state === 'ready');
+    palette.querySelector('[role="option"]').click();
+    await until(() => doc.querySelector('#details-tab').classList.contains('active'));
+    assert.equal(doc.querySelector('.field-highlight').dataset.fieldPath, '["title"]');
+
+    // The host shortcut must not override the link shortcut inside a rich writer.
+    const writer = doc.createElement('div'); writer.className = 'studio-writer';
+    const writerInput = doc.createElement('textarea'); writer.append(writerInput); doc.body.append(writer);
+    writerInput.focus();
+    assert.equal(key(writerInput, 'k', { metaKey: true }).defaultPrevented, false);
+    assert.equal(palette.open, false);
+    assert.equal(key(doc.body, 'k', { ctrlKey: true }).defaultPrevented, true);
+    assert.equal(palette.open, true);
+    key(searchInput, 'Escape');
+    assert.equal(doc.activeElement, writerInput);
+
+    // Search may find a just-created page that is not in the app's loaded list.
+    // Its slow lookup must not override a later sidebar choice or search intent.
+    const newDocument = (slug, title) => ({ id: `pages/${slug}.json`, kind: 'page', name: title, route: `/${slug}/`, revision: `${slug}-1`, data: { title, sections: [{ type: 'text', heading: title }] } });
+    const lookupGate = (...newDocuments) => {
+      let release;
+      stateLookups.push(new Promise(resolve => { release = () => resolve({ documents: structuredClone([...docs, ...newDocuments]), media: [], config, token: 'test-session', workspace }); }));
+      return release;
+    };
+    const late = newDocument('late-result', 'A slow result');
+    const releaseLate = lookupGate(late);
+    const lateLookup = app.openSearchDocument(late.id);
+    app.selectDocument(identity.id);
+    releaseLate();
+    assert.equal(await lateLookup, false);
+    assert.equal(doc.querySelector('#page-name').textContent, 'Home');
+    assert.equal([...doc.querySelectorAll('.page-label')].some(label => label.textContent === late.name), false);
+
+    for (const responseOrder of ['older-first', 'newer-first']) {
+      const older = newDocument(`${responseOrder}-older`, `${responseOrder} older`);
+      const newer = newDocument(`${responseOrder}-newer`, `${responseOrder} newer`);
+      const releaseOlder = lookupGate(older, newer);
+      const releaseNewer = lookupGate(older, newer);
+      const priorPage = doc.querySelector('#page-name').textContent;
+      const olderLookup = app.openSearchDocument(older.id);
+      const newerLookup = app.openSearchDocument(newer.id);
+      if (responseOrder === 'older-first') {
+        releaseOlder();
+        assert.equal(await olderLookup, false);
+        assert.equal(doc.querySelector('#page-name').textContent, priorPage, 'a newer pending intent already supersedes the old result');
+        releaseNewer();
+        assert.equal(await newerLookup, true);
+      } else {
+        releaseNewer();
+        assert.equal(await newerLookup, true);
+        releaseOlder();
+        assert.equal(await olderLookup, false);
+      }
+      assert.equal(doc.querySelector('#page-name').textContent, newer.name);
+      assert.equal([...doc.querySelectorAll('.page-label')].some(label => label.textContent === older.name), false);
+    }
   } finally {
     for (const timer of timers) clearTimeout(timer);
     globalThis.setTimeout = originalSetTimeout;

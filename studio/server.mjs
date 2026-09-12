@@ -1,5 +1,5 @@
 import { createServer, request as httpRequest } from 'node:http';
-import { randomBytes, timingSafeEqual } from 'node:crypto';
+import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { fork, spawn } from 'node:child_process';
 import { access, readFile } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
@@ -7,6 +7,11 @@ import { pathToFileURL } from 'node:url';
 import { assertPlainData, containedPath, createStudioStore, MAX_DOCUMENT_BYTES, MAX_IMAGE_BYTES, StudioError } from './server-core.mjs';
 import { createProjectSnapshot, exportContentBundle, getProjectOverview, listProjectSnapshots } from './project-tools.mjs';
 import { createDocumentLifecycle } from './document-lifecycle.mjs';
+import { loadProjectConfig } from './project-config.mjs';
+import { searchContent } from './content-search.mjs';
+import { parseStudioArguments, STUDIO_HELP } from './cli.mjs';
+
+const runtimeRoot = resolve(import.meta.dirname, '..');
 
 const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif', '.avif': 'image/avif', '.woff2': 'font/woff2' };
 
@@ -64,13 +69,16 @@ async function validateBuild(root) {
   });
 }
 
-export async function startStudioServer({ root = resolve(import.meta.dirname, '..'), port = 4310, astroPort = 4311, noAstro = false, schemas } = {}) {
+export async function startStudioServer({ root = runtimeRoot, port = 4310, astroPort = 4311, noAstro = false, schemas, projectConfig, editorRoot = runtimeRoot } = {}) {
+  const configuration = projectConfig ?? await loadProjectConfig(root);
   const store = await createStudioStore({ root, schemas });
-  const lifecycle = await createDocumentLifecycle(store);
+  const normalizedRoot = process.platform === 'win32' ? store.root.toLowerCase() : store.root;
+  const workspace = { ...configuration, id: createHash('sha256').update(normalizedRoot).digest('hex').slice(0, 24), originalProject: normalizedRoot === (process.platform === 'win32' ? runtimeRoot.toLowerCase() : runtimeRoot) };
+  const lifecycle = await createDocumentLifecycle(store, { siteUrl: configuration.project?.siteUrl });
   try {
-    await access(join(store.root, 'studio/web/writer.js'));
+    await access(join(editorRoot, 'studio/web/writer.js'));
     const { buildStudio } = await import('../scripts/build-studio.mjs');
-    await buildStudio({ root: store.root });
+    await buildStudio({ root: editorRoot });
   } catch (error) { if (error.code !== 'ENOENT') throw error; }
   const token = randomBytes(32).toString('hex');
   let previewReady = false;
@@ -121,7 +129,13 @@ export async function startStudioServer({ root = resolve(import.meta.dirname, '.
           if (request.headers.origin !== origin || !safeToken(request.headers['x-studio-token'], token)) throw new StudioError(403, 'Your Studio session expired or this request came from another website. Reload Studio.');
         }
         if (request.method === 'GET' && url.pathname === '/api/state') {
-          json(response, 200, { ...await store.exclusive(() => store.state()), token, preview: { ready: previewReady, error: previewError }, build: { running: Boolean(buildPromise) } });
+          json(response, 200, { ...await store.exclusive(() => store.state()), workspace, token, preview: { ready: previewReady, error: previewError }, build: { running: Boolean(buildPromise) } });
+          return;
+        }
+        if (request.method === 'GET' && url.pathname === '/api/search') {
+          const query = url.searchParams.get('q') ?? '';
+          if (query.length > 200) throw new StudioError(400, 'Search supports up to 200 characters.');
+          json(response, 200, await store.exclusive(async () => searchContent({ ...await store.state(), query })));
           return;
         }
         if (request.method === 'GET' && url.pathname === '/api/history') {
@@ -196,6 +210,13 @@ export async function startStudioServer({ root = resolve(import.meta.dirname, '.
         throw new StudioError(404, 'Unknown Studio API endpoint.');
       }
       if (!['GET', 'HEAD'].includes(request.method)) throw new StudioError(405, 'Only reading website files is allowed.');
+      const bridgeFiles = { '/__studio/bridge.js': 'preview-bridge.js', '/__studio/inline-session.mjs': 'inline-session.mjs' };
+      if (Object.hasOwn(bridgeFiles, url.pathname)) {
+        const contents = await readFile(await containedPath(editorRoot, `studio/${bridgeFiles[url.pathname]}`));
+        response.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-store' });
+        response.end(request.method === 'HEAD' ? undefined : contents);
+        return;
+      }
       if (url.pathname === '/preview' || url.pathname.startsWith('/preview/')) {
         proxy(request, response, `${url.pathname.replace(/^\/preview/, '') || '/'}${url.search}`);
         return;
@@ -204,7 +225,7 @@ export async function startStudioServer({ root = resolve(import.meta.dirname, '.
       // Only public Studio files are served directly. Astro handles website assets.
       if (file === 'index.html' || ['generated/writer.js', 'generated/writer.css'].includes(file) || (!file.includes('/') && ['.css', '.js', '.mjs', '.svg', '.woff2'].includes(extname(file)))) {
         let path;
-        try { path = await containedPath(store.root, `studio/web/${file}`); }
+        try { path = await containedPath(editorRoot, `studio/web/${file}`); }
         catch (error) { if (error.status === 404 && file !== 'index.html') { proxy(request, response, `${url.pathname}${url.search}`); return; } throw error; }
         const contents = await readFile(path);
         response.writeHead(200, { 'Content-Type': mime[extname(file)] ?? 'application/octet-stream', 'Cache-Control': 'no-store' });
@@ -263,16 +284,12 @@ export async function startStudioServer({ root = resolve(import.meta.dirname, '.
 
 if (import.meta.url === pathToFileURL(resolve(process.argv[1] ?? '')).href) {
   const args = process.argv.slice(2);
-  const numberArg = (name, fallback) => {
-    const index = args.indexOf(name);
-    const value = index === -1 ? fallback : Number(args[index + 1]);
-    if (!Number.isInteger(value) || value < 1 || value > 65535) throw new Error(`${name} must be a port between 1 and 65535.`);
-    return value;
-  };
   try {
-    const studio = await startStudioServer({ port: numberArg('--port', 4310), astroPort: numberArg('--astro-port', 4311), noAstro: args.includes('--no-astro') });
+    const options = parseStudioArguments(args, { defaultProject: runtimeRoot });
+    if (options.help) { console.log(STUDIO_HELP); process.exit(0); }
+    const studio = await startStudioServer(options);
     console.log(`\nWill Studio is ready at ${studio.url}\nKeep this terminal open while editing. Press Ctrl+C to stop.\n`);
-    if (args.includes('--open')) {
+    if (options.open) {
       const browser = process.platform === 'win32'
         ? spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', `Start-Process -FilePath '${studio.url}' -WindowStyle Hidden`], { windowsHide: true, stdio: 'ignore' })
         : spawn(process.platform === 'darwin' ? 'open' : 'xdg-open', [studio.url], { stdio: 'ignore' });

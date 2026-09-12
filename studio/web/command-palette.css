@@ -1,0 +1,35 @@
+.sidebar .workspace-name{min-width:0}
+.sidebar #workspace-title{overflow-wrap:anywhere}
+.sidebar .command-entry{width:calc(100% - 28px);margin:0 14px 14px;padding:9px 10px;display:flex;align-items:center;justify-content:space-between;gap:7px;white-space:normal;text-align:left;font-size:11px;line-height:1.5;border:1px solid var(--line,#dce1db);border-radius:7px;background:var(--paper,#fffefa);flex-shrink:0}
+.sidebar .command-entry kbd{margin-left:0;flex-shrink:0;font-size:9px;white-space:nowrap}
+@media(max-width:1150px){.sidebar .command-entry{width:calc(100% - 20px);margin-inline:10px}.sidebar .command-entry kbd{display:none}}
+.command-dialog{width:min(650px,calc(100vw - 28px));max-height:min(760px,calc(92dvh - 24px));margin:8dvh auto auto;overflow:hidden;background:var(--paper,#fffefa);color:var(--ink,#24352d);border:1px solid var(--line,#dce1db);border-radius:14px;padding:0;box-shadow:0 25px 90px #152b2738}
+.command-dialog[open]{display:flex;flex-direction:column}
+.command-dialog::backdrop{background:#17281eb0;backdrop-filter:blur(3px)}
+.command-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 23px 12px;flex-shrink:0}
+.command-heading h2{margin:0;font:24px/1.2 Georgia,serif;font-weight:400}
+.command-close,.command-clear{font:inherit;font-size:11px;color:var(--muted,#767f79);border:1px solid var(--line,#dce1db);border-radius:6px;padding:5px 9px;background:transparent;cursor:pointer}
+.command-close:focus-visible,.command-clear:focus-visible{outline:2px solid var(--green,#315f48);outline-offset:3px}
+.command-searchbar{display:flex;align-items:center;gap:10px;padding:4px 23px 12px;flex-shrink:0}
+.command-input{min-width:0;flex:1;width:100%;padding:12px 13px;border:1px solid #b8c6b8;border-radius:8px;font:inherit;font-size:14px;background:white;color:inherit}
+.command-input:focus{outline:2px solid #9db9a3;outline-offset:1px}
+.command-status{flex-shrink:0;margin:0;padding:0 24px 13px;font-size:11px;line-height:1.5;color:var(--muted,#767f79);overflow-wrap:anywhere}
+.command-status.command-error{color:#923f31}
+.command-results{overflow:auto;overscroll-behavior:contain;min-height:0;padding:0 12px 12px;border-top:1px solid var(--line,#dce1db);scroll-padding:8px}
+.command-results:empty{padding:0;border-top:0}
+.command-group-label{padding:13px 12px 6px;font-size:9px;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted,#767f79)}
+.command-option{padding:12px;border-radius:8px;cursor:pointer;border:1px solid transparent;overflow-wrap:anywhere}
+.command-option[aria-selected=true]{background:#e9efe5;border-color:#c9d8c2}
+.command-option[aria-disabled=true]{opacity:.48;cursor:not-allowed}
+.command-option-top{display:flex;align-items:baseline;justify-content:space-between;gap:14px}
+.command-option-title{min-width:0;font-size:13px;line-height:1.5;font-weight:550}
+.command-kind{flex-shrink:0;font-size:9px;letter-spacing:.4px;color:#68766b}
+.command-option-location{display:block;font-size:10px;color:var(--muted,#767f79);margin-top:2px}
+.command-option-excerpt{display:block;margin-top:5px;font-size:11px;line-height:1.6;color:#59685d;white-space:pre-wrap;overflow-wrap:anywhere}
+.command-option mark{background:#efe3b9;color:inherit;border-radius:2px;padding:0}
+.command-option[aria-selected=true] mark{background:#e5d9a5}
+.command-footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;border-top:1px solid var(--line,#dce1db);padding:13px 24px;font-size:10px;line-height:1.5;color:var(--muted,#767f79);background:#f7f8f3;flex-shrink:0}
+.command-keys{white-space:nowrap}
+.command-sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+@media(max-width:560px){.command-dialog{margin:16px auto auto;max-height:calc(100dvh - 32px)}.command-heading{padding:17px 16px 10px}.command-searchbar{padding:4px 16px 12px}.command-status{padding-inline:17px}.command-results{padding-inline:7px}.command-footer{padding:12px 17px;gap:5px}.command-option-top{gap:8px}}
+@media(prefers-reduced-motion:reduce){.command-results{scroll-behavior:auto}}

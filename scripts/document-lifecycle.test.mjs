@@ -183,7 +183,7 @@ test('core documents, reserved routes, traversal, casing and symlink destination
 
 test('HTTP lifecycle endpoints enforce session authorization and return full document state', async (t) => {
   const { root } = await fixture(t);
-  const server = await startStudioServer({ root, port: 0, noAstro: true, schemas });
+  const server = await startStudioServer({ root, port: 0, noAstro: true, schemas, editorRoot: root, projectConfig: { version: 1, adapter: 'will-astro-v1', project: { name: 'Test project' } } });
   t.after(() => server.close());
   const state = await (await fetch(`${server.url}/api/state`)).json();
   const doc = state.documents.find((item) => item.id === 'pages/reading.json');
@@ -207,8 +207,8 @@ test('Markdown rewriting preserves nested labels, reference titles, and inline c
 });
 
 test('table links and autolinks are detected before deleting and rewritten on move', async (t) => {
-  const { putNote, store, lifecycle, plan } = await fixture(t);
-  await putNote('table', '| Item | Link |\n| --- | --- |\n| Book | [Read](/reading#passage) |\n\n<https://hydr0g3ngz.github.io/reading>\n\nhttps://hydr0g3ngz.github.io/reading');
+  const { putNote, store, lifecycle, plan } = await fixture(t, { siteUrl: 'https://example.test/' });
+  await putNote('table', '| Item | Link |\n| --- | --- |\n| Book | [Read](/reading#passage) |\n\n<https://example.test/reading>\n\nhttps://example.test/reading');
   const deletion = await plan('delete');
   assert.equal(deletion.blocked, true);
   assert.equal(deletion.references.length, 3);
@@ -216,8 +216,68 @@ test('table links and autolinks are detected before deleting and rewritten on mo
   await lifecycle.apply({ planId: move.planId });
   const body = (await store.readDocument('notes/table.md')).data.body;
   assert.ok(body.includes('[Read](/library#passage)'));
-  assert.ok(body.includes('<https://hydr0g3ngz.github.io/library>'));
-  assert.equal(body.split('https://hydr0g3ngz.github.io/library').length - 1, 2);
+  assert.ok(body.includes('<https://example.test/library>'));
+  assert.equal(body.split('https://example.test/library').length - 1, 2);
+});
+
+test('two workspace servers rewrite only their own configured absolute origin', async (t) => {
+  const body = '[Alpha](https://alpha.example.test/reading#passage)\n\n[Beta](https://beta.example.test/reading#passage)\n\n[Local](/reading#passage)';
+  for (const name of ['alpha', 'beta']) {
+    const { root, putNote } = await fixture(t);
+    await putNote('links', body);
+    const server = await startStudioServer({ root, port: 0, noAstro: true, schemas, editorRoot: root, projectConfig: { version: 1, adapter: 'will-astro-v1', project: { name, siteUrl: `https://${name}.example.test/` } } });
+    t.after(() => server.close());
+    const state = await (await fetch(`${server.url}/api/state`)).json();
+    const document = state.documents.find((item) => item.id === 'pages/reading.json');
+    const post = async (path, data) => {
+      const response = await fetch(`${server.url}${path}`, { method: 'POST', headers: { origin: server.url, 'content-type': 'application/json', 'x-studio-token': state.token }, body: JSON.stringify(data) });
+      const result = await response.json();
+      assert.equal(response.status, 200, JSON.stringify(result));
+      return result;
+    };
+    const move = await post('/api/lifecycle/plan', { operation: 'move', id: document.id, revision: document.revision, slug: 'library' });
+    assert.equal(move.references.length, 2);
+    const result = await post('/api/lifecycle/apply', { planId: move.planId });
+    const updated = result.documents.find((item) => item.id === 'notes/links.md').data.body;
+    assert.ok(updated.includes(`https://${name}.example.test/library#passage`));
+    assert.ok(updated.includes(`https://${name === 'alpha' ? 'beta' : 'alpha'}.example.test/reading#passage`));
+    assert.ok(updated.includes('[Local](/library#passage)'));
+  }
+});
+
+test('without a site URL, absolute URLs are not guessed to be internal', async (t) => {
+  const { putNote, store, lifecycle, plan } = await fixture(t);
+  const absolute = '[Unknown](https://example.test/reading)\n\n[Parser base](https://studio.invalid/reading)';
+  await putNote('links', `${absolute}\n\n[Local](../../reading)`);
+  const move = await plan('move', undefined, { slug: 'library' });
+  assert.equal(move.references.length, 1);
+  await lifecycle.apply({ planId: move.planId });
+  const updated = (await store.readDocument('notes/links.md')).data.body;
+  assert.ok(updated.includes(absolute));
+  assert.ok(updated.includes('[Local](/library)'));
+});
+
+test('subpath sites require the exact path boundary and preserve their prefix, query, and fragment', async (t) => {
+  const { putNote, store, lifecycle, plan } = await fixture(t, { siteUrl: 'https://example.test/journal/' });
+  await putNote('links', '[Absolute](https://example.test/journal/reading?edition=1#passage)\n\n[Root](/journal/reading#passage)\n\n[Relative](../../reading)\n\n[Other root](/reading)\n\n[Sibling](https://example.test/journal-other/reading)\n\n[Other host](https://other.test/journal/reading)');
+  const deletion = await plan('delete');
+  assert.equal(deletion.references.length, 3);
+  assert.equal(deletion.blocked, true);
+  const move = await plan('move', undefined, { slug: 'library' });
+  await lifecycle.apply({ planId: move.planId });
+  const updated = (await store.readDocument('notes/links.md')).data.body;
+  for (const expected of ['https://example.test/journal/library?edition=1#passage', '[Root](/journal/library#passage)', '[Relative](/journal/library)', '[Other root](/reading)', 'https://example.test/journal-other/reading', 'https://other.test/journal/reading']) assert.ok(updated.includes(expected), expected);
+});
+
+test('moving a note on a subpath keeps relative destinations inside and outside the site stable', async (t) => {
+  const { putNote, store, lifecycle, plan } = await fixture(t, { siteUrl: 'https://example.test/journal' });
+  await putNote('entry', '[Inside](../../reading)\n\n[Outside](../../../reading)\n\n[Local section](#part)');
+  const move = await plan('move', 'notes/entry.md', { slug: 'archive/entry' });
+  await lifecycle.apply({ planId: move.planId });
+  const updated = (await store.readDocument('notes/archive/entry.md')).data.body;
+  assert.ok(updated.includes('[Inside](/journal/reading)'));
+  assert.ok(updated.includes('[Outside](/reading)'));
+  assert.ok(updated.includes('[Local section](#part)'));
 });
 
 test('existing redirect aliases use the shared rules and prevent deleted or unpublished targets', async (t) => {

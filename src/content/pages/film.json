@@ -1,0 +1,43 @@
+{
+  "title": "Film",
+  "description": "A small film list: Spider-Man: Brand New Day, Thunderbolts*, and The Passengers of the Night.",
+  "eyebrow": "FILM / A BEGINNING",
+  "heading": "Still learning how to watch.",
+  "published": true,
+  "navigation": {
+    "show": true,
+    "label": "Film",
+    "order": 32
+  },
+  "sections": [
+    {
+      "type": "list",
+      "id": "film-list",
+      "visible": true,
+      "eyebrow": "THREE FILMS, FOR NOW",
+      "heading": "On the list.",
+      "intro": "Film is still a new interest for me. These are brief introductions rather than reviews; each title links to its official film page.",
+      "columns": "one",
+      "items": [
+        {
+          "title": "Spider-Man: Brand New Day",
+          "meta": "Directed by Destin Daniel Cretton",
+          "text": "Peter Parker continues protecting New York after the world has forgotten his identity. As he watches people from his former life move on, changes in his own powers coincide with a new threat to the city.",
+          "href": "https://spidermanbrandnewday.movie/synopsis/"
+        },
+        {
+          "title": "Thunderbolts*",
+          "meta": "Directed by Jake Schreier",
+          "text": "Yelena Belova and a group of other outsiders are drawn together by a trap laid by Valentina Allegra de Fontaine. Their attempt to survive forces them to reckon with their histories and decide whether they can work together.",
+          "href": "https://movies.disney.com/thunderbolts"
+        },
+        {
+          "title": "The Passengers of the Night",
+          "meta": "Les Passagers de la nuit · Directed by Mikhaël Hers",
+          "text": "In 1980s Paris, Elisabeth finds work on a late-night radio programme while raising her two teenagers after a separation. There she meets Talulah, a young woman she welcomes into the family’s home.",
+          "href": "https://distrib.pyramidefilms.com/pyramide-distribution-prochainement/les-passagers-de-la-nuit.html"
+        }
+      ]
+    }
+  ]
+}

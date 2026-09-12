@@ -10,7 +10,7 @@
     "build:studio": "node scripts/build-studio.mjs",
     "test:writer": "node --test scripts/studio-writer.test.mjs",
     "studio": "node studio/server.mjs",
-    "test:studio": "node --test scripts/studio-server.test.mjs scripts/document-lifecycle.test.mjs scripts/lifecycle-ui.test.mjs scripts/draft-reconcile.test.mjs scripts/studio-writer.test.mjs scripts/studio-inline.test.mjs scripts/studio-launch.test.mjs scripts/markdown.test.mjs scripts/content-validation.test.mjs scripts/redirects.test.mjs scripts/redirect-build.test.mjs && node scripts/test-project-tools.mjs",
+    "test:studio": "node --test scripts/studio-server.test.mjs scripts/document-lifecycle.test.mjs scripts/lifecycle-ui.test.mjs scripts/draft-reconcile.test.mjs scripts/studio-writer.test.mjs scripts/studio-inline.test.mjs scripts/studio-launch.test.mjs scripts/markdown.test.mjs scripts/content-validation.test.mjs scripts/redirects.test.mjs scripts/redirect-build.test.mjs scripts/content-search.test.mjs scripts/command-palette.test.mjs scripts/project-config.test.mjs scripts/workspace-storage.test.mjs scripts/studio-cli.test.mjs scripts/multi-project.test.mjs scripts/package-studio.test.mjs && node scripts/test-project-tools.mjs",
     "dev": "astro dev",
     "check": "astro check",
     "validate:content": "node scripts/validate-content.mjs",

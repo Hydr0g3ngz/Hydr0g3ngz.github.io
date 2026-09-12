@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "adapter": "will-astro-v1",
+  "project": {
+    "name": "Will's homepage",
+    "siteUrl": "https://hydr0g3ngz.github.io/"
+  }
+}

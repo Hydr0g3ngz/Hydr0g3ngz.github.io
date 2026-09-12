@@ -1,4 +1,10 @@
-import { dev } from 'astro';
+import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
+import { join } from 'node:path';
+
+// The website owns its Astro version and build configuration, not the editor.
+const require = createRequire(pathToFileURL(join(process.cwd(), 'package.json')));
+const { dev } = await import(pathToFileURL(require.resolve('astro')).href);
 
 const port = Number(process.env.STUDIO_ASTRO_PORT ?? 4311);
 const server = await dev({

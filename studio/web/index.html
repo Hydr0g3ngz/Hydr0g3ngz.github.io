@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Will Studio · A place to make things</title><link rel="icon" href="/preview/favicon.svg"><link rel="stylesheet" href="/studio.css"><link rel="stylesheet" href="/lifecycle.css"><link rel="stylesheet" href="/generated/writer.css"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Will Studio · A place to make things</title><link rel="icon" href="/preview/favicon.svg"><link rel="stylesheet" href="/studio.css"><link rel="stylesheet" href="/lifecycle.css"><link rel="stylesheet" href="/command-palette.css"><link rel="stylesheet" href="/generated/writer.css"></head>
 <body>
   <header class="topbar">
     <a class="studio-brand" href="/" aria-label="Will Studio home"><span class="brand-mark">W</span><span>Will <i>Studio</i></span><span class="local-badge">LOCAL</span></a>
@@ -8,11 +8,12 @@
   </header>
   <div class="workspace">
     <aside class="sidebar">
-      <div class="workspace-name"><span class="eyebrow">YOUR PERSONAL CORNER</span><h1>Make room for<br>what matters.</h1></div>
+      <div class="workspace-name"><span class="eyebrow">CURRENT WORKSPACE</span><h1 id="workspace-title">Opening your project…</h1></div>
+      <button id="commands" class="wide-button command-entry">Search & commands <kbd>Ctrl K</kbd></button>
       <div class="sidebar-tabs" role="tablist" aria-label="Workspace"><button class="active" id="pages-tab" role="tab" aria-selected="true">Pages</button><button id="project-tab" role="tab" aria-selected="false">Project</button></div>
       <div class="page-tools"><input id="page-search" type="search" placeholder="Find a page…" aria-label="Find a page"><button id="new-page" class="icon-button" aria-label="Create a page or note" title="New page or note">+</button></div>
       <nav id="pages" aria-label="Your pages"></nav>
-      <div class="sidebar-bottom"><button id="media" class="wide-button">▧ &nbsp; Media library</button><button id="trash" class="wide-button">↶ &nbsp; Recently removed</button><button id="help" class="wide-button">? &nbsp; A quick guide</button><a href="https://hydr0g3ngz.github.io/" target="_blank" rel="noreferrer" class="live-link">Visit live website <span>↗</span></a></div>
+      <div class="sidebar-bottom"><button id="media" class="wide-button">▧ &nbsp; Media library</button><button id="trash" class="wide-button">↶ &nbsp; Recently removed</button><button id="help" class="wide-button">? &nbsp; A quick guide</button><a id="live-site" hidden target="_blank" rel="noreferrer" class="live-link">Visit live website <span>↗</span></a></div>
     </aside>
     <main class="canvas-panel">
       <div class="canvas-toolbar"><div><span class="eyebrow" id="page-kind">PAGE</span><strong id="page-name">Loading your workspace</strong></div><div class="canvas-actions"><button id="page-actions" class="quiet-button">Page actions</button><div class="segmented" aria-label="Preview width"><button data-device="desktop" class="active" title="Desktop preview">Desktop</button><button data-device="tablet" title="Tablet preview">Tablet</button><button data-device="mobile" title="Mobile preview">Phone</button></div><button id="interact" aria-pressed="false" class="quiet-button">↖ Edit mode</button></div></div>

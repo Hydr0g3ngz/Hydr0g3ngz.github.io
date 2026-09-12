@@ -23,7 +23,7 @@ function safeRelative(path) {
 
 function isBundlePath(path) {
   safeRelative(path);
-  return path === '.pages.yml' || path === 'IMAGE_CREDITS.md' || path === 'src/redirects.json' || (
+  return path === '.pages.yml' || path === 'IMAGE_CREDITS.md' || path === 'src/redirects.json' || path === 'will-studio.config.json' || (
     path.startsWith('src/content/') &&
     CONTENT_EXTENSIONS.has(extname(path).toLowerCase()) &&
     path.split('/').every((part) => !part.startsWith('.') && part !== 'node_modules')
@@ -78,7 +78,7 @@ async function collectFiles(root, folder, extensions, { rejectLinks = true } = {
 
 async function contentFiles(root) {
   const paths = await collectFiles(root, 'src/content', CONTENT_EXTENSIONS);
-  for (const path of ['.pages.yml', 'IMAGE_CREDITS.md', 'src/redirects.json']) {
+  for (const path of ['.pages.yml', 'IMAGE_CREDITS.md', 'src/redirects.json', 'will-studio.config.json']) {
     const target = await checkedPath(root, path, { missing: true });
     if (target && (await lstat(target)).isFile()) paths.push(path);
   }

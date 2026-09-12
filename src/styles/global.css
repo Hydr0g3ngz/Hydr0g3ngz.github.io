@@ -238,3 +238,8 @@ h1 { max-width:900px; font-size: clamp(4rem, 10vw, 8.7rem); line-height:.88; }
   .note-cover { margin:48px 0; }
   .note-body { margin-top:55px; }
 }
+@media (max-width: 480px) {
+  .site-header { height:auto; min-height:86px; gap:20px; padding-block:10px; }
+  .site-header nav { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:2px 16px; overflow:visible; white-space:normal; }
+  .site-header nav a { display:flex; align-items:center; min-height:32px; overflow-wrap:anywhere; }
+}

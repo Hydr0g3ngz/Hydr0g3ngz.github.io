@@ -26,6 +26,25 @@ Node.js 24 or later is required. The editor uses `http://127.0.0.1:4310` and sta
 own Astro preview on port 4311. If these ports are occupied, close the other Studio
 instance first or use `npm run studio -- --port 4410 --astro-port 4411`.
 
+### Open another compatible local project
+
+Studio can now run separately from the website it edits. From this checkout:
+
+```powershell
+npm run studio -- --project "D:\another-compatible-site" --open
+```
+
+The selected website must already have its own dependencies installed and satisfy
+the [will-astro-v1 project contract](studio/PROJECT_CONTRACT.md). Its
+`will-studio.config.json` supplies the workspace name and optional live-site link.
+This metadata does not change Astro's publication settings.
+
+Only open **trusted local projects**. Their schema, Astro configuration, and build
+scripts are executable code. This is not an editor for an arbitrary website URL,
+unrelated Astro template, or downloaded project that you have not reviewed. For
+simultaneous Studio sessions, give each one distinct `--port` and `--astro-port`
+values. `node studio/server.mjs --help` lists the available launch options.
+
 ## Make your first edit
 
 1. Choose a page on the left.
@@ -41,9 +60,33 @@ text editing shortcuts still work within input fields. Unsaved drafts are also k
 in your browser, so reloading Studio can recover them. A browser storage failure is
 reported rather than silently treated as a saved file.
 
+Drafts and recovered browser versions are isolated by the selected project's real
+folder, so two projects with the same page filenames do not share drafts. Browser
+storage is also specific to the browser/profile and local address. Save before
+moving a project or changing browsers or ports: the old browser draft is not
+automatically transferred. Existing unscoped drafts are migrated only for the
+original homepage checkout, with their source data retained for recovery.
+
 **Save locally is separate from publishing.** The public site changes after a Git
 commit is pushed to `main` and its GitHub Pages workflow succeeds. The Project panel
 shows local changes; the current release does not push or commit from the browser.
+
+## Search and commands
+
+Choose **Search & commands** in the sidebar, or press **Ctrl/Cmd+K**. With an empty
+query, the panel shows common actions such as creating a page, adding a section,
+opening saved versions, or checking the site. Typing searches page titles, saved
+content, image names, and matching command descriptions.
+
+Use Up/Down and Enter, or click a result. Page results open the relevant inspector
+field, including fields inside nested collections; image results open the media
+library. Escape closes search and restores focus. Ctrl/Cmd+K inside the rich writer
+continues to belong to its link editor.
+
+Content search includes **saved local files, not unsaved browser drafts**. Finish
+and save an edit if you want to find its new words. Opening search first commits an
+active simple-text edit to the browser draft; this is not a disk save. Search is
+bounded, and the panel asks you to narrow the query when more matches may exist.
 
 ## Add and arrange content
 
@@ -163,6 +206,13 @@ MDX, custom `slug` overrides, and unsupported content filenames are rejected rat
 than silently omitted or rewritten; handle them in an external editor before
 reopening Studio. The reserved notes placeholder is not shown.
 
+The editor runtime lives under `studio/`; website-specific preview rendering lives
+under `src/studio-adapter/`. The latter uses the selected site's layouts, components,
+content schema, and styles. Its integration adds `/__studio/preview` only to Studio's
+development preview, never to a production build. A compatible external site needs
+that website-side integration; the editor runtime need not be copied into the site.
+See the [project contract](studio/PROJECT_CONTRACT.md) before adapting another project.
+
 ```sh
 npm run test:studio
 npm run build
@@ -171,8 +221,35 @@ npm run build
 The GitHub Pages deployment runs the Studio regression suite before the production
 build, so a failed quality check does not replace the live site.
 
+### Make a standalone local Studio package
+
+From this homepage checkout, export to a **new or empty directory outside it**:
+
+```powershell
+node scripts/package-studio.mjs --out D:\will-studio
+Set-Location D:\will-studio
+npm install --package-lock-only
+npm ci
+npm test
+npm run build:writer
+npm start -- --project "D:\will-homepage" --open
+```
+
+The first command copies an explicit list of editor source, tests, and adapter
+reference files. It excludes the homepage's personal content and images, Git data,
+dependencies, and `.studio` recovery state. It will not overwrite a nonempty output
+folder. The lockfile refresh matches the standalone package's generated manifest;
+install and test that package before using it. The reference adapter is not a
+complete website template, and the selected target still needs its own dependencies.
+
+Packaging does not create a repository, install dependencies, or publish anything.
+The public [standalone repository](https://github.com/Hydr0g3ngz/will-studio) has been
+published with the 0.2.0 source, setup instructions, security notes, and CI.
+These instructions describe local source extraction; Studio is not a hosted service
+or an npm-published package.
+
 This is an evolving local Studio product. Complete release management,
-import/restore of full project bundles, multi-project configuration, and broader
-layout/theme tools remain development work.
+import/restore of full project bundles, guided project onboarding/switching, support
+for other adapters, and broader layout/theme tools remain development work.
 The long-term goal is a complete, easy-to-use website workspace; this release does
 not establish a claim of superiority over every existing tool.

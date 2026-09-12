@@ -20,21 +20,35 @@ function destinationId(kind, slug) {
   return id;
 }
 
-function rewriteHref(href, { oldRoute, newRoute, sourceRoute, movedSource = false }) {
-  if (typeof href !== 'string' || !href || /[\\\u0000-\u001f]/.test(href) || href.startsWith('//')) return null;
-  const origin = 'https://hydr0g3ngz.github.io';
+function siteAddress(siteUrl) {
+  // The fallback is only a URL-parser base. Absolute links never match it.
+  if (siteUrl === undefined) return { origin: 'https://studio.invalid', basePath: '', configured: false };
+  let site;
+  try { site = new URL(siteUrl); } catch { throw new StudioError(422, 'The selected project needs a valid HTTPS siteUrl.'); }
+  if (site.protocol !== 'https:' || site.username || site.password || site.search || site.hash) throw new StudioError(422, 'The selected project needs a valid HTTPS siteUrl without credentials, query, or fragment.');
+  return { origin: site.origin, basePath: site.pathname.replace(/\/+$/, ''), configured: true };
+}
+
+function rewriteHref(href, { oldRoute, newRoute, sourceRoute, movedSource = false, site }) {
+  if (typeof href !== 'string' || !href || href !== href.trim() || /[\\\u0000-\u001f]/.test(href) || href.startsWith('//')) return null;
+  const absolute = /^[a-z][a-z0-9+.-]*:/i.test(href);
+  if (absolute && !site.configured) return null;
+  const relative = !absolute && !href.startsWith('/');
   let target;
-  try { target = new URL(href, `${origin}${sourceRoute.replace(/\/$/, '')}/`); } catch { return null; }
-  if (target.origin !== origin) return null;
+  try { target = new URL(href, `${site.origin}${site.basePath}${sourceRoute.replace(/\/$/, '')}/`); } catch { return null; }
+  if (target.origin !== site.origin || target.username || target.password) return null;
   const path = target.pathname.replace(/\/$/, '') || '/';
-  const matched = path === oldRoute;
+  const withinSite = !site.basePath || path === site.basePath || path.startsWith(`${site.basePath}/`);
+  const route = withinSite ? path.slice(site.basePath.length) || '/' : null;
+  const matched = route === oldRoute;
   // A local fragment remains local when its owning page is moved or copied.
   if (href.startsWith('#')) return matched ? { href, matched: true } : null;
-  if (!matched && !(movedSource && !href.startsWith('/') && !href.startsWith('https://'))) return null;
-  const route = matched ? newRoute : path;
-  const trailing = target.pathname.endsWith('/') && route !== '/' ? '/' : '';
-  const prefix = href.startsWith('https://') ? origin : '';
-  return { href: `${prefix}${route}${trailing}${target.search}${target.hash}`, matched };
+  if (!matched && !(movedSource && relative)) return null;
+  // Rebase relative destinations when their source moves, including a relative
+  // link leaving the site's subpath; it is not counted as an internal reference.
+  const destination = matched ? `${site.basePath}${newRoute}` : path;
+  const trailing = target.pathname.endsWith('/') && destination !== '/' ? '/' : '';
+  return { href: `${absolute ? site.origin : ''}${destination}${trailing}${target.search}${target.hash}`, matched };
 }
 
 function inlineDestination(raw) {
@@ -159,8 +173,9 @@ function rewriteDocument(document, context) {
   return { data, references };
 }
 
-export async function createDocumentLifecycle(store, { now = Date.now, afterWrite } = {}) {
+export async function createDocumentLifecycle(store, { now = Date.now, afterWrite, siteUrl } = {}) {
   const root = store.root;
+  const site = siteAddress(siteUrl);
   const plans = new Map();
   async function readMaybe(path) {
     const full = await containedPath(root, path, { allowMissing: true });
@@ -305,7 +320,7 @@ export async function createDocumentLifecycle(store, { now = Date.now, afterWrit
       for (const document of documents) {
         if (operation === 'duplicate' && document.id !== original.id) continue;
         const isSource = document.id === original.id;
-        const updated = rewriteDocument(document, { oldRoute: original.route, newRoute, sourceRoute: document.route, movedSource: isSource });
+        const updated = rewriteDocument(document, { oldRoute: original.route, newRoute, sourceRoute: document.route, movedSource: isSource, site });
         references.push(...updated.references);
         if (isSource) {
           const title = input.title?.trim() ?? (operation === 'duplicate' ? `${document.name} — copy` : document.name);
@@ -333,8 +348,8 @@ export async function createDocumentLifecycle(store, { now = Date.now, afterWrit
       const removesNotesIndex = original.kind === 'note' && original.data.published === true && !documents.some((document) => document.id !== original.id && document.kind === 'note' && document.data.published === true);
       for (const document of documents) {
         if (document.id === original.id) continue;
-        references.push(...rewriteDocument(document, { oldRoute: original.route, newRoute: original.route, sourceRoute: document.route }).references);
-        if (removesNotesIndex) references.push(...rewriteDocument(document, { oldRoute: '/notes', newRoute: '/notes', sourceRoute: document.route }).references);
+        references.push(...rewriteDocument(document, { oldRoute: original.route, newRoute: original.route, sourceRoute: document.route, site }).references);
+        if (removesNotesIndex) references.push(...rewriteDocument(document, { oldRoute: '/notes', newRoute: '/notes', sourceRoute: document.route, site }).references);
       }
       redirectState.data.redirects.forEach((item, index) => { if (item.to === original.route || (removesNotesIndex && item.to === '/notes')) references.push({ id: REDIRECTS, path: `redirects.${index}.to`, href: item.to, public: true }); });
       const trashId = randomBytes(12).toString('hex');

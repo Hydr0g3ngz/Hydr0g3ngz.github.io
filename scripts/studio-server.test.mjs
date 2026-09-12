@@ -112,7 +112,7 @@ test('path escapes, prototype properties, linked directories, and fake images ar
 
 test('HTTP API rejects foreign origins/hosts and requires the matching session token', async (t) => {
   const { root } = await fixture(t);
-  const studio = await startStudioServer({ root, port: 0, noAstro: true, schemas });
+  const studio = await startStudioServer({ root, port: 0, noAstro: true, schemas, editorRoot: root, projectConfig: { version: 1, adapter: 'will-astro-v1', project: { name: 'Test project' } } });
   t.after(() => studio.close());
   const state = await (await fetch(`${studio.url}/api/state`)).json();
   assert.equal(state.documents.length, 3);

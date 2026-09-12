@@ -31,6 +31,9 @@ try {
   await put('.pages.yml', 'content: []\n');
   await put('IMAGE_CREDITS.md', 'Image credit.\n');
   await put('src/redirects.json', { version: 1, redirects: [] });
+  const studioConfig = JSON.stringify({ version: 1, adapter: 'will-astro-v1', project: { name: 'Fixture homepage', siteUrl: 'https://example.invalid/' } }, null, 2) + '\n';
+  await put('will-studio.config.json', studioConfig);
+  await put('will-studio.config.local.json', 'THIS_MUST_NOT_BE_EXPORTED');
 
   const noGit = await getProjectOverview(root);
   assert.equal(noGit.branch, null);
@@ -44,19 +47,24 @@ try {
   assert(bundle.files.some((file) => file.path === 'src/content/pages/books/favorites.json'));
   assert(bundle.files.some((file) => file.path === '.pages.yml'));
   assert(bundle.files.some((file) => file.path === 'src/redirects.json'));
+  assert.equal(bundle.files.find((file) => file.path === 'will-studio.config.json')?.content, studioConfig, 'The project adapter configuration is exported as exact backup text.');
+  assert(!bundle.files.some((file) => file.path === 'will-studio.config.local.json'), 'Only the explicitly allowed configuration filename is exported.');
   assert(!bundle.files.some((file) => file.path.startsWith('public/') || file.path.endsWith('.env')));
   assert(!JSON.stringify(bundle).includes('THIS_MUST_NOT_BE_EXPORTED'));
 
   const snapshot = await createProjectSnapshot(root);
   const manifest = JSON.parse(await readFile(join(root, snapshot.path, 'manifest.json'), 'utf8'));
   assert.equal(manifest.files.length, bundle.files.length);
+  assert(manifest.files.some((file) => file.path === 'will-studio.config.json'), 'Snapshots include the configuration in their integrity manifest.');
   for (const file of manifest.files) {
     const saved = await readFile(join(root, snapshot.path, file.path));
     assert.equal(saved.length, file.bytes);
     assert.equal(createHash('sha256').update(saved).digest('hex'), file.sha256);
   }
   await put('src/content/pages/about.json', { title: 'Changed title', published: true });
+  await put('will-studio.config.json', { version: 1, adapter: 'will-astro-v1', project: { name: 'Changed homepage' } });
   assert.equal(JSON.parse(await readFile(join(root, snapshot.path, 'src/content/pages/about.json'), 'utf8')).title, 'About');
+  assert.equal(await readFile(join(root, snapshot.path, 'will-studio.config.json'), 'utf8'), studioConfig, 'Changing the live configuration never rewrites its existing snapshot.');
   const another = await createProjectSnapshot(root);
   assert.notEqual(another.id, snapshot.id);
   assert.equal((await listProjectSnapshots(root)).length, 2);
@@ -110,7 +118,7 @@ try {
     await rm(join(backupLinkRoot, '.studio'));
     await rm(backupLinkRoot, { recursive: true, force: true });
   }
-  console.log('Project tools checks passed: overview, Git, nested export, immutable snapshots, malformed files, credentials, and symlink boundaries.');
+  console.log('Project tools checks passed: overview, Git, nested export, configuration backups, immutable snapshots, malformed files, credentials, and symlink boundaries.');
 } finally {
   // Both roots are fresh temporary fixtures created by this script.
   await rm(root, { recursive: true, force: true });

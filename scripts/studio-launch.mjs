@@ -1,11 +1,13 @@
 import { createHash } from 'node:crypto';
-import { readFile, writeFile } from 'node:fs/promises';
+import { access, readFile, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { spawn, execFile } from 'node:child_process';
 import { createConnection } from 'node:net';
 import { promisify } from 'node:util';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { createInterface } from 'node:readline/promises';
+import { parseStudioArguments, STUDIO_HELP } from '../studio/cli.mjs';
 
 const STAMP_VERSION = 1;
 const execFileAsync = promisify(execFile);
@@ -205,15 +207,31 @@ async function main() {
     return;
   }
   const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+  if (process.argv.includes('--help')) { console.log(STUDIO_HELP); return; }
   // Useful diagnostics: this mode never installs, writes files, or starts Studio.
   if (process.argv.includes('--check')) {
     const result = await inspectDependencies(root);
     console.log(JSON.stringify({ installNeeded: result.installNeeded, reason: result.reason, missingModules: result.missingModules }, null, 2));
     return;
   }
-  const installed = await ensureDependencies(root);
-  if (!installed) await assertNoRunningPreview(root);
-  await run(process.execPath, [join(root, 'studio', 'server.mjs'), '--open'], root);
+  let defaultProject;
+  try { await access(join(root, '.pages.yml')); defaultProject = root; } catch { /* Standalone distribution. */ }
+  const options = parseStudioArguments(process.argv.slice(2), { defaultProject, defaultOpen: true });
+  if (!options.root && process.stdin.isTTY) {
+    const prompt = createInterface({ input: process.stdin, output: process.stdout });
+    try {
+      const answer = (await prompt.question('Trusted website project folder (or drop its path here): ')).trim().replace(/^"(.*)"$/, '$1');
+      if (answer) options.root = resolve(answer);
+    } finally { prompt.close(); }
+  }
+  if (!options.root) throw new Error('Choose a website with --project <folder>. Use --help for setup details.');
+  const guard = candidate => assertNoRunningPreview(candidate, { ports: [options.port, options.astroPort] });
+  const installed = await ensureDependencies(root, { assertIdle: guard });
+  if (!installed) await guard(root);
+  const args = [join(root, 'studio', 'server.mjs'), '--project', options.root, '--port', String(options.port), '--astro-port', String(options.astroPort)];
+  if (options.open) args.push('--open');
+  if (options.noAstro) args.push('--no-astro');
+  await run(process.execPath, args, root);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
