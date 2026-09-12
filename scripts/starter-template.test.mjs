@@ -103,7 +103,9 @@ test('the package contains only exact proven website dependencies and no editor 
   const pkg = await json('package.json');
   assert.equal(pkg.name, 'my-website'); assert.equal(pkg.private, true); assert.equal(pkg.engines.node, '>=24');
   assert.deepEqual(pkg.dependencies, { astro: '7.2.10', marked: '18.0.12', 'sanitize-html': '2.17.7', 'js-yaml': '5.4.1' });
-  assert.deepEqual(pkg.devDependencies, { '@astrojs/check': '0.9.10', '@types/sanitize-html': '2.16.1', typescript: '6.0.3' });
+  assert.deepEqual(pkg.devDependencies, { '@astrojs/check': '0.9.10', '@types/node': '24.13.3', '@types/sanitize-html': '2.16.1', typescript: '6.0.3' });
+  assert.match(pkg.devDependencies['@types/node'], /^24\.\d+\.\d+$/, 'Node 24 typings must be an exact direct dependency, not an inherited or transitive one.');
+  assert.deepEqual((await json('tsconfig.json')).compilerOptions.types, ['node'], 'The generated website must explicitly load Node typings on every platform.');
   assert.ok(pkg.scripts.build.includes('validate:content') && pkg.scripts.build.includes('astro build') && pkg.scripts.build.includes('validate:output'));
   assert.equal(Object.keys(pkg.scripts).some(name => /install|prepare|post|publish/.test(name)), false);
   assert.equal(STARTER_FILES.some(path => /(^|\/)(?:node_modules|\.git|\.github|\.studio|dist|\.astro|uploads)(\/|$)|(?:server|launchpad|writer)\.(?:m?js|css)$/.test(path)), false);
