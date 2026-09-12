@@ -861,6 +861,9 @@ components:
             required: true
           - name: artist
             type: string
+          - name: track
+            label: Song performed
+            type: string
           - name: date
             type: string
           - name: venue

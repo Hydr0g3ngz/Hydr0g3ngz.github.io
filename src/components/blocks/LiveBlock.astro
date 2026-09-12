@@ -25,7 +25,7 @@ const { block } = Astro.props;
                 playsinline
                 preload="metadata"
                 poster={record.image}
-                aria-label={`Concert clip: ${record.title}`}
+                aria-label={`Concert clip: ${record.title}${record.track ? ` performing ${record.track}` : ''}`}
               >
                 <source src={record.video} type={record.video.toLowerCase().endsWith('.webm') ? 'video/webm' : 'video/mp4'} />
                 <a href={record.video}>Open the concert clip</a>
@@ -44,6 +44,7 @@ const { block } = Astro.props;
           <figcaption>
             {(record.date || record.venue) && <p class="live-meta">{[record.date, record.venue].filter(Boolean).join(' · ')}</p>}
             <h3>{record.title}</h3>
+            {record.track && <p class="live-track">Song: {record.track}</p>}
             {record.artist && <p class="live-artist">{record.artist}</p>}
             {record.note && <p class="live-note">{record.note}</p>}
           </figcaption>
@@ -73,7 +74,7 @@ const { block } = Astro.props;
   .live-record figcaption { padding-top: 17px; }
   .live-meta { margin: 0; color: var(--muted); font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; }
   .live-record h3 { margin-top: 8px; font: 1.35rem/1.2 Georgia, serif; }
-  .live-artist, .live-note { margin: 6px 0 0; color: var(--muted); font-size: .88rem; }
+  .live-track, .live-artist, .live-note { margin: 6px 0 0; color: var(--muted); font-size: .88rem; }
   .live-note { line-height: 1.65; }
   .live-empty { min-height: 180px; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 24px; padding: 28px; border-block: 1px solid var(--line); color: var(--muted); }
   .live-empty span { font: 2.6rem/1 Georgia, serif; color: var(--ink); }

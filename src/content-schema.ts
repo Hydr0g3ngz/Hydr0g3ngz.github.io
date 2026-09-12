@@ -284,6 +284,7 @@ export const nowBlockSchema = z.object({
 const liveRecordSchema = z.object({
   title: z.string().min(1),
   artist: z.string().optional(),
+  track: z.string().optional(),
   date: z.string().optional(),
   venue: z.string().optional(),
   note: z.string().optional(),

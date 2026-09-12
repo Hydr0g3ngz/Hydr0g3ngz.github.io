@@ -71,6 +71,7 @@
       "records": [
         {
           "title": "Stefanie Sun",
+          "track": "隐形人",
           "date": "12 April 2026",
           "venue": "Suzhou",
           "video": "/uploads/live/stefanie-sun-suzhou-2026-04-12.mp4",
@@ -81,6 +82,7 @@
         },
         {
           "title": "Imagine Dragons",
+          "track": "Demons",
           "date": "15 March 2026",
           "venue": "Shanghai",
           "video": "/uploads/live/imagine-dragons-shanghai-2026-03-15.mp4",
@@ -91,6 +93,7 @@
         },
         {
           "title": "Anson Seabra",
+          "track": "Christmas List",
           "date": "26 September 2025",
           "venue": "Hangzhou",
           "video": "/uploads/live/anson-seabra-hangzhou-2025-09-26.mp4",
@@ -101,6 +104,7 @@
         },
         {
           "title": "Ed Sheeran",
+          "track": "Perfect",
           "date": "1 March 2025",
           "venue": "Hangzhou",
           "video": "/uploads/live/ed-sheeran-hangzhou-2025-03-01.mp4",
