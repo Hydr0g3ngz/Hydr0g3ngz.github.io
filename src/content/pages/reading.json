@@ -4,7 +4,11 @@
   "eyebrow": "BOOKS & MARGINS",
   "heading": "A few pages worth keeping.",
   "published": true,
-  "navigation": { "show": true, "label": "Reading", "order": 20 },
+  "navigation": {
+    "show": true,
+    "label": "Reading",
+    "order": 20
+  },
   "sections": [
     {
       "type": "reading",
@@ -19,7 +23,10 @@
           "originalTitle": "《一个人的朝圣》",
           "author": "Rachel Joyce",
           "blurb": "A retired man goes out to post a letter and keeps walking. The journey gives old regrets a physical shape: distance, tired feet, unexpected company. A good place to begin for readers drawn to an unhurried story about what people carry, and what they might still put down.",
-          "themes": ["A long walk", "Second chances"],
+          "themes": [
+            "A long walk",
+            "Second chances"
+          ],
           "color": "moss",
           "sourceLabel": "About the book · Penguin Random House",
           "sourceUrl": "https://www.penguinrandomhouse.com/books/220033/the-unlikely-pilgrimage-of-harold-fry-by-rachel-joyce/"
@@ -29,7 +36,10 @@
           "originalTitle": "《一个叫欧维的男人决定去死》",
           "author": "Fredrik Backman",
           "blurb": "Ove has rules for almost everything, and little patience for the neighbours who keep breaking them. Beneath the friction sits a story about grief and the practical ways people look after one another. For readers who enjoy humour with tenderness just below the surface.",
-          "themes": ["Neighbourhood", "Care"],
+          "themes": [
+            "Neighbourhood",
+            "Care"
+          ],
           "color": "ink",
           "sourceLabel": "About the book · Simon & Schuster",
           "sourceUrl": "https://www.simonandschuster.com/books/A-Man-Called-Ove/Fredrik-Backman/9781476738017"
@@ -39,7 +49,10 @@
           "originalTitle": "《外婆的道歉信》",
           "author": "Fredrik Backman",
           "blurb": "A grandmother’s letters send seven-year-old Elsa into the complicated lives of her neighbours. Fairy tales and ordinary rooms gradually begin to overlap. For readers interested in how stories can make unfamiliar people more understandable, without making them less strange.",
-          "themes": ["Family stories", "Being different"],
+          "themes": [
+            "Family stories",
+            "Being different"
+          ],
           "color": "clay",
           "sourceLabel": "About the book · Simon & Schuster",
           "sourceUrl": "https://www.simonandschuster.com/books/My-Grandmother-Asked-Me-to-Tell-You-Shes-Sorry/Fredrik-Backman/9781501115080"
@@ -49,7 +62,10 @@
           "originalTitle": "《岛上书店》",
           "author": "Gabrielle Zevin",
           "blurb": "A bookseller’s shrinking world opens unexpectedly around a small island bookshop. Books here become a way to find company and pass something on. A natural next read for anyone who likes stories in which a place, and the people who gather there, matter as much as the plot.",
-          "themes": ["Bookshops", "Found company"],
+          "themes": [
+            "Bookshops",
+            "Found company"
+          ],
           "color": "ochre",
           "sourceLabel": "About the book · Hachette",
           "sourceUrl": "https://www.hachettebookgroup.com/titles/gabrielle-zevin/the-storied-life-of-a-j-fikry/9781616203948/"
@@ -59,17 +75,28 @@
         {
           "title": "Journeys & second chances",
           "description": "A letter takes Harold onto the road; an unexpected arrival opens A.J. Fikry’s closed-off life. Two different ways of beginning again.",
-          "bookTitles": ["The Unlikely Pilgrimage of Harold Fry", "The Storied Life of A.J. Fikry"]
+          "bookTitles": [
+            "The Unlikely Pilgrimage of Harold Fry",
+            "The Storied Life of A.J. Fikry"
+          ],
+          "includePoems": false
         },
         {
           "title": "Neighbours & chosen family",
           "description": "In Backman’s two novels, new neighbours and a grandmother’s letters draw separate lives together: shared buildings, unlikely friendships, and care across generations.",
-          "bookTitles": ["A Man Called Ove", "My Grandmother Asked Me to Tell You She’s Sorry"]
+          "bookTitles": [
+            "A Man Called Ove",
+            "My Grandmother Asked Me to Tell You She’s Sorry"
+          ],
+          "includePoems": false
         },
         {
           "title": "Stories we pass on",
           "description": "A grandmother’s invented kingdoms and a bookseller’s shared stories connect generations. Then turn from fiction to Song ci: another way into memory, history, and culture.",
-          "bookTitles": ["My Grandmother Asked Me to Tell You She’s Sorry", "The Storied Life of A.J. Fikry"],
+          "bookTitles": [
+            "My Grandmother Asked Me to Tell You She’s Sorry",
+            "The Storied Life of A.J. Fikry"
+          ],
           "includePoems": true
         }
       ],
