@@ -1,0 +1,1103 @@
+media:
+  - name: images
+    label: Site images
+    input: public/images
+    output: /images
+    extensions:
+      - jpg
+      - jpeg
+      - png
+      - webp
+      - avif
+    rename: safe
+settings:
+  content:
+    merge: true
+  commit:
+    identity: user
+    templates:
+      create: 'content: create {path}'
+      update: 'content: update {path}'
+      delete: 'content: delete {path}'
+      rename: 'content: rename {oldPath} to {newPath}'
+components:
+  hero:
+    type: object
+    label: Hero
+    fields:
+      - name: visible
+        label: Visible
+        type: boolean
+        default: true
+      - name: id
+        label: Anchor ID
+        type: string
+        pattern: ^[a-z][a-z0-9-]*$
+        description: Optional. Lowercase letters, numbers, and hyphens only.
+      - name: eyebrow
+        label: Small heading
+        type: string
+        required: true
+      - name: heading
+        label: Main heading
+        type: string
+        required: true
+      - name: lede
+        label: Lead paragraph
+        type: text
+        required: true
+      - name: intro
+        label: Supporting paragraph
+        type: text
+        required: true
+      - name: links
+        label: Buttons
+        type: object
+        list:
+          max: 4
+          collapsible:
+            collapsed: true
+            summary: '{label}'
+        fields:
+          - name: label
+            type: string
+            required: true
+          - name: href
+            label: Link
+            type: string
+            required: true
+          - name: style
+            type: select
+            default: secondary
+            options:
+              values:
+                - name: primary
+                  label: Primary
+                - name: secondary
+                  label: Secondary
+                - name: text
+                  label: Text only
+  marquee:
+    type: object
+    label: Moving interest line
+    fields:
+      - name: visible
+        label: Visible
+        type: boolean
+        default: true
+      - name: id
+        label: Anchor ID
+        type: string
+        pattern: ^[a-z][a-z0-9-]*$
+      - name: label
+        label: Accessibility label
+        type: string
+        default: Current interests
+      - name: items
+        label: Items
+        type: string
+        list: true
+        required: true
+  shelf:
+    type: object
+    label: Shelf
+    fields:
+      - name: visible
+        label: Visible
+        type: boolean
+        default: true
+      - name: id
+        label: Anchor ID
+        type: string
+        default: shelf
+        pattern: ^[a-z][a-z0-9-]*$
+      - name: eyebrow
+        label: Small heading
+        type: string
+        required: true
+      - name: heading
+        type: string
+        required: true
+      - name: intro
+        type: text
+        required: true
+      - name: categories
+        label: Main categories
+        type: object
+        list:
+          min: 1
+          max: 6
+          collapsible:
+            collapsed: true
+            summary: '{tag} — {title}'
+        fields:
+          - name: tag
+            type: string
+            required: true
+          - name: title
+            type: string
+            required: true
+          - name: summary
+            type: text
+            required: true
+          - name: image
+            type: image
+            required: true
+            options:
+              media: images
+              extensions:
+                - jpg
+                - jpeg
+                - png
+                - webp
+                - avif
+              rename: safe
+            description: >-
+              Choose an image from this project's media library. Upload a local image first if the
+              library is empty.
+          - name: imageAlt
+            label: Image description
+            type: string
+            required: true
+            description: Describe the image for visitors using screen readers.
+          - name: imageWidth
+            label: Original width
+            type: number
+          - name: imageHeight
+            label: Original height
+            type: number
+          - name: listLayout
+            label: Item layout
+            type: select
+            default: single
+            options:
+              values:
+                - name: single
+                  label: One column
+                - name: two-column
+                  label: Two columns
+          - name: items
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: '{title}'
+            fields:
+              - name: title
+                type: string
+                required: true
+              - name: originalTitle
+                label: Original-language title
+                type: string
+          - name: future
+            label: Future note
+            type: text
+          - name: href
+            label: Room / page link (optional)
+            type: string
+          - name: linkLabel
+            label: Link text
+            type: string
+      - name: following
+        label: Smaller “Also following” area
+        type: object
+        fields:
+          - name: visible
+            label: Visible
+            type: boolean
+            default: false
+          - name: tag
+            type: string
+            default: OTHER INTERESTS
+          - name: heading
+            type: string
+            default: Also following
+          - name: intro
+            type: text
+            default: A smaller corner for other things I follow.
+          - name: items
+            type: object
+            list:
+              max: 4
+              collapsible:
+                collapsed: true
+                summary: '{tag} — {title}'
+            fields:
+              - name: tag
+                type: string
+                required: true
+              - name: title
+                type: string
+                required: true
+              - name: summary
+                type: text
+                required: true
+              - name: image
+                type: image
+                required: true
+                options:
+                  media: images
+                  extensions:
+                    - jpg
+                    - jpeg
+                    - png
+                    - webp
+                    - avif
+                  rename: safe
+                description: >-
+                  Choose an image from this project's media library. Upload a local image first if
+                  the library is empty.
+              - name: imageAlt
+                label: Image description
+                type: string
+                required: true
+              - name: imageWidth
+                label: Original width
+                type: number
+              - name: imageHeight
+                label: Original height
+                type: number
+      - name: creditsLabel
+        label: Image credits prefix
+        type: string
+        default: 'Images:'
+      - name: credits
+        label: Image credits
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: '{label}'
+        fields:
+          - name: label
+            type: string
+            required: true
+          - name: url
+            label: Source URL
+            type: string
+            required: true
+          - name: licenseLabel
+            label: License
+            type: string
+          - name: licenseUrl
+            label: License URL
+            type: string
+  work:
+    type: object
+    label: Selected work
+    fields:
+      - name: visible
+        label: Visible
+        type: boolean
+        default: true
+      - name: id
+        label: Anchor ID
+        type: string
+        default: work
+        pattern: ^[a-z][a-z0-9-]*$
+      - name: eyebrow
+        label: Small heading
+        type: string
+        required: true
+      - name: intro
+        type: text
+        required: true
+      - name: items
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: '{year} — {title}'
+        fields:
+          - name: year
+            type: string
+            required: true
+          - name: kind
+            type: string
+            required: true
+          - name: title
+            type: string
+            required: true
+          - name: summary
+            type: text
+            required: true
+          - name: href
+            label: Optional link
+            type: string
+  closing:
+    type: object
+    label: Large closing statement
+    fields:
+      - name: visible
+        label: Visible
+        type: boolean
+        default: true
+      - name: id
+        label: Anchor ID
+        type: string
+        pattern: ^[a-z][a-z0-9-]*$
+      - name: eyebrow
+        label: Small heading
+        type: string
+        required: true
+      - name: heading
+        type: string
+        required: true
+      - name: body
+        type: text
+        required: true
+  text:
+    type: object
+    label: Text section
+    fields:
+      - name: visible
+        label: Visible
+        type: boolean
+        default: true
+      - name: id
+        label: Anchor ID
+        type: string
+        pattern: ^[a-z][a-z0-9-]*$
+      - name: eyebrow
+        label: Small heading
+        type: string
+      - name: heading
+        type: string
+        required: true
+      - name: body
+        type: text
+        required: true
+        description: Separate paragraphs with a blank line.
+      - name: width
+        type: select
+        default: narrow
+        options:
+          values:
+            - name: narrow
+              label: Reading width
+            - name: wide
+              label: Wide
+  image_text:
+    type: object
+    label: Image and text
+    fields:
+      - name: visible
+        label: Visible
+        type: boolean
+        default: true
+      - name: id
+        label: Anchor ID
+        type: string
+        pattern: ^[a-z][a-z0-9-]*$
+      - name: eyebrow
+        label: Small heading
+        type: string
+      - name: heading
+        type: string
+        required: true
+      - name: body
+        type: text
+        required: true
+        description: Separate paragraphs with a blank line.
+      - name: image
+        type: image
+        required: true
+        options:
+          media: images
+          extensions:
+            - jpg
+            - jpeg
+            - png
+            - webp
+            - avif
+          rename: safe
+        description: >-
+          Choose an image from this project's media library. Upload a local image first if the
+          library is empty.
+      - name: imageAlt
+        label: Image description
+        type: string
+        required: true
+      - name: imageCredit
+        label: Image credit
+        type: string
+      - name: imagePosition
+        label: Image position
+        type: select
+        default: left
+        options:
+          values:
+            - name: left
+              label: Left
+            - name: right
+              label: Right
+  list:
+    type: object
+    label: List or card grid
+    fields:
+      - name: visible
+        label: Visible
+        type: boolean
+        default: true
+      - name: id
+        label: Anchor ID
+        type: string
+        pattern: ^[a-z][a-z0-9-]*$
+      - name: eyebrow
+        label: Small heading
+        type: string
+      - name: heading
+        type: string
+        required: true
+      - name: intro
+        type: text
+      - name: columns
+        type: select
+        default: two
+        options:
+          values:
+            - name: one
+              label: One column
+            - name: two
+              label: Two columns
+            - name: three
+              label: Three columns
+      - name: items
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: '{title}'
+        fields:
+          - name: title
+            type: string
+            required: true
+          - name: text
+            type: text
+            required: true
+          - name: meta
+            label: Small label
+            type: string
+          - name: href
+            label: Optional link
+            type: string
+  quote:
+    type: object
+    label: Quote
+    fields:
+      - name: visible
+        label: Visible
+        type: boolean
+        default: true
+      - name: id
+        label: Anchor ID
+        type: string
+        pattern: ^[a-z][a-z0-9-]*$
+      - name: quote
+        type: text
+        required: true
+      - name: attribution
+        type: string
+  profile:
+    type: object
+    label: Profile text and facts
+    fields:
+      - name: visible
+        label: Visible
+        type: boolean
+        default: true
+      - name: id
+        label: Anchor ID
+        type: string
+        pattern: ^[a-z][a-z0-9-]*$
+      - name: paragraphs
+        type: text
+        list:
+          min: 1
+        default:
+          - Write a little about this site.
+      - name: facts
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: '{label} — {value}'
+        fields:
+          - name: label
+            type: string
+            required: true
+          - name: value
+            type: string
+            required: true
+          - name: href
+            label: Optional link
+            type: string
+  reading:
+    type: object
+    label: Reading room — books and excerpts
+    fields:
+      - name: visible
+        type: boolean
+        default: true
+      - name: id
+        label: Anchor ID
+        type: string
+        pattern: ^[a-z][a-z0-9-]*$
+      - name: eyebrow
+        label: Small heading
+        type: string
+        default: ON THE SHELF
+      - name: heading
+        label: Heading
+        type: string
+        required: true
+        default: A few pages worth keeping.
+      - name: intro
+        label: Introduction
+        type: text
+        required: true
+        default: A small, changing shelf of books and lines to return to.
+      - name: books
+        label: Books
+        type: object
+        list:
+          max: 24
+          collapsible:
+            collapsed: true
+            summary: '{title} — {author}'
+        fields:
+          - name: title
+            label: Book title
+            type: string
+            required: true
+          - name: originalTitle
+            label: Original-language title
+            type: string
+          - name: author
+            type: string
+            required: true
+          - name: blurb
+            label: Short introduction
+            type: text
+            required: true
+            description: Write an original introduction; use the margin note below for your own response.
+          - name: themes
+            label: Themes
+            type: string
+            list:
+              max: 5
+          - name: color
+            label: Book jacket colour
+            type: select
+            default: moss
+            options:
+              values:
+                - name: moss
+                  label: Moss green
+                - name: clay
+                  label: Warm clay
+                - name: ink
+                  label: Blue ink
+                - name: ochre
+                  label: Ochre
+          - name: sourceLabel
+            label: Source link label
+            type: string
+            required: true
+            default: About the book
+          - name: sourceUrl
+            label: Publisher or author link
+            type: string
+            required: true
+            description: A full HTTPS URL.
+          - name: reflection
+            label: Your margin note
+            type: text
+            description: Optional. Displayed as your personal note only when filled in.
+      - name: excerpts
+        label: Excerpts and passages
+        type: object
+        list:
+          max: 24
+          collapsible:
+            collapsed: true
+            summary: '{author} — {work}'
+        fields:
+          - name: text
+            label: Original passage
+            type: text
+            required: true
+            description: Use public-domain text or material you have permission to share; preserve line breaks.
+          - name: translation
+            label: Translation (optional)
+            type: text
+            description: Add your own translation or a translation you have permission to share.
+          - name: author
+            label: Author
+            type: string
+            required: true
+          - name: work
+            label: Work title
+            type: string
+            required: true
+          - name: sourceLabel
+            label: Source link label
+            type: string
+            required: true
+            default: Source
+          - name: sourceUrl
+            label: Source HTTPS link
+            type: string
+            required: true
+          - name: context
+            label: About this passage (optional)
+            type: text
+            description: Brief sourced background, separate from your personal note. Leave blank to omit it.
+          - name: contextSourceLabel
+            label: Background source label (optional)
+            type: string
+            description: >-
+              A label for the background reference. Defaults to Background source when a link is
+              provided without a label.
+          - name: contextSourceUrl
+            label: Background source HTTPS link (optional)
+            type: string
+            description: The reference supporting the background, not a personal review.
+          - name: reflection
+            label: Your margin note
+            type: text
+  listening:
+    type: object
+    label: Listening room — selected songs
+    fields:
+      - name: visible
+        type: boolean
+        default: true
+      - name: id
+        label: Anchor ID
+        type: string
+        pattern: ^[a-z][a-z0-9-]*$
+      - name: eyebrow
+        label: Small heading
+        type: string
+        default: CURRENT ROTATION
+      - name: heading
+        label: Heading
+        type: string
+        required: true
+        default: A small rotation.
+      - name: intro
+        label: Introduction
+        type: text
+        required: true
+        default: A few songs I keep coming back to.
+      - name: artists
+        label: Selected songs
+        type: object
+        list:
+          max: 24
+          collapsible:
+            collapsed: true
+            summary: '{track} — {name}'
+        fields:
+          - name: name
+            label: Artist
+            type: string
+            required: true
+          - name: track
+            label: Song title
+            type: string
+            required: true
+          - name: youtubeUrl
+            label: YouTube link
+            type: string
+            description: Use a verified artist or label upload.
+          - name: alternateUrl
+            label: Alternative platform link
+            type: string
+          - name: alternateLabel
+            label: Alternative platform label
+            type: string
+            default: Listen
+          - name: note
+            label: Short factual note (optional)
+            type: text
+          - name: reflection
+            label: Your listening note
+            type: text
+            description: Optional. Only use for your own thoughts.
+          - name: videoId
+            label: Earlier-format YouTube ID (optional)
+            type: string
+            description: >-
+              Only needed for older saved entries. The YouTube link above takes precedence; leave
+              empty for new songs.
+          - name: officialUrl
+            label: Earlier-format source link (optional)
+            type: string
+            description: Kept for older saved entries. Used only when there is no Alternative platform link.
+content:
+  - name: core
+    label: Core pages
+    type: group
+    items:
+      - name: homepage
+        label: Homepage
+        type: file
+        path: src/content/home/home.json
+        format: json
+        operations:
+          create: false
+          rename: false
+          delete: false
+        fields:
+          - name: title
+            label: Browser title
+            type: string
+            required: true
+          - name: description
+            label: Search description
+            type: text
+            required: true
+          - name: sections
+            label: Page sections
+            type: block
+            list:
+              min: 1
+              max: 14
+              collapsible:
+                collapsed: true
+                summary: '{type} — {heading}'
+            blockKey: type
+            blocks:
+              - name: hero
+                component: hero
+              - name: marquee
+                component: marquee
+              - name: shelf
+                component: shelf
+              - name: work
+                component: work
+              - name: closing
+                component: closing
+              - name: text
+                component: text
+              - name: image_text
+                component: image_text
+              - name: list
+                component: list
+              - name: quote
+                component: quote
+              - name: profile
+                component: profile
+              - name: reading
+                component: reading
+              - name: listening
+                component: listening
+      - name: about
+        label: About
+        type: file
+        path: src/content/pages/about.json
+        format: json
+        operations:
+          create: false
+          rename: false
+          delete: false
+        fields:
+          - name: title
+            type: string
+            required: true
+          - name: description
+            type: text
+            required: true
+          - name: eyebrow
+            type: string
+          - name: heading
+            type: string
+            required: true
+          - name: published
+            type: boolean
+            default: true
+          - name: navigation
+            type: object
+            fields:
+              - name: show
+                type: boolean
+                default: true
+              - name: label
+                type: string
+                required: true
+              - name: order
+                type: number
+                default: 40
+          - name: sections
+            type: block
+            list:
+              max: 12
+              collapsible:
+                collapsed: true
+                summary: '{type} — {heading}'
+            blockKey: type
+            blocks:
+              - name: hero
+                component: hero
+              - name: marquee
+                component: marquee
+              - name: shelf
+                component: shelf
+              - name: work
+                component: work
+              - name: closing
+                component: closing
+              - name: text
+                component: text
+              - name: image_text
+                component: image_text
+              - name: list
+                component: list
+              - name: quote
+                component: quote
+              - name: profile
+                component: profile
+              - name: reading
+                component: reading
+              - name: listening
+                component: listening
+      - name: site_settings
+        label: Site settings
+        type: file
+        path: src/content/settings/site.json
+        format: json
+        operations:
+          create: false
+          rename: false
+          delete: false
+        fields:
+          - name: brand
+            type: string
+            required: true
+          - name: defaultTitle
+            label: Default browser title
+            type: string
+            required: true
+          - name: description
+            label: Default search description
+            type: text
+            required: true
+          - name: themeColor
+            label: Browser theme colour
+            type: string
+            required: true
+            pattern: ^#[0-9a-fA-F]{6}$
+          - name: homeLinks
+            label: Homepage navigation links
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: '{label}'
+            fields:
+              - name: label
+                type: string
+                required: true
+              - name: href
+                type: string
+                required: true
+              - name: order
+                type: number
+                required: true
+              - name: visible
+                type: boolean
+                default: true
+          - name: notesNavigation
+            label: Notes navigation
+            type: object
+            fields:
+              - name: label
+                type: string
+                required: true
+              - name: order
+                type: number
+                required: true
+          - name: footerText
+            label: Footer sentence
+            type: text
+            required: true
+          - name: footerLinks
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: '{label}'
+            fields:
+              - name: label
+                type: string
+                required: true
+              - name: href
+                type: string
+                required: true
+  - name: pages
+    label: Additional pages
+    type: collection
+    path: src/content/pages
+    format: json
+    exclude:
+      - about.json
+    subfolders: true
+    filename:
+      template: '{title}.json'
+      field: create
+    view:
+      fields:
+        - title
+        - published
+        - navigation.show
+      primary: title
+      sort:
+        - title
+      default:
+        sort: title
+        order: asc
+    fields:
+      - name: title
+        type: string
+        required: true
+      - name: description
+        type: text
+        required: true
+      - name: eyebrow
+        type: string
+      - name: heading
+        type: string
+        required: true
+      - name: published
+        type: boolean
+        default: false
+        description: New pages remain unavailable until this is switched on.
+      - name: navigation
+        type: object
+        fields:
+          - name: show
+            label: Show in navigation
+            type: boolean
+            default: false
+          - name: label
+            type: string
+            required: true
+          - name: order
+            type: number
+            default: 100
+      - name: sections
+        type: block
+        list:
+          max: 12
+          collapsible:
+            collapsed: true
+            summary: '{type} — {heading}'
+        blockKey: type
+        blocks:
+          - name: hero
+            component: hero
+          - name: marquee
+            component: marquee
+          - name: shelf
+            component: shelf
+          - name: work
+            component: work
+          - name: closing
+            component: closing
+          - name: text
+            component: text
+          - name: image_text
+            component: image_text
+          - name: list
+            component: list
+          - name: quote
+            component: quote
+          - name: profile
+            component: profile
+          - name: reading
+            component: reading
+          - name: listening
+            component: listening
+  - name: notes
+    label: Notes
+    type: collection
+    path: src/content/notes
+    format: yaml-frontmatter
+    exclude:
+      - _placeholder.md
+    filename:
+      template: '{year}-{month}-{day}-{title}.md'
+      field: create
+    view:
+      fields:
+        - title
+        - category
+        - published
+        - date
+      primary: title
+      sort:
+        - date
+        - title
+      default:
+        sort: date
+        order: desc
+    fields:
+      - name: title
+        type: string
+        required: true
+      - name: description
+        type: text
+        required: true
+      - name: date
+        type: date
+        required: true
+      - name: updated
+        type: date
+      - name: category
+        type: select
+        required: true
+        options:
+          values:
+            - Books
+            - Music
+            - Film
+            - Research
+            - Other
+      - name: published
+        type: boolean
+        default: false
+      - name: cover
+        type: image
+        options:
+          media: images
+          extensions:
+            - jpg
+            - jpeg
+            - png
+            - webp
+            - avif
+          rename: safe
+        description: >-
+          Choose an image from this project's media library. Upload a local image first if the
+          library is empty.
+      - name: coverAlt
+        label: Cover image description
+        type: string
+        description: Required whenever a cover image is selected.
+      - name: body
+        label: Note
+        type: rich-text
+        required: true
+        options:
+          format: markdown
+          media: images
+          switcher: true
+          extensions:
+            - jpg
+            - jpeg
+            - png
+            - webp
+            - avif
+          rename: safe

@@ -1,0 +1,47 @@
+---
+import type { ListeningBlock } from '../../content-schema';
+interface Props { block: ListeningBlock; }
+const { block } = Astro.props;
+const youtubeLink = (song: ListeningBlock['artists'][number]) => song.youtubeUrl || (song.videoId ? `https://www.youtube.com/watch?v=${song.videoId}` : undefined);
+---
+<section id={block.id} class="section culture-section listening-section wrap">
+  <div class="culture-heading">
+    <p class="eyebrow">{block.eyebrow}</p>
+    <h2>{block.heading}</h2>
+    <p>{block.intro}</p>
+  </div>
+  <ol class="rotation-list" aria-label="Selected songs">
+    {block.artists.map((song, index) => <li class="rotation-track">
+      <span class="rotation-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+      <div class="rotation-copy">
+        <p class="culture-meta">{song.name}</p>
+        <h3>{song.track}</h3>
+        {song.note && <p class="rotation-note">{song.note}</p>}
+        {song.reflection && <div class="personal-reflection"><p class="eyebrow">LISTENING NOTE</p><p>{song.reflection}</p></div>}
+      </div>
+      <div class="rotation-links" aria-label={`Listen to ${song.track}`}>
+        {youtubeLink(song) && <a href={youtubeLink(song)} target="_blank" rel="noopener noreferrer">YouTube <span aria-hidden="true">↗</span></a>}
+        {song.alternateUrl && <a href={song.alternateUrl} target="_blank" rel="noopener noreferrer">{song.alternateLabel || 'Listen'} <span aria-hidden="true">↗</span></a>}
+        {!song.alternateUrl && song.officialUrl && <a href={song.officialUrl} target="_blank" rel="noopener noreferrer">Source <span aria-hidden="true">↗</span></a>}
+      </div>
+    </li>)}
+  </ol>
+  <p class="rotation-footnote">Listen on the platform you prefer. Links open in a new tab; availability may vary by region or account.</p>
+</section>
+
+<style>
+  .rotation-list { list-style: none; margin: 2.5rem 0 0; padding: 0; border-top: 1px solid var(--line, #d9d5c9); }
+  .rotation-track { display: grid; grid-template-columns: 2.25rem minmax(0, 1fr) auto; align-items: center; gap: 1.75rem; padding: 2rem 0; border-bottom: 1px solid var(--line, #d9d5c9); }
+  .rotation-number { align-self: start; padding-top: .2rem; color: var(--muted); font: .75rem/1.6 var(--font-mono, monospace); }
+  .rotation-copy { min-width: 0; }
+  .rotation-copy h3 { margin: .45rem 0 0; font-family: var(--font-serif, Georgia, serif); font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 400; line-height: 1.3; }
+  .rotation-copy .culture-meta { margin: 0; }
+  .rotation-note { color: var(--muted); font-size: .9rem; margin: .65rem 0 0; line-height: 1.7; }
+  .rotation-links { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: flex-end; }
+  .rotation-links a { border: 1px solid var(--line, #d9d5c9); border-radius: 999px; padding: .55rem .85rem; font-size: .78rem; text-decoration: none; white-space: nowrap; transition: background .15s; }
+  .rotation-links a:hover { background: rgba(89, 101, 71, .08); }
+  .rotation-links a span { margin-left: .5rem; }
+  .rotation-footnote { font-size: .8rem; color: var(--muted); line-height: 1.7; margin-top: 1.25rem; }
+  @media (max-width: 680px) { .rotation-track { grid-template-columns: 1.5rem minmax(0, 1fr); gap: .8rem; padding: 1.5rem 0; } .rotation-links { grid-column: 2; justify-content: flex-start; } }
+  @media (prefers-reduced-motion: reduce) { .rotation-links a { transition: none; } }
+</style>

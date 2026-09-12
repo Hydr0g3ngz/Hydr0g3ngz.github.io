@@ -4,7 +4,7 @@ A local workspace for your website: direct page editing, reusable sections, draf
 media, history, project health, snapshots, and content export. The public site remains
 an independently built static website. Studio and its local state are not deployed.
 
-These instructions describe **version 0.4.0**.
+These instructions describe **version 0.5.0**.
 
 ## Open it
 
@@ -91,6 +91,53 @@ Launchpad manages its workspace ports; only its own `--port` is configurable in
 chooser mode. `--choose-project` and `--project` cannot be combined.
 `node studio/server.mjs --help` lists the available launch options.
 
+### Create a new website
+
+Launchpad also offers **Create a website**. This creates a separate, neutral
+will-astro-v1 website, not a copy of Will's homepage. Its **45 source files and
+17 directories** include Home and About, the content schema, `.pages.yml`, styles,
+validation scripts, and the website-side preview adapter. **Twelve layouts** are
+available: introduction, moving line, shelf, selected work, closing thought, text,
+image with text, collection, quotation, profile, reading, and listening. Notes and
+images begin empty; no biography, personal opinions, books, songs, or external
+media are filled in on your behalf.
+
+The starter watches its notes directory even when it is empty. Saving the first
+real Markdown note is picked up without restarting the preview; removing the last
+note clears the collection while leaving it ready for the next note. No sample
+note is needed to keep the directory active.
+
+1. Choose **Create a website**, enter a display name, and provide an absolute new
+   destination such as `D:\my-website`. Its parent folder must already exist. Use
+   a **new or empty real folder**, separate from Studio and its open projects—not
+   a symbolic link, directory junction, or folder containing existing files.
+2. Choose **Review files** and inspect the name, destination, complete file and
+   directory lists, and warnings. Reviewing is read-only. Changing the name or
+   destination invalidates that review; an expired review must also be repeated.
+3. Choose **Create website files**. This writes the reviewed source files only.
+   It does not install dependencies, execute project code, make network requests,
+   initialize Git, or publish a website. Closing the window does not cancel a
+   creation already requested; keep the launcher running and reopen the window
+   to see its pending operation or result.
+4. Copy the supplied **PowerShell** or **macOS / Linux shell** commands, review
+   them, and run them in your own terminal. They enter the new folder, run
+   `npm install`, then `npm run build`. The first install downloads dependencies
+   and creates the website's own `package-lock.json`; retain it and use `npm ci`
+   for later reproducible installs. Studio does not execute these commands.
+5. Choose **Check this project** to fill the existing chooser and perform its
+   read-only checks. If dependencies are missing, install them first and check
+   again. Review the results, explicitly confirm trust in the local code, then
+   choose **Open in Studio** and **Open editor**.
+
+Creation never overwrites existing files. If it fails after writing some files,
+the partial result is **kept for inspection**, not automatically removed. Check
+the destination before retrying; use another new or empty folder when needed.
+There is no automatic retry, install, preview start, Git operation, or publication.
+
+The starter gives you one compatible website foundation. It does not turn arbitrary
+existing websites into editable Studio projects. A public URL, hosting provider,
+repository, and deployment workflow must be chosen separately when you are ready.
+
 ## Make your first edit
 
 1. Choose a page on the left.
@@ -113,9 +160,10 @@ moving a project or changing browsers or ports: the old browser draft is not
 automatically transferred. Existing unscoped drafts are migrated only for the
 original homepage checkout, with their source data retained for recovery.
 
-**Save locally is separate from publishing.** The public site changes after a Git
-commit is pushed to `main` and its GitHub Pages workflow succeeds. The Project panel
-shows local changes; the current release does not push or commit from the browser.
+**Save locally is separate from publishing.** For this homepage, the public site
+changes after a Git commit is pushed to `main` and its GitHub Pages workflow succeeds.
+A newly created starter has no deployment workflow yet. The Project panel shows
+local changes; the current release does not push or commit from the browser.
 
 ## Search and commands
 
@@ -309,10 +357,19 @@ See the [project contract](studio/PROJECT_CONTRACT.md) before adapting another p
 ```sh
 npm run test:studio
 npm run build
+npm run check:starter
 ```
 
 The GitHub Pages deployment runs the Studio regression suite before the production
-build, so a failed quality check does not replace the live site.
+build, so a failed quality check does not replace the live site. The separate
+**check:starter** CI gate exercises the neutral template itself: it creates an
+isolated temporary website from the reviewed file manifest, installs that website's
+dependencies, runs its production build, and checks the generated HTML and output
+for leaked Studio routes, editor assets, or private runtime state. This explicit
+developer command requires network access for dependency installation; it is not
+part of the browser's Create a website or Check project actions. A successful run
+removes its own temporary QA directory; a failed run reports and keeps that directory
+for diagnosis. Run results must be checked separately from these instructions.
 
 ### Make a standalone local Studio package
 
@@ -325,28 +382,32 @@ npm install --package-lock-only
 npm ci
 npm test
 npm run build:writer
+npm run check:starter
 npm start -- --open
 ```
 
-The first command copies an explicit list of editor source, tests, and adapter
-reference files. It excludes the homepage's personal content and images, Git data,
-dependencies, and `.studio` recovery state. It will not overwrite a nonempty output
+The first command copies an explicit list of editor source, tests, adapter
+reference files, and the neutral starter template. It excludes the homepage's
+personal content and images, Git data, dependencies, and `.studio` recovery state.
+It will not overwrite a nonempty output
 folder. The lockfile refresh matches the standalone package's generated manifest;
-install and test that package before using it. The reference adapter is not a
-complete website template, and the selected target still needs its own dependencies.
+install and test that package before using it. The reference adapter is integration
+code, while `studio/starter/template` supplies the neutral website used by
+**Create a website**. Existing and newly created target websites still need their
+own dependencies installed separately.
 The independent default opens Launchpad; use `--project "D:\will-homepage"` when
 you deliberately want to bypass the chooser and open that trusted project directly.
 
 Packaging does not create a repository, install dependencies, or publish anything.
 The [standalone repository](https://github.com/Hydr0g3ngz/will-studio) is separate
-from this homepage. These instructions describe 0.4.0 source and local extraction,
+from this homepage. These instructions describe 0.5.0 source and local extraction,
 not the status of an online deployment. Studio is not a hosted service or an
-npm-published package.
+npm-published package, and there is no packaged installer yet.
 
 This is an evolving local Studio product. Complete release management,
-import/restore of full project bundles, starter-project creation, richer workspace
-management, support for other adapters, and broader layout/theme tools remain
-development work. Launchpad opens compatible existing projects; it does not create
-or adapt an arbitrary website for you.
+import/restore of full project bundles, richer workspace management, support for
+other adapters, and broader layout/theme tools remain development work. Launchpad
+opens compatible existing projects and creates one neutral will-astro-v1 starter;
+it does not create or adapt an arbitrary website for you.
 The long-term goal is a complete, easy-to-use website workspace; this release does
 not establish a claim of superiority over every existing tool.

@@ -1,0 +1,15 @@
+---
+import type { QuoteBlock } from '../../content-schema';
+
+interface Props {
+  block: QuoteBlock;
+}
+
+const { block } = Astro.props;
+---
+<section id={block.id} class="quote-section wrap">
+  <blockquote>
+    <p>{block.quote}</p>
+    {block.attribution && <footer>{block.attribution}</footer>}
+  </blockquote>
+</section>

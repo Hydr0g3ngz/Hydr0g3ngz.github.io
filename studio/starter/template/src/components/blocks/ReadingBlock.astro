@@ -1,0 +1,84 @@
+---
+import { createHash } from 'node:crypto';
+import type { ReadingBlock } from '../../content-schema';
+interface Props { block: ReadingBlock; }
+const { block } = Astro.props;
+// An explicit section ID enables shareable links. Author/work identity keeps a
+// poem's link stable when the collection is reordered; duplicates get a suffix.
+const anchorPrefix = block.id ? `${block.id}-reading` : undefined;
+const booksId = anchorPrefix && `${anchorPrefix}-books`;
+const poemsId = anchorPrefix && `${anchorPrefix}-excerpts`;
+const poemOccurrences = new Map<string, number>();
+const poemIds = block.excerpts.map((excerpt) => {
+  if (!anchorPrefix) return undefined;
+  const identity = JSON.stringify([excerpt.author.normalize('NFC'), excerpt.work.normalize('NFC')]);
+  const digest = createHash('sha256').update(identity).digest('hex').slice(0, 12);
+  const occurrence = (poemOccurrences.get(digest) ?? 0) + 1;
+  poemOccurrences.set(digest, occurrence);
+  return `${anchorPrefix}-poem-${digest}${occurrence > 1 ? `-${occurrence}` : ''}`;
+});
+const poemTitleId = (index: number) => poemIds[index] && `${poemIds[index]}-title`;
+---
+<section id={block.id} class="section culture-section reading-section wrap">
+  <div class="culture-heading">
+    <p class="eyebrow">{block.eyebrow}</p>
+    <h2>{block.heading}</h2>
+    <p>{block.intro}</p>
+  </div>
+  {anchorPrefix && (block.books.length > 0 || block.excerpts.length > 0) && <nav class="reading-nav" aria-label={`Contents · ${block.heading}`} data-studio-ignore>
+    <p class="reading-nav-label">ON THIS PAGE</p>
+    <ul class="reading-nav-sections">
+      {block.books.length > 0 && <li><a href={`#${booksId}`}>Books</a></li>}
+      {block.excerpts.length > 0 && <li><a href={`#${poemsId}`}>Excerpts</a></li>}
+    </ul>
+    {block.excerpts.length > 0 && <ol class="reading-nav-poems" aria-label="Excerpts">
+      {block.excerpts.map((excerpt, index) => <li><a href={`#${poemIds[index]}`}><span class="reading-nav-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span><span>{excerpt.work}</span></a></li>)}
+    </ol>}
+  </nav>}
+  {block.books.length > 0 && <div id={booksId} class="book-grid reading-anchor" tabindex={booksId ? '-1' : undefined} aria-label="Books">
+    {block.books.map((book, index) => <article class="book-card">
+      <div class:list={['book-jacket', `jacket-${book.color}`]} aria-hidden="true">
+        <span class="jacket-number">{String(index + 1).padStart(2, '0')}</span>
+        <span class="jacket-title">{book.title}</span>
+        <span class="jacket-rule"></span>
+        <span class="jacket-author">{book.author}</span>
+      </div>
+      <div class="book-copy">
+        <p class="culture-meta">{book.author}</p>
+        <h3>{book.title}</h3>
+        {book.originalTitle && <p class="book-original">{book.originalTitle}</p>}
+        <ul class="book-themes" aria-label="Themes">{book.themes.map(theme => <li>{theme}</li>)}</ul>
+        <p class="book-blurb">{book.blurb}</p>
+        <a class="culture-source" href={book.sourceUrl} target="_blank" rel="noopener noreferrer">{book.sourceLabel}<span aria-hidden="true"> ↗</span></a>
+        {book.reflection && <div class="personal-reflection"><p class="eyebrow">MARGIN NOTE</p><p>{book.reflection}</p></div>}
+      </div>
+    </article>)}
+  </div>}
+  {block.excerpts.length > 0 && <div id={poemsId} class="commonplace poetry-collection reading-anchor" tabindex={poemsId ? '-1' : undefined} aria-label="Excerpts">
+    <div class="commonplace-heading">
+      <p class="eyebrow">EXCERPTS AND PASSAGES</p>
+      <h2>Words to return to.</h2>
+      <p>Passages collected with their sources and room for your own notes.</p>
+    </div>
+    <div class="excerpt-list poem-grid">{block.excerpts.map((excerpt, index) => <figure id={poemIds[index]} class="excerpt-card poem-card reading-anchor" tabindex={poemIds[index] ? '-1' : undefined} aria-labelledby={poemTitleId(index)}>
+      <figcaption class="poem-caption">
+        <p class="poem-byline"><span class="poem-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span><span>{excerpt.author}</span></p>
+        <div class="poem-title-line">
+          <h3 id={poemTitleId(index)}><cite>{excerpt.work}</cite></h3>
+          {poemIds[index] && <a class="poem-permalink" href={`#${poemIds[index]}`} aria-label={`Permalink to ${excerpt.work}`} title="Link to this passage" data-studio-ignore><span aria-hidden="true">#</span></a>}
+        </div>
+      </figcaption>
+      <blockquote class="poem-stanzas" cite={excerpt.sourceUrl}>
+        {excerpt.text.split(/\n\s*\n/).map(stanza => <p class="excerpt-original">{stanza}</p>)}
+      </blockquote>
+      {excerpt.translation?.trim() && <p class="excerpt-translation">{excerpt.translation}</p>}
+      <a class="culture-source poem-source" href={excerpt.sourceUrl} target="_blank" rel="noopener noreferrer">{excerpt.sourceLabel}<span aria-hidden="true"> ↗</span></a>
+      {excerpt.context?.trim() && <details class="poem-context">
+        <summary data-studio-ignore>About this passage</summary>
+        <p class="poem-context-body">{excerpt.context}</p>
+        {excerpt.contextSourceUrl && <a class="culture-source poem-context-source" href={excerpt.contextSourceUrl} target="_blank" rel="noopener noreferrer">{excerpt.contextSourceLabel?.trim() || 'Background source'}<span aria-hidden="true"> ↗</span></a>}
+      </details>}
+      {excerpt.reflection && <div class="personal-reflection"><p class="eyebrow">MARGIN NOTE</p><p>{excerpt.reflection}</p></div>}
+    </figure>)}</div>
+  </div>}
+</section>

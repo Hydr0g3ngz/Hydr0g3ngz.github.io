@@ -1,0 +1,14 @@
+---
+import { getEntry } from 'astro:content';
+import BlockRenderer from '../components/BlockRenderer.astro';
+import Base from '../layouts/Base.astro';
+
+const home = await getEntry('home', 'home');
+
+if (!home) {
+  throw new Error('The homepage content entry is missing.');
+}
+---
+<Base title={home.data.title} description={home.data.description}>
+  {home.data.sections.map((block) => <BlockRenderer block={block} />)}
+</Base>

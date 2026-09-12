@@ -1,5 +1,43 @@
 # Changelog
 
+## 0.5.0 — 2026-09-12
+
+- Add **Create a website** to Launchpad with a neutral will-astro-v1 starter:
+  45 source files, 17 directories, and 12 supported layouts. Home and About contain
+  editable placeholders; notes and images start empty. No personal biography,
+  selected works, or opinions are copied from the original homepage.
+- Separate read-only **Review files** from explicit **Create website files**.
+  Show the destination, complete file and directory lists, and warnings before
+  writing. Changed or expired reviews require a new review.
+- Require a new or empty real destination with an existing parent, separate from
+  the editor runtime and open projects. Reject links and junctions; create files
+  exclusively instead of overwriting existing content. Partial failures retain
+  created files for inspection and do not delete or automatically retry them.
+- Keep creation limited to source files: no dependency installation, project-code
+  execution, network requests, Git initialization, or publication. Closing the
+  creation window does not cancel an already-sent request; reopening retains the
+  pending operation or its result without duplicate submission.
+- Show copyable PowerShell and macOS/Linux shell commands for a manual
+  `npm install` and `npm run build`. The first install creates the new website's
+  own lockfile; Studio does not execute the commands.
+- Hand the created path back to the existing read-only project checks. Dependencies
+  must be installed, and opening still requires explicit trust in the project's
+  local code before starting an editor preview.
+- Keep the notes watcher active when its directory starts empty, so the first real
+  note does not require a preview restart. Serialize rescans, clear stale entries
+  after deleting the last note, and replace old listeners on configuration reload.
+  The main website and neutral starter share this notes-loader implementation.
+- Add the explicit `npm run check:starter` developer/CI gate: generate the neutral
+  source tree in an isolated temporary folder, install its dependencies, build it,
+  and check the public output for editor or private-runtime leakage. This is
+  separate from browser creation and read-only checking; it does not run implicitly
+  against a selected user project. Successful QA folders are removed; failed ones
+  are retained for diagnosis. Individual run results are not asserted here.
+
+This remains a local source distribution for compatible projects, not an arbitrary
+website builder, packaged installer, or npm release. Repository setup, hosting,
+and publication remain separate user-controlled steps.
+
 ## 0.4.0 — 2026-09-12
 
 - Add a Section Library with layout search, category filters, keyboard-selectable

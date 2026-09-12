@@ -59,6 +59,53 @@ the narrow library dialog, and expanded poem notes at a 390-pixel viewport.
 
 ## Current standalone foundations
 
+### 0.5.0 neutral starter — source implementation
+
+Launchpad now includes **Create a website** as a separate local onboarding flow.
+The neutral will-astro-v1 template contains **45 files, 17 directories, and 12
+supported layouts**, with editable Home/About placeholders and empty notes and
+images. It owns its schema, `.pages.yml`, styles, validation scripts, and preview
+adapter; no personal biography, selected books or songs, or opinions are imported
+from Will's homepage.
+
+The workflow is deliberately staged: enter a new or empty absolute folder and
+display name; review the exact file list without writing; explicitly create the
+source; copy and manually run `npm install` and `npm run build`; return to the
+read-only project check; then explicitly trust the project's code before opening
+its local editor. The first install generates that website's own lockfile. Creation
+does not install packages, run project code, make network requests, initialize Git,
+or publish. The destination must be a real, separate folder outside Studio and open
+workspaces. Exclusive writes never overwrite existing content; partial failures
+retain created files for inspection rather than deleting or automatically retrying.
+
+The wizard invalidates stale reviews when inputs change, guards double submission,
+and preserves an already-requested creation across closing and reopening. Closing
+the dialog is not cancellation. Commands remain inert, copyable text, and the
+success handoff only checks the folder; missing dependencies do not become implicit
+permission to install or execute anything.
+
+The main website and starter now share a notes loader that owns its watcher even
+when the notes directory starts empty. It registers before scanning, serializes
+rescans, notices the first added note, clears the collection after the last removal,
+and disposes previous listeners on configuration reload. Parsing, validation, and
+rendering still belong to Astro's loader. This fixes empty-first-note preview
+loading without inserting a dummy note or expanding Studio's `.md` editing support.
+
+`npm run check:starter` is the explicit developer/CI cold-start gate. It generates
+the neutral source tree in an isolated temporary folder, verifies that only reviewed
+files exist, installs the generated project's dependencies, runs its production
+build, and checks the resulting HTML and public assets for private Studio leakage.
+It does not install into the runtime repository or any selected user project.
+Successful checks remove their own verified QA folder; failures retain it and print
+its path. This section records the implementation and validation procedure, not a
+new CI-pass count, completed deployment, or release announcement.
+
+The broader requested product is still unfinished. One compatible starter is not
+a general website converter, universal visual builder, packaged installer, one-click
+dependency setup, or automatic publishing system. Those boundaries remain explicit.
+
+### Search, drafts, and project identity
+
 The local editor now has a separate search/command panel, opened from the sidebar
 or with Ctrl/Cmd+K. It searches saved content and media, filters common commands,
 and opens matching inspector fields through nested collections. Unsaved browser
@@ -145,7 +192,7 @@ npm start -- --open
 
 The output must be separate from the source and its ancestors/descendants. It
 contains the editor, regression tests, a generated package manifest and CI workflow,
-plus reference adapter code—not a ready-made website template. Refreshing the
+plus reference adapter code and the neutral starter template. Refreshing the
 copied lockfile aligns it with the generated manifest. The exporter itself does
 not install dependencies, initialise Git, commit, push, or deploy.
 
@@ -180,12 +227,12 @@ GitHub Release artifact or an installer.
 9. Product direction explicitly requested by the user: a standalone Will Studio,
    usable beyond this homepage. The shell/website adapter boundary, versioned
    will-astro-v1 contract, external-project launch, workspace-scoped browser storage,
-   and an independent source repository now exist. The released 0.3.0 adds a browser
-   chooser for existing compatible projects, explicit trust, and owned-workspace
-   lifecycle handling. Next: starter-project
-   onboarding, richer workspace management, additional adapters, deployment
-   providers, upgrade/migration, and diagnostics. Expand proven workflows
-   incrementally rather than claiming universal compatibility.
+   and an independent source repository now exist. Launchpad provides a browser
+   chooser for compatible projects, explicit trust, and owned-workspace lifecycle
+   handling; 0.5.0 source adds neutral starter review/creation with manual dependency
+   setup. Next: clearer installation diagnostics, richer workspace management,
+   additional adapters, deployment providers, upgrade/migration, and recovery.
+   Expand proven workflows incrementally rather than claiming universal compatibility.
 
 Do not mark the full active goal complete based only on green checks for this first
 release. Validate newly added workflows against their actual intended behaviour.

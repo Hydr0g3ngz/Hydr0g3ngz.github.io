@@ -1,0 +1,26 @@
+---
+import type { ProfileBlock } from '../../content-schema';
+
+interface Props {
+  block: ProfileBlock;
+}
+
+const { block } = Astro.props;
+---
+<section id={block.id} class="page-profile wrap">
+  <div class="about-main">
+    {block.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+  </div>
+  {block.facts.length > 0 && (
+    <aside class="facts">
+      {block.facts.map((fact) => (
+        <div>
+          <span>{fact.label}</span>
+          <strong>
+            {fact.href ? <a href={fact.href}>{fact.value}</a> : fact.value}
+          </strong>
+        </div>
+      ))}
+    </aside>
+  )}
+</section>

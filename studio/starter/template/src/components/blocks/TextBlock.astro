@@ -1,0 +1,19 @@
+---
+import type { TextBlock } from '../../content-schema';
+
+interface Props {
+  block: TextBlock;
+}
+
+const { block } = Astro.props;
+const paragraphs = block.body.split(/\r?\n\s*\r?\n/).filter(Boolean);
+---
+<section id={block.id} class:list={['section', 'content-section', 'wrap', `content-${block.width}`]}>
+  <div class="content-section-head">
+    {block.eyebrow && <p class="eyebrow">{block.eyebrow}</p>}
+    <h2>{block.heading}</h2>
+  </div>
+  <div class="prose">
+    {paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+  </div>
+</section>

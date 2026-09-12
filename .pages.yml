@@ -595,6 +595,39 @@ components:
             label: Your margin note
             type: text
             description: Optional. Appears as Will’s personal note only when filled in.
+      - name: readingPaths
+        label: Reading paths (optional)
+        type: object
+        description: A small thematic index of this shelf, separate from your personal notes. Requires an Anchor ID on this reading section. Paths without a matching book are hidden.
+        list:
+          max: 6
+          collapsible:
+            collapsed: true
+            summary: "{title}"
+        fields:
+          - name: title
+            label: Path title
+            type: string
+            required: true
+            description: Keep it short (up to 100 characters).
+          - name: description
+            label: Connection between the books
+            type: text
+            required: true
+            description: A brief factual or editorial connection, not a personal response (up to 360 characters).
+          - name: bookTitles
+            label: Book titles to link
+            type: string
+            required: true
+            list:
+              min: 1
+              max: 24
+            description: Copy titles exactly from Books above. If you rename a book, update its title here too. Missing or ambiguous titles are skipped; repeated titles create only one link.
+          - name: includePoems
+            label: Also link to Song ci
+            type: boolean
+            default: false
+            description: Adds a local Song ci link only when this section contains poems.
       - name: excerpts
         label: Commonplace book — complete Song ci poems
         type: object

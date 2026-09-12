@@ -6,6 +6,13 @@ const page = (id, data, kind = 'page') => ({ id: `pages/${id}.json`, kind, name:
 const search = (documents, query, extra = {}) => searchContent({ documents, query, ...extra });
 const highlighted = result => result.excerpt.slice(result.matchStart, result.matchEnd);
 
+test('reading-path prose is searchable while structural book-title references are excluded', () => {
+  const doc = page('paths', { title: 'Reading', sections: [{ type: 'reading', readingPaths: [{ title: 'Chosen family', description: 'Care across generations.', bookTitles: ['reference-only-marker'] }] }] });
+  assert.deepEqual(search([doc], 'generations').results[0].path, ['sections', '0', 'readingPaths', '0', 'description']);
+  assert.deepEqual(search([doc], 'Chosen family').results[0].path, ['sections', '0', 'readingPaths', '0', 'title']);
+  assert.equal(search([doc], 'reference-only-marker').results.length, 0);
+});
+
 test('poem background can be found independently of its source URL and personal reflection', () => {
   const doc = page('poems', { title: 'Poems', sections: [{ type: 'reading', excerpts: [{ work: 'A poem', context: 'Written in Huangzhou.', contextSourceUrl: 'https://example.com/private-source-marker', reflection: '' }] }] });
   const hit = search([doc], 'Huangzhou').results[0];

@@ -109,6 +109,18 @@ async function inspect(api, root) {
   assert.match(result.body.ticket, /^[a-f0-9]{24}$/);
   return result.body;
 }
+
+test('forgetting a running project cannot remove its starter-creation overlap protection', async t => {
+  const f = await fixture(t), root = await f.project(), launchpad = await f.start(), api = await client(launchpad);
+  const checked = await inspect(api, root);
+  assert.equal((await api.post('open', { ticket: checked.ticket, trustProject: true })).status, 200);
+  assert.equal((await api.post('forget', { id: checked.project.id })).status, 200);
+  const destination = join(root, 'nested-website');
+  const result = await api.post('starter/inspect', { path: destination, name: 'Nested website' });
+  assert.equal(result.status, 409); assert.match(result.body.error, /separate folder/);
+  await assert.rejects(stat(destination), { code: 'ENOENT' });
+  assert.equal(f.workspaces[0].server.listening, true);
+});
 const open = (api, ticket) => api.post('open', { ticket, trustProject: true });
 async function rawRequest(launchpad, path, headers = {}) {
   return new Promise((resolve, reject) => {

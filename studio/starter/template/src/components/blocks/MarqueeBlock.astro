@@ -1,0 +1,13 @@
+---
+import type { MarqueeBlock } from '../../content-schema';
+
+interface Props {
+  block: MarqueeBlock;
+}
+
+const { block } = Astro.props;
+const line = `${block.items.join(' · ')} ·`;
+---
+<section id={block.id} class="marquee" aria-label={block.label}>
+  <div>{line}</div>
+</section>

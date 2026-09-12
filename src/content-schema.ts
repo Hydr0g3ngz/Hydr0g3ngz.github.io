@@ -215,6 +215,12 @@ export const readingBlockSchema = z.object({
     sourceUrl: httpsUrl,
     reflection: z.string().optional()
   })).max(24).default([]),
+  readingPaths: z.array(z.object({
+    title: z.string().trim().min(1).max(100),
+    description: z.string().trim().min(1).max(360),
+    bookTitles: z.array(z.string().trim().min(1)).min(1).max(24),
+    includePoems: z.boolean().default(false)
+  })).max(6).optional(),
   excerpts: z.array(z.object({
     text: z.string().min(1),
     translation: z.string().optional(),

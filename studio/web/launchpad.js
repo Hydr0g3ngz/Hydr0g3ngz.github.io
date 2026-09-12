@@ -1,3 +1,5 @@
+import { mountStarterWizard } from './starter-wizard.js';
+
 const mounted = new WeakMap();
 let launchpadCount = 0;
 
@@ -38,6 +40,7 @@ export function mountLaunchpad({ root = document.querySelector('[data-launchpad]
   session.append(sessionTitle, el('p', '', 'Reload this page before checking or opening another project. No operation will be retried automatically.'), reload);
   const layout = el('div', 'lp-layout');
   const chooser = el('section', 'lp-card lp-chooser'); chooser.setAttribute('aria-labelledby', `${uid}-choose`);
+  const starterRoot = el('div', 'lp-starter');
   const chooseTitle = el('h2', '', 'Choose a website'); chooseTitle.id = `${uid}-choose`;
   const form = el('form', 'lp-path-form'); form.noValidate = true;
   const pathLabel = el('label', '', 'Local project folder'); pathLabel.htmlFor = `${uid}-path`;
@@ -63,7 +66,7 @@ export function mountLaunchpad({ root = document.querySelector('[data-launchpad]
   trustArea.append(trustLabel, trustHelp, open);
   inspected.append(inspectedTitle, inspectedPath, checkList, trustArea);
   const opened = el('section', 'lp-opened lp-notice'); opened.hidden = true; opened.setAttribute('aria-label', 'Project ready');
-  chooser.append(chooseTitle, el('p', 'lp-card-intro', 'Compatible will-astro-v1 projects only. This is not an editor for arbitrary websites.'), form, status, inspected, opened);
+  chooser.append(chooseTitle, el('p', 'lp-card-intro', 'Compatible will-astro-v1 projects only. This is not an editor for arbitrary websites.'), form, status, inspected, opened, starterRoot);
 
   const history = el('section', 'lp-card lp-recent'); history.setAttribute('aria-labelledby', `${uid}-recent`);
   const historyHead = el('div', 'lp-section-heading');
@@ -79,6 +82,13 @@ export function mountLaunchpad({ root = document.querySelector('[data-launchpad]
   const footer = el('footer', 'lp-footer', 'Local editing only. Opening, checking and saving do not publish a website. Existing editor tabs and their browser drafts stay separate.');
   root.replaceChildren(introduction, session, layout, footer);
   root.dataset.launchpadMounted = 'true';
+  const starter = mountStarterWizard({
+    root: starterRoot, request,
+    onCheckProject(value) {
+      if (!alive || !connected || expired || opening) return false;
+      path.value = value; composing = false; invalidate(); void inspectProject(); return true;
+    }
+  });
 
   function canOpen() { return connected && !expired && !checking && !opening && inspection?.ready === true && checkedValue === path.value && trust.checked; }
   function controls() {
@@ -90,6 +100,7 @@ export function mountLaunchpad({ root = document.querySelector('[data-launchpad]
     open.disabled = !canOpen(); open.textContent = opening ? 'Starting local preview…' : 'Open in Studio';
     inspected.setAttribute('aria-busy', String(opening));
     retry.disabled = expired;
+    starter.setAvailability(expired ? 'Your launcher session has expired. Reload this page to continue.' : !connected ? 'Connect to the local launcher before creating a website.' : opening ? 'Wait for the current project to finish opening.' : '');
     for (const node of recentList.querySelectorAll('[data-recent-action]')) node.disabled = expired || !connected || (node.dataset.recentAction === 'choose' && opening) || forgetting.has(node.dataset.projectId);
   }
   function message(text, error = false) { status.textContent = text; status.classList.toggle('lp-error-text', error); }
@@ -100,13 +111,14 @@ export function mountLaunchpad({ root = document.querySelector('[data-launchpad]
     message('Session expired. Reload the launcher to continue.', true);
   }
   async function request(endpoint, payload) {
+    if (!alive || expired) { const error = new Error('Session expired. Reload the launcher to continue.'); error.status = 401; throw error; }
     const controller = new win.AbortController(); pending.add(controller);
     try {
       const response = await fetcher(`/api/launchpad/${endpoint}`, { method: payload === undefined ? 'GET' : 'POST', credentials: 'same-origin', cache: 'no-store', signal: controller.signal, headers: payload === undefined ? {} : { 'Content-Type': 'application/json', 'x-studio-token': token }, ...(payload === undefined ? {} : { body: JSON.stringify(payload) }) });
       let data;
       try { data = await response.json(); } catch { data = {}; }
-      if (response.status === 401 || response.status === 403) { expire(); throw new Error('Session expired. Reload the launcher to continue.'); }
-      if (!response.ok) throw new Error(typeof data.error === 'string' ? data.error : typeof data.message === 'string' ? data.message : `The request failed (${response.status}). Try again.`);
+      if (response.status === 401 || response.status === 403) { expire(); const error = new Error('Session expired. Reload the launcher to continue.'); error.status = response.status; throw error; }
+      if (!response.ok) { const error = new Error(typeof data.error === 'string' ? data.error : typeof data.message === 'string' ? data.message : `The request failed (${response.status}). Try again.`); error.status = response.status; throw error; }
       return data;
     } finally { pending.delete(controller); }
   }
@@ -236,7 +248,7 @@ export function mountLaunchpad({ root = document.querySelector('[data-launchpad]
   listen(trust, 'change', controls);
   listen(open, 'click', () => void openProject());
   listen(retry, 'click', () => void refresh());
-  const api = { refresh, destroy() { if (!alive) return; alive = false; selection++; stateSequence++; openSequence++; events.abort(); recentEvents.abort(); for (const controller of pending) controller.abort(); pending.clear(); root.replaceChildren(); delete root.dataset.launchpadMounted; mounted.delete(root); } };
+  const api = { refresh, destroy() { if (!alive) return; alive = false; selection++; stateSequence++; openSequence++; events.abort(); recentEvents.abort(); starter.destroy(); for (const controller of pending) controller.abort(); pending.clear(); root.replaceChildren(); delete root.dataset.launchpadMounted; mounted.delete(root); } };
   mounted.set(root, api); controls(); renderRecent(); void refresh();
   return api;
 }

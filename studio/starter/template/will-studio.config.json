@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "adapter": "will-astro-v1",
+  "project": {
+    "name": "My website"
+  }
+}

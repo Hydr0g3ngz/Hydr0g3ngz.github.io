@@ -8,6 +8,31 @@ const { block } = Astro.props;
 const anchorPrefix = block.id ? `${block.id}-reading` : undefined;
 const booksId = anchorPrefix && `${anchorPrefix}-books`;
 const poemsId = anchorPrefix && `${anchorPrefix}-song-ci`;
+const bookOccurrences = new Map<string, number>();
+const bookIds = block.books.map((book) => {
+  if (!anchorPrefix) return undefined;
+  const identity = JSON.stringify([book.author.normalize('NFC'), book.title.normalize('NFC')]);
+  const digest = createHash('sha256').update(identity).digest('hex').slice(0, 12);
+  const occurrence = (bookOccurrences.get(digest) ?? 0) + 1;
+  bookOccurrences.set(digest, occurrence);
+  return `${anchorPrefix}-book-${digest}${occurrence > 1 ? `-${occurrence}` : ''}`;
+});
+const bookTitleId = (index: number) => bookIds[index] && `${bookIds[index]}-title`;
+const normalizeTitle = (title: string) => title.normalize('NFC').trim();
+// Title references are content, not array positions: reorder safely, and omit
+// missing or ambiguous matches instead of linking to an unrelated book.
+const readingPaths = anchorPrefix ? (block.readingPaths ?? []).map((path) => {
+  const seen = new Set<string>();
+  const books = path.bookTitles.flatMap((title) => {
+    const key = normalizeTitle(title);
+    if (seen.has(key)) return [];
+    seen.add(key);
+    const matches = block.books.map((book, index) => ({ book, id: bookIds[index] }))
+      .filter(({ book }) => normalizeTitle(book.title) === key);
+    return matches.length === 1 && matches[0].id ? [matches[0]] : [];
+  });
+  return { ...path, books };
+}).filter((path) => path.books.length > 0) : [];
 const poemOccurrences = new Map<string, number>();
 const poemIds = block.excerpts.map((excerpt) => {
   if (!anchorPrefix) return undefined;
@@ -36,7 +61,7 @@ const poemTitleId = (index: number) => poemIds[index] && `${poemIds[index]}-titl
     </ol>}
   </nav>}
   {block.books.length > 0 && <div id={booksId} class="book-grid reading-anchor" tabindex={booksId ? '-1' : undefined} aria-label="Books">
-    {block.books.map((book, index) => <article class="book-card">
+    {block.books.map((book, index) => <article id={bookIds[index]} class="book-card reading-anchor" tabindex={bookIds[index] ? '-1' : undefined} aria-labelledby={bookTitleId(index)}>
       <div class:list={['book-jacket', `jacket-${book.color}`]} aria-hidden="true">
         <span class="jacket-number">{String(index + 1).padStart(2, '0')}</span>
         <span class="jacket-title">{book.title}</span>
@@ -45,7 +70,10 @@ const poemTitleId = (index: number) => poemIds[index] && `${poemIds[index]}-titl
       </div>
       <div class="book-copy">
         <p class="culture-meta">{book.author}</p>
-        <h3>{book.title}</h3>
+        <div class="book-title-line">
+          <h3 id={bookTitleId(index)}>{book.title}</h3>
+          {bookIds[index] && <a class="book-permalink" href={`#${bookIds[index]}`} aria-label={`Permalink to ${book.title}`} title="Link to this book" data-studio-ignore><span aria-hidden="true">#</span></a>}
+        </div>
         {book.originalTitle && <p class="book-original" lang="zh-CN">{book.originalTitle}</p>}
         <ul class="book-themes" aria-label="Themes">{book.themes.map(theme => <li>{theme}</li>)}</ul>
         <p class="book-blurb">{book.blurb}</p>
@@ -54,6 +82,17 @@ const poemTitleId = (index: number) => poemIds[index] && `${poemIds[index]}-titl
       </div>
     </article>)}
   </div>}
+  {readingPaths.length > 0 && <section class="reading-paths" aria-labelledby={`${anchorPrefix}-paths-title`}>
+    <h2 id={`${anchorPrefix}-paths-title`} class="reading-paths-label" data-studio-ignore>Reading paths</h2>
+    <div class="reading-paths-grid">{readingPaths.map((path) => <article class="reading-path">
+      <h3>{path.title}</h3>
+      <p>{path.description}</p>
+      <nav aria-label={`Books for ${path.title}`} data-studio-ignore>
+        <ul>{path.books.map(({ book, id }) => <li><a href={`#${id}`}>{book.title}</a></li>)}</ul>
+        {path.includePoems && block.excerpts.length > 0 && <a class="reading-path-poems" href={`#${poemsId}`}>Continue to Song ci<span aria-hidden="true"> ↓</span></a>}
+      </nav>
+    </article>)}</div>
+  </section>}
   {block.excerpts.length > 0 && <div id={poemsId} class="commonplace poetry-collection reading-anchor" tabindex={poemsId ? '-1' : undefined} aria-label="Song ci">
     <div class="commonplace-heading">
       <p class="eyebrow">SONG CI · COMPLETE TEXTS</p>

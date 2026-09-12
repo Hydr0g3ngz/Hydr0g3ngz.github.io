@@ -17,10 +17,10 @@
 .reading-nav-number { flex: none; font: .62rem Georgia, serif; font-variant-numeric: tabular-nums; color: #929284; }
 .reading-anchor { scroll-margin-top: 32px; }
 .reading-anchor:focus-visible { outline: 2px solid #526650; outline-offset: 8px; }
-.poem-title-line { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-.poem-title-line h3 { min-width: 0; overflow-wrap: anywhere; }
-.poem-permalink { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin-block: -10px; flex: none; color: var(--muted); font: 1rem Georgia, serif; text-decoration: none; }
-.poem-permalink:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
+.poem-title-line, .book-title-line { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.poem-title-line h3, .book-title-line h3 { min-width: 0; overflow-wrap: anywhere; }
+.poem-permalink, .book-permalink { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin-block: -10px; flex: none; color: var(--muted); font: 1rem Georgia, serif; text-decoration: none; }
+.poem-permalink:hover, .book-permalink:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
 .book-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px 44px; }
 .book-card { display: grid; grid-template-columns: 138px minmax(0, 1fr); gap: 28px; align-items: start; padding-top: 28px; border-top: 1px solid var(--line); min-width: 0; }
 .book-jacket { --jacket-color: #596552; position: relative; aspect-ratio: 2/3; display: flex; flex-direction: column; padding: 17px 14px 15px 20px; color: #fff8e9; background: var(--jacket-color); box-shadow: inset 5px 0 0 #0002, 3px 4px 0 #e7e0d3, 4px 5px 0 #17171326; transform: rotate(-2deg); transition: transform .25s ease; }
@@ -38,6 +38,19 @@
 .book-themes { list-style: none; padding: 0; margin: 15px 0 0; display: flex; gap: 6px; flex-wrap: wrap; }
 .book-themes li { border: 1px solid var(--line); border-radius: 20px; padding: 3px 8px; color: var(--muted); font-size: .6rem; }
 .book-blurb { margin: 17px 0; font-size: .85rem; line-height: 1.7; color: var(--muted); }
+.reading-paths { margin-top: 50px; padding-top: 25px; border-top: 1px solid var(--line); min-width: 0; }
+.reading-paths-label { margin: 0 0 24px; font: inherit; font-size: .65rem; font-weight: 400; line-height: 1.5; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); }
+.reading-paths-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+.reading-path { min-width: 0; }
+.reading-path h3 { margin: 0; font: 1.1rem/1.3 Georgia, serif; overflow-wrap: anywhere; }
+.reading-path > p { margin: 12px 0; font-size: .78rem; line-height: 1.7; color: var(--muted); overflow-wrap: anywhere; }
+.reading-paths .reading-path nav { display: block; width: auto; max-width: none; overflow: visible; white-space: normal; gap: 0; }
+.reading-path ul { list-style: none; margin: 0; padding: 0; }
+.reading-paths .reading-path nav a { display: inline-flex; align-items: center; min-height: 44px; max-width: 100%; padding-block: 6px; font-size: .72rem; line-height: 1.6; white-space: normal; overflow-wrap: anywhere; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 4px; }
+.reading-path a:hover { text-decoration-color: var(--ink); }
+.reading-paths .reading-path nav .reading-path-poems { width: fit-content; justify-content: flex-start; white-space: nowrap; color: var(--muted); gap: 6px; }
+.reading-path-poems > span { flex: none; }
+.reading-paths + .commonplace { margin-top: 65px; }
 .personal-reflection { border-left: 2px solid #52665070; padding-left: 15px; margin-top: 24px; }
 .personal-reflection .eyebrow { font-size: .58rem; margin-bottom: 8px; }
 .personal-reflection > p:last-child { white-space: pre-line; font: 1rem/1.6 Georgia, serif; margin: 0; }
@@ -86,6 +99,9 @@
 }
 @media (max-width: 760px) {
   .book-grid, .commonplace { grid-template-columns: 1fr; }
+  .reading-paths-grid { grid-template-columns: 1fr; gap: 25px; }
+  .reading-paths { margin-top: 36px; }
+  .reading-paths-label { margin-bottom: 20px; }
   .culture-section { padding-top: 58px; }
   .culture-heading { margin-bottom: 34px; }
   .book-grid { gap: 32px; }

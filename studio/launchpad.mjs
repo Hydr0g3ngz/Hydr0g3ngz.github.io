@@ -4,6 +4,7 @@ import { createServer as createPortProbe } from 'node:net';
 import { lstat, open, realpath } from 'node:fs/promises';
 import { isAbsolute, join, parse, relative, resolve, sep } from 'node:path';
 import { assertCompatibleProject, loadProjectConfig } from './project-config.mjs';
+import { inspectStarterProject, createStarterProject } from './starter-project.mjs';
 import { assertPlainData, atomicWrite, containedPath, revisionOf, StudioError } from './server-core.mjs';
 
 const REGISTRY = '.studio/projects.json';
@@ -183,7 +184,7 @@ export async function startLaunchpad({ runtimeRoot, port = 4310, startWorkspace,
   if (!Number.isInteger(port) || (port !== 0 && (port < 1024 || port > 65535))) throw new Error('Choose a Launchpad port between 1024 and 65535, or 0 for an available port.');
   const runtime = await canonicalDirectory(runtimeRoot);
   const token = randomBytes(32).toString('hex');
-  const tickets = new Map(), active = new Map(), sessionRecent = new Map(), forgotten = new Set();
+  const tickets = new Map(), starterTickets = new Map(), active = new Map(), sessionRecent = new Map(), forgotten = new Set();
   const closingHandles = new WeakMap(), ownedHandles = new Set();
   let effectivePort, url, closing = false, queue = Promise.resolve(), closePromise;
   let signalClosing;
@@ -212,7 +213,7 @@ export async function startLaunchpad({ runtimeRoot, port = 4310, startWorkspace,
       return await Promise.race([promise, closingSignal.then(() => { throw new StudioError(503, 'Launchpad is closing.'); }), new Promise((_, reject) => { timer = setTimeout(() => reject(new StudioError(504, 'The workspace did not become ready in time. Its owned server was stopped; inspect and try again.')), startupTimeoutMs); })]);
     } finally { clearTimeout(timer); }
   };
-  const prune = () => { for (const [id, ticket] of tickets) if (ticket.expiresAt <= now()) tickets.delete(id); };
+  const prune = () => { for (const map of [tickets, starterTickets]) for (const [id, ticket] of map) if (ticket.expiresAt <= now()) map.delete(id); };
   const live = id => {
     const value = active.get(id);
     if (value && value.workspace.server?.listening === false) {
@@ -260,6 +261,7 @@ export async function startLaunchpad({ runtimeRoot, port = 4310, startWorkspace,
     }
     throw new StudioError(409, 'No free workspace port pair is available. Existing applications were not stopped.');
   };
+  const protectedProjectRoots = () => [...active.keys()].flatMap(id => { const entry = live(id); return entry ? [entry.root] : []; });
   const openTicket = async data => {
     exactKeys(data, ['ticket', 'trustProject'], 'open request');
     if (data.trustProject !== true) throw new StudioError(400, 'Confirm that you trust this project before opening it.');
@@ -293,7 +295,7 @@ export async function startLaunchpad({ runtimeRoot, port = 4310, startWorkspace,
       if (workspace.server?.listening !== true) throw new StudioError(502, 'The workspace server stopped before it was ready. Inspect the project and try again.');
       if (closing) throw new StudioError(503, 'Launchpad is closing.');
       const workspaceUrl = `http://127.0.0.1:${pair.port}`;
-      active.set(current.project.id, { workspace, url: workspaceUrl, ...pair });
+      active.set(current.project.id, { workspace, root: current.project.path, url: workspaceUrl, ...pair });
       return { url: workspaceUrl, project: current.project, warnings: await recordOpen(current.project, pair) };
     } catch (error) {
       cancelled = true;
@@ -325,6 +327,27 @@ export async function startLaunchpad({ runtimeRoot, port = 4310, startWorkspace,
           const candidate = request.headers['x-studio-token'];
           if (request.headers.origin !== origin || typeof candidate !== 'string' || Buffer.byteLength(candidate) !== Buffer.byteLength(token) || !timingSafeEqual(Buffer.from(candidate), Buffer.from(token))) throw new StudioError(403, 'This Launchpad session expired or came from another website. Reload Launchpad.');
           const body = await readBody(request);
+          if (path === '/api/launchpad/starter/inspect') {
+            exactKeys(body, ['path', 'name'], 'starter review request');
+            const result = await locked(() => inspectStarterProject({ runtimeRoot: runtime, ...body, protectedRoots: protectedProjectRoots() }));
+            prune();
+            if (starterTickets.size >= 50) starterTickets.delete(starterTickets.keys().next().value);
+            const ticket = randomBytes(12).toString('hex'), expiresAt = now() + TICKET_LIFETIME;
+            starterTickets.set(ticket, { project: result.project, fingerprint: result.fingerprint, expiresAt });
+            const { contents, destination, fingerprint, ...visible } = result;
+            send(response, 200, { ...visible, ticket, expiresAt }); return;
+          }
+          if (path === '/api/launchpad/starter/create') {
+            exactKeys(body, ['ticket', 'createProject'], 'starter creation request');
+            if (body.createProject !== true || typeof body.ticket !== 'string' || !ticketPattern.test(body.ticket)) throw new StudioError(400, 'Review the file list and confirm creation first.');
+            const result = await locked(async () => {
+              prune(); const ticket = starterTickets.get(body.ticket);
+              if (!ticket) throw new StudioError(409, 'This file review expired or was already used. Review the destination again.');
+              starterTickets.delete(body.ticket);
+              return createStarterProject({ runtimeRoot: runtime, path: ticket.project.path, name: ticket.project.name, fingerprint: ticket.fingerprint, protectedRoots: protectedProjectRoots() });
+            });
+            send(response, 201, result); return;
+          }
           if (path === '/api/launchpad/inspect') {
             exactKeys(body, ['path'], 'inspect request');
             const result = await inspectCandidate(body.path);
@@ -354,7 +377,7 @@ export async function startLaunchpad({ runtimeRoot, port = 4310, startWorkspace,
       }
       if (!['GET', 'HEAD'].includes(request.method)) throw new StudioError(405, 'Only reading Launchpad files is allowed.');
       if (path === '/favicon.ico') { response.writeHead(204); response.end(); return; }
-      const allowed = { '/': ['launchpad.html', 'text/html'], '/launchpad.html': ['launchpad.html', 'text/html'], '/launchpad.js': ['launchpad.js', 'text/javascript'], '/launchpad.css': ['launchpad.css', 'text/css'] }[path];
+      const allowed = { '/': ['launchpad.html', 'text/html'], '/launchpad.html': ['launchpad.html', 'text/html'], '/launchpad.js': ['launchpad.js', 'text/javascript'], '/launchpad.css': ['launchpad.css', 'text/css'], '/starter-wizard.js': ['starter-wizard.js', 'text/javascript'], '/starter-wizard.css': ['starter-wizard.css', 'text/css'] }[path];
       if (!allowed) throw new StudioError(404, 'Unknown Launchpad file.');
       const contents = await readBounded(runtime, `studio/web/${allowed[0]}`, 2 * 1024 * 1024);
       response.writeHead(200, { 'Content-Type': `${allowed[1]}; charset=utf-8` });
@@ -371,7 +394,7 @@ export async function startLaunchpad({ runtimeRoot, port = 4310, startWorkspace,
   url = `http://127.0.0.1:${effectivePort}`;
   const close = () => {
     if (closePromise) return closePromise;
-    closing = true; tickets.clear(); signalClosing();
+    closing = true; tickets.clear(); starterTickets.clear(); signalClosing();
     closePromise = (async () => {
       const stopped = new Promise(resolveStopped => { server.close(resolveStopped); server.closeIdleConnections?.(); });
       await queue;

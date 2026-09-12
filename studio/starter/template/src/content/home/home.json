@@ -1,0 +1,31 @@
+{
+  "title": "My website",
+  "description": "A personal space for ideas, projects, and discoveries.",
+  "sections": [
+    {
+      "type": "hero",
+      "id": "welcome",
+      "visible": true,
+      "eyebrow": "A PLACE TO BEGIN",
+      "heading": "Make room for your ideas.",
+      "lede": "A simple home for your work, words, and discoveries.",
+      "intro": "Start with an introduction. Add new pages and sections as your website takes shape.",
+      "links": [
+        {
+          "label": "About this site",
+          "href": "/about",
+          "style": "primary"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "getting-started",
+      "visible": true,
+      "eyebrow": "YOUR NEXT CHAPTER",
+      "heading": "A small beginning.",
+      "body": "Use this space to share what matters to you.\n\nReplace these starter words, add a section, or make a new page. You can take it one thought at a time.",
+      "width": "narrow"
+    }
+  ]
+}

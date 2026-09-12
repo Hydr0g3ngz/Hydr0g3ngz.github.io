@@ -1,0 +1,20 @@
+{
+  "brand": "My site",
+  "defaultTitle": "My website",
+  "description": "A personal space for ideas, projects, and discoveries.",
+  "themeColor": "#f5f1e8",
+  "homeLinks": [
+    {
+      "label": "Start here",
+      "href": "/#getting-started",
+      "order": 10,
+      "visible": true
+    }
+  ],
+  "notesNavigation": {
+    "label": "Notes",
+    "order": 30
+  },
+  "footerText": "A place to make something your own.",
+  "footerLinks": []
+}

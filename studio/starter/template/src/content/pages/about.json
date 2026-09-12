@@ -1,0 +1,21 @@
+{
+  "title": "About",
+  "description": "An introduction to this website.",
+  "eyebrow": "ABOUT",
+  "heading": "A little context.",
+  "published": true,
+  "navigation": {
+    "show": true,
+    "label": "About",
+    "order": 20
+  },
+  "sections": [
+    {
+      "type": "text",
+      "visible": true,
+      "heading": "Introduce your website.",
+      "body": "Write a little about this space and what readers can find here.\n\nYou can keep it brief, or return later as your ideas develop.",
+      "width": "narrow"
+    }
+  ]
+}

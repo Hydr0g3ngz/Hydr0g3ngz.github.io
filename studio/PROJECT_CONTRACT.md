@@ -76,6 +76,38 @@ The integration enables `/__studio/preview` only for Studio's development previe
 The editor serves its bridge and editor UI from its separate runtime. Production
 builds must not emit the preview route, bridge, `.studio` data, or editor files.
 
+### Neutral starter and empty note collections
+
+Studio 0.5.0 includes one neutral will-astro-v1 starter under
+`studio/starter/template`: **45 files, 17 directories, and 12 supported layouts**.
+It supplies a website's schema, field definitions, components, styles, validation
+scripts, and preview adapter without embedding the editor runtime or the original
+homepage's personal content. The reference adapter remains integration code; the
+starter is the separate complete website foundation.
+
+Launchpad reviews this finite file list before an explicit creation request. The
+destination must be a new or empty real folder, with an existing parent, separate
+from Studio and its open workspaces. Creation does not overwrite files; partial
+output remains for inspection if writing fails. It does not install dependencies,
+execute project code, initialize Git, or publish. The user installs the generated
+website's dependencies separately, creating its own lockfile, then checks and
+explicitly trusts the project before opening it.
+
+The starter's `src/lib/notes-loader.mjs` keeps watching `src/content/notes` even when
+there are initially no notes. It handles addition, change, and removal with
+serialized rescans while delegating parsing, validation, and rendering to Astro's
+loader. The first note can load without a restart, and deleting the last note clears
+the collection. No dummy published content is required. Other compatible websites
+should preserve this empty-directory behaviour; this helper's exact filename is
+not an additional required contract path. Studio's editing support remains `.md`,
+not MDX.
+
+The explicit `npm run check:starter` developer/CI gate creates, installs, and builds
+the bundled neutral website in a temporary directory, then checks its production
+output for leaked preview/editor code or private runtime state. This gate executes
+only as a requested developer check or CI job, never as part of read-only project
+inspection or browser source creation. It is not a sandbox for arbitrary projects.
+
 Page-move link maintenance recognises absolute links only when `project.siteUrl`
 is configured, with an exact origin and base-path boundary. Without this setting,
 relative links can be maintained, but absolute URLs are left unchanged. The setting
@@ -110,7 +142,8 @@ file. Malformed configuration never falls back to legacy mode.
 Neither function imports, evaluates, or executes any selected-project code. In
 particular, `src/content-schema.ts` is a **trusted project code module**, not a
 declarative schema. The caller may load that module or run Astro only after the
-user explicitly selects a trusted local checkout with `--project`. Opening a
+user explicitly selects a trusted local checkout with `--project`, or reviews a
+successful Launchpad check and explicitly confirms trust before opening it. Opening a
 configuration file, a web link, or a repository mention is not authorization to
 execute it. The adapter is a fixed implementation identifier; it must never be
 used as an arbitrary import path or shell command.

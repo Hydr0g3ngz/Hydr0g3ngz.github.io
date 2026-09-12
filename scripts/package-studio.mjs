@@ -2,15 +2,16 @@ import { constants } from 'node:fs';
 import { copyFile, lstat, mkdir, readFile, readdir, realpath, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, join, parse, relative, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { STARTER_FILES } from '../studio/starter/template-manifest.mjs';
 
-const runtime = ['astro-preview', 'cli', 'content-search', 'document-lifecycle', 'inline-session', 'launchpad', 'project-config', 'project-tools', 'server-core', 'server'];
-const web = ['app.js', 'command-palette.js', 'command-palette.css', 'draft-reconcile.js', 'index.html', 'launchpad.html', 'launchpad.js', 'launchpad.css', 'lifecycle.js', 'lifecycle.css', 'section-library.js', 'section-library.css', 'section-draft.js', 'studio.css', 'workspace-storage.js', 'writer.js', 'writer.css'];
+const runtime = ['astro-preview', 'cli', 'content-search', 'document-lifecycle', 'inline-session', 'launchpad', 'starter-project', 'project-config', 'project-tools', 'server-core', 'server'];
+const web = ['app.js', 'command-palette.js', 'command-palette.css', 'draft-reconcile.js', 'index.html', 'launchpad.html', 'launchpad.js', 'launchpad.css', 'starter-wizard.js', 'starter-wizard.css', 'lifecycle.js', 'lifecycle.css', 'section-library.js', 'section-library.css', 'section-draft.js', 'studio.css', 'workspace-storage.js', 'writer.js', 'writer.css'];
 export const STUDIO_TEST_FILES = Object.freeze([
   'studio-server.test.mjs', 'document-lifecycle.test.mjs', 'lifecycle-ui.test.mjs', 'draft-reconcile.test.mjs',
   'studio-writer.test.mjs', 'studio-inline.test.mjs', 'studio-launch.test.mjs', 'studio-cli.test.mjs',
-  'markdown.test.mjs', 'content-validation.test.mjs', 'redirects.test.mjs', 'redirect-build.test.mjs',
+  'markdown.test.mjs', 'notes-loader.test.mjs', 'content-validation.test.mjs', 'redirects.test.mjs', 'redirect-build.test.mjs',
   'project-config.test.mjs', 'command-palette.test.mjs', 'content-search.test.mjs', 'workspace-storage.test.mjs',
-  'multi-project.test.mjs', 'launchpad.test.mjs', 'launchpad-ui.test.mjs', 'section-library.test.mjs', 'section-draft.test.mjs', 'section-insert.test.mjs'
+  'multi-project.test.mjs', 'launchpad.test.mjs', 'launchpad-ui.test.mjs', 'section-library.test.mjs', 'section-draft.test.mjs', 'section-insert.test.mjs', 'starter-project.test.mjs', 'starter-template.test.mjs', 'starter-wizard.test.mjs'
 ]);
 export const PACKAGE_DEPENDENCIES = Object.freeze([
   '@astrojs/sitemap', 'astro', 'marked', 'sanitize-html', '@astrojs/check',
@@ -21,9 +22,12 @@ export const PACKAGE_DEPENDENCIES = Object.freeze([
 // No recursive copy: additions to the website do not silently enter this package.
 export const STUDIO_PACKAGE_FILES = Object.freeze([
   ...runtime.map(name => [`studio/${name}.mjs`, `studio/${name}.mjs`]),
+  ['studio/starter/template-manifest.mjs', 'studio/starter/template-manifest.mjs'],
+  ...STARTER_FILES.map(path => [`studio/starter/template/${path}`, `studio/starter/template/${path}`]),
   ['studio/preview-bridge.js', 'studio/preview-bridge.js'],
   ...web.map(name => [`studio/web/${name}`, `studio/web/${name}`]),
-  ...['build-studio.mjs', 'studio-launch.mjs', 'redirects.mjs', 'validate-content.mjs', 'test-project-tools.mjs', ...STUDIO_TEST_FILES].map(name => [`scripts/${name}`, `scripts/${name}`]),
+  ...['build-studio.mjs', 'check-starter-build.mjs', 'studio-launch.mjs', 'redirects.mjs', 'validate-content.mjs', 'test-project-tools.mjs', ...STUDIO_TEST_FILES].map(name => [`scripts/${name}`, `scripts/${name}`]),
+  ['src/content.config.ts', 'src/content.config.ts'], ['src/lib/notes-loader.mjs', 'src/lib/notes-loader.mjs'],
   ['src/content-schema.ts', 'src/content-schema.ts'], ['src/lib/markdown.ts', 'src/lib/markdown.ts'],
   ['src/content-schema.ts', 'reference/adapter/src/content-schema.ts'], ['src/lib/markdown.ts', 'reference/adapter/src/lib/markdown.ts'],
   ['src/studio-adapter/integration.mjs', 'reference/adapter/src/studio-adapter/integration.mjs'],
@@ -93,7 +97,7 @@ function manifest(source) {
     (section === 'dependencies' ? dependencies : devDependencies)[name] = value;
   }
   return {
-    name: '@willqing/will-studio', version: '0.4.0', private: true, type: 'module', license: 'UNLICENSED',
+    name: '@willqing/will-studio', version: '0.5.0', private: true, type: 'module', license: 'UNLICENSED',
     description: 'A local visual content workspace for compatible will-astro-v1 websites.', engines: { node: '>=24' },
     repository: { type: 'git', url: 'https://github.com/Hydr0g3ngz/will-studio.git' },
     homepage: 'https://github.com/Hydr0g3ngz/will-studio#readme',
@@ -101,6 +105,7 @@ function manifest(source) {
     scripts: {
       start: 'node studio/server.mjs', 'start:guided': 'node scripts/studio-launch.mjs',
       'build:writer': 'node scripts/build-studio.mjs', 'build:studio': 'node scripts/build-studio.mjs',
+      'check:starter': 'node scripts/check-starter-build.mjs',
       test: `node --test ${STUDIO_TEST_FILES.map(file => `scripts/${file}`).join(' ')} && node scripts/test-project-tools.mjs`
     }, dependencies, devDependencies
   };
@@ -127,6 +132,7 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build:writer
+      - run: npm run check:starter
 `;
 const referenceReadme = `# Reference adapter code
 
@@ -135,7 +141,7 @@ a complete website template. The preview component expects the compatible site's
 own Base layout, BlockRenderer, PageHeader, content collections, and styles at
 their contract paths. No personal pages, media, or authored content are included.
 
-The duplicate schema and Markdown helper under the package's top-level src are
+The schema, content configuration, Markdown helper and notes loader under the package's top-level src are
 test fixtures/reference code. Studio loads the selected trusted project's schema;
 it does not use these files as a substitute for that project's implementation.
 

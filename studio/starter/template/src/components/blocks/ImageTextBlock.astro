@@ -1,0 +1,26 @@
+---
+import type { ImageTextBlock } from '../../content-schema';
+
+interface Props {
+  block: ImageTextBlock;
+}
+
+const { block } = Astro.props;
+const paragraphs = block.body.split(/\r?\n\s*\r?\n/).filter(Boolean);
+---
+<section
+  id={block.id}
+  class:list={['section', 'image-text-section', 'wrap', `image-${block.imagePosition}`]}
+>
+  <figure class="image-text-visual">
+    <img src={block.image} alt={block.imageAlt} loading="lazy" />
+    {block.imageCredit && <figcaption>{block.imageCredit}</figcaption>}
+  </figure>
+  <div class="image-text-copy">
+    {block.eyebrow && <p class="eyebrow">{block.eyebrow}</p>}
+    <h2>{block.heading}</h2>
+    <div class="prose">
+      {paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+    </div>
+  </div>
+</section>

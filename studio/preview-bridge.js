@@ -11,6 +11,8 @@ function send(message) {
   } else window.parent.postMessage(payload, window.location.origin);
 }
 function leaves(value, prefix = [], output = []) {
+  // Reading-path book titles are references, not a second copy of editable prose.
+  if (prefix[0] === 'sections' && prefix[2] === 'readingPaths' && prefix[4] === 'bookTitles') return output;
   if (typeof value === 'string' && value.trim()) output.push({ path: prefix, value: value.trim() });
   else if (value && typeof value === 'object') Object.entries(value).forEach(([key, child]) => leaves(child, [...prefix, key], output));
   return output;

@@ -1,8 +1,8 @@
 # Will Studio
 
 A local visual content workspace for compatible **will-astro-v1** websites.
-**Version 0.4.0** adds a searchable Section Library with explicit insertion positions,
-alongside Launchpad, the browser project chooser.
+**Version 0.5.0** adds a neutral website starter to Launchpad, alongside its existing
+project chooser and the searchable Section Library with explicit insertion positions.
 Studio is an independent editor project, not a hosted
 CMS or a universal website builder. It has an explicit compatibility contract,
 not drag-and-drop editing for arbitrary webpages. The website and editor live in
@@ -31,10 +31,50 @@ but Launchpad never installs dependencies in a selected website.
 4. Choose **Open editor** to continue in a new tab. The chooser and existing editor
    tabs stay in place. A running recent project offers **Return to editor**.
 
-The website must already have its own dependencies installed and its will-astro-v1
-adapter. Failed or expired checks need a new check, not an automatic install or
-execution attempt. The editor does not ship with personal pages or a complete
-starter website.
+An existing website must already have its own dependencies installed and its
+will-astro-v1 adapter. Failed or expired checks need a new check, not an automatic
+install or execution attempt. To start a new compatible website, use the separate
+creation flow below; the editor never imports the original homepage's personal pages.
+
+### Create a website
+
+Choose **Create a website** in Launchpad. The bundled starter contains **45 source
+files and 17 directories**, with a neutral Home and About page and **12 supported
+layouts**. It includes the website's schema, field definitions, styles, validation
+scripts, and preview adapter. Notes and the image library start empty. No personal
+biography, selected books, songs, opinions, or external media are supplied for you.
+Its notes loader watches the initially empty directory, so the first saved Markdown
+note is detected without a preview restart. Deleting the last note clears stale
+entries without losing the ability to load a later note; no sample note is required.
+
+1. Enter a project display name and an absolute destination, such as `D:\my-website`.
+   Use a **new or empty real folder** with an existing parent directory, separate
+   from Studio and its open projects. Symbolic links and directory junctions are
+   rejected; existing files are not overwritten.
+2. Choose **Review files**. This is read-only: inspect the project name, exact
+   destination, complete file list, directory list, and warnings. Editing either
+   field or using an expired review requires another review.
+3. Choose **Create website files** to write only those source files. This does not
+   install packages, run project code, make network requests, initialize Git, or
+   publish anything. Closing the window does not cancel an already-sent creation;
+   keep the launcher running and reopen the window to see its result.
+4. Copy the supplied **PowerShell** or **macOS / Linux shell** commands. Review and
+   run them yourself in your terminal: enter the new folder, run `npm install`,
+   then `npm run build`. Studio does not execute these commands. The first install
+   downloads dependencies and creates this website's own `package-lock.json`; keep
+   it and use `npm ci` for later reproducible installations.
+5. Choose **Check this project**. It fills the chooser and performs the existing
+   read-only checks. Missing dependencies must be installed before proceeding.
+   Review the checks, explicitly confirm that you trust the project's code, then
+   choose **Open in Studio** and **Open editor**.
+
+If creation fails partway through, already-created files are **left in place** for
+inspection; they are not automatically deleted or overwritten. Check the destination
+before retrying, and choose a separate new or empty folder as needed. No automatic
+retry, installation, or publishing follows a failed request.
+
+This is one compatible starter, not conversion of an arbitrary website into Studio.
+Choose hosting, a public URL, a repository, and a deployment workflow separately.
 
 To deliberately open a trusted project directly, bypassing the chooser:
 
@@ -87,6 +127,8 @@ permission to execute somebody else's project. See the
 
 ## What is available
 
+- Create a neutral will-astro-v1 website after reviewing its source files, then copy
+  setup commands to run yourself before checking and explicitly trusting the project.
 - Select existing compatible projects through Launchpad, review checks, explicitly
   confirm trust, and keep recent local folders without automatic execution.
 - Edit supported text directly in a real website preview; use structured fields
@@ -147,20 +189,32 @@ safely instead of being silently rewritten. New visual block types still need
 matching schema, field definitions, and website components.
 
 The [reference adapter](reference/adapter/README.md) is integration code, not a
-complete theme. The small files under top-level `src` support regression fixtures;
-they are not a bundled personal website or a substitute for the selected site's
-schema. Full bundle restoration, cloud collaboration, and automatic release
-management are not implemented.
+complete theme. The separate starter under `studio/starter/template` supplies one
+complete, neutral website foundation. The small files under top-level `src` support
+regression fixtures; they are not a personal website or a substitute for a selected
+site's schema. Full bundle restoration, cloud collaboration, and automatic release
+management are not implemented. This is a source distribution: there is no packaged
+installer or npm release yet.
 
 ## Development
 
 ```sh
 npm test
 npm run build:writer
+npm run check:starter
 ```
 
-GitHub Actions runs the tests and writer build on Node.js 24. Writer bundles are
-generated locally and excluded from source control. Existing documentation:
+GitHub Actions runs the tests, writer build, and explicit starter build gate on
+Node.js 24. **check:starter** generates a neutral website in a separate temporary
+directory, installs its dependencies, runs its real production build, and checks
+the generated HTML and public output for Studio-preview routes, editor assets, or
+private runtime state. This developer/CI command needs network access and executes
+the generated starter's build; it does not install into the editor or a selected
+user project. Browser creation and read-only checks never run it automatically.
+Successful runs remove their temporary QA directory; failures report and retain it
+for diagnosis. This describes the gate, not a claim that a particular run passed.
+
+Writer bundles are generated locally and excluded from source control. Documentation:
 [project contract](studio/PROJECT_CONTRACT.md), [visual writer](studio/WRITER.md),
 [change log](CHANGELOG.md), [security boundaries](SECURITY.md).
 
