@@ -6,6 +6,13 @@ const page = (id, data, kind = 'page') => ({ id: `pages/${id}.json`, kind, name:
 const search = (documents, query, extra = {}) => searchContent({ documents, query, ...extra });
 const highlighted = result => result.excerpt.slice(result.matchStart, result.matchEnd);
 
+test('poem background can be found independently of its source URL and personal reflection', () => {
+  const doc = page('poems', { title: 'Poems', sections: [{ type: 'reading', excerpts: [{ work: 'A poem', context: 'Written in Huangzhou.', contextSourceUrl: 'https://example.com/private-source-marker', reflection: '' }] }] });
+  const hit = search([doc], 'Huangzhou').results[0];
+  assert.deepEqual(hit.path, ['sections', '0', 'excerpts', '0', 'context']);
+  assert.equal(search([doc], 'private-source-marker').results.length, 0);
+});
+
 test('Chinese matches navigate to actual section leaves, including array content', () => {
   const doc = page('reading', { title: 'Reading', published: true, sections: [{ heading: 'Intro' }, { type: 'reading', books: [{ title: '一个人的朝圣', blurb: '旅途中遇见普通人的故事。' }] }] });
   const result = search([doc], '普通人').results[0];

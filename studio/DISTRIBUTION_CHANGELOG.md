@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.4.0 — 2026-09-12
+
+- Add a Section Library with layout search, category filters, keyboard-selectable
+  cards, and small layout sketches. Sketches are not full template previews; the
+  selected website's real preview remains the source of truth.
+- Separate choosing a layout from inserting it. **Add section** explicitly confirms
+  insertion at the beginning, the end, or after the selected section. Selection and
+  dismissal alone do not change content; insertion updates an undoable browser
+  draft, not a saved file or public website.
+- Respect each page's available layouts and configured section limit. Reject stale
+  page or insertion-point state instead of inserting into a different working draft.
+- Resolve new section image fields, including nested fields, only from the current
+  project's Media library. Image-dependent additions require an available project
+  image; an empty library needs an upload first, not an original-homepage fallback.
+- Give new Profile sections a nonempty, editable starter paragraph so their initial
+  paragraph structure is valid without inventing personal facts.
+- Guard pending page/note creation against duplicate submits. Closing its dialog
+  does not cancel an already-sent request; a late successful result joins the page
+  list without interrupting the user's newer work.
+
+Compatibility, trust requirements, local-only publishing boundaries, and license
+status are unchanged. Saving still does not commit, push, or deploy a website.
+
 ## 0.3.0 — 2026-09-12
 
 - Add Launchpad, a browser project chooser used by default in the independent

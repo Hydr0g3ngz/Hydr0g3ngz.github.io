@@ -64,6 +64,12 @@
 .poem-stanzas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; }
 .poem-stanzas .excerpt-original { font-size: clamp(1.02rem, 1.6vw, 1.19rem); line-height: 2; letter-spacing: .025em; margin: 0; }
 .poem-card .poem-source { margin-top: 24px; font-size: .67rem; }
+.poem-context { min-width: 0; max-width: 100%; margin-top: 22px; border-top: 1px solid var(--line); }
+.poem-context summary { min-height: 44px; padding: 12px 0; color: var(--muted); font-size: .73rem; line-height: 1.5; cursor: pointer; overflow-wrap: anywhere; }
+.poem-context summary:focus-visible { outline: 2px solid #526650; outline-offset: 4px; }
+.poem-context[open] summary { color: var(--ink); }
+.poem-context-body { margin: 0 0 12px; color: var(--muted); font-size: .8rem; line-height: 1.75; white-space: pre-line; overflow-wrap: anywhere; }
+.poem-context .poem-context-source { max-width: 100%; margin-bottom: 2px; font-size: .67rem; overflow-wrap: anywhere; }
 @media (max-width: 950px) { .poem-grid { grid-template-columns: 1fr; gap: 42px; max-width: 680px; } .poem-stanzas { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px; } .poem-stanzas .excerpt-original { font-size: 1.15rem; } }
 @media (max-width: 560px) { .poetry-collection .commonplace-heading { margin-bottom: 32px; } .poem-caption h3 { font-size: 1.08rem; } .poem-byline { font-size: .64rem; } .poem-stanzas { gap: 15px; } .poem-stanzas .excerpt-original { font-size: 1rem; letter-spacing: 0; line-height: 2.05; } }
 @media (max-width: 350px) { .poem-stanzas { grid-template-columns: 1fr; gap: 22px; } }

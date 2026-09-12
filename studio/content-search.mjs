@@ -9,6 +9,8 @@ const stringArrays = new Set(['paragraphs', 'themes', 'items']);
 const settingsFields = new Set(['brand', 'defaultTitle', 'footerText']);
 const titleFields = new Set(['title', 'defaultTitle', 'brand', 'heading', 'originalTitle', 'track', 'work']);
 const markdownFields = new Set(['body']);
+textFields.add('context');
+textFields.add('contextSourceLabel');
 const isPlain = value => value && typeof value === 'object' && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
 const own = (object, key) => object && Object.getOwnPropertyDescriptor(object, key)?.value;
 const fold = text => text.normalize('NFC').toLowerCase().normalize('NFC');

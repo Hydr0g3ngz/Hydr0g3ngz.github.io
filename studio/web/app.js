@@ -1,12 +1,15 @@
 import { createLifecycle } from './lifecycle.js';
 import { createCommandPalette } from './command-palette.js';
+import { mountSectionLibrary } from './section-library.js';
+import { createSectionDraft } from './section-draft.js';
 import { migrateLegacyDrafts, workspaceStorage } from './workspace-storage.js';
 const $ = selector => document.querySelector(selector);
 const clone = value => structuredClone(value);
 const state = { documents: [], media: [], config: {}, token: '', current: null, drafts: new Map(), selected: null, tab: 'structure', mode: 'edit', scroll: 0, previewSequence: 0, activePreview: null, activeView: 'pages', previewTimer: null };
 const names = { hero: 'Introduction', marquee: 'Moving line', shelf: 'Personal shelf', work: 'Selected work', closing: 'Closing thought', text: 'Text', image_text: 'Image + text', list: 'Collection', quote: 'Quotation', profile: 'Profile', reading: 'Reading room', listening: 'Listening room' };
 const descriptions = { hero: 'An opening with room to breathe.', marquee: 'A quiet line of interests.', shelf: 'Books, music and things you keep.', work: 'Projects without the résumé feeling.', closing: 'Leave a small thought behind.', text: 'A heading and a few paragraphs.', image_text: 'Let an image sit beside your words.', list: 'A flexible collection of linked cards.', quote: 'A sentence worth keeping.', profile: 'An introduction and a few facts.', reading: 'Books, complete poems and personal notes.', listening: 'Selected songs, listening links and personal notes.' };
-const icons = { hero: 'Aa', marquee: '≈', shelf: '▥', work: '↗', closing: '…', text: 'Tt', image_text: '▧', list: '☷', quote: '“', profile: '◎', reading: '▤', listening: '♫' };
+let sectionLibrary;
+function disposeSectionLibrary() { sectionLibrary?.destroy(); sectionLibrary = undefined; $('#modal').classList.remove('section-library-modal'); }
 let writerModule;
 let browserDraftStorage;
 let navigationIntent = 0;
@@ -104,6 +107,13 @@ function docFields(doc = currentDoc()) {
   const exact = config.find(item => item.path === `src/content/${doc.id}`);
   return (exact || config.find(item => item.type === 'collection' && `src/content/${doc.id}`.startsWith(item.path + '/')))?.fields || [];
 }
+function sectionComponent(type) {
+  const blocks = docFields().find(field => field.name === 'sections')?.blocks;
+  const ref = Array.isArray(blocks) ? blocks.find(item => typeof item === 'string' ? item === type : item?.name === type) : undefined;
+  const target = typeof ref === 'string' ? ref : ref?.component ?? (Array.isArray(ref?.fields) ? ref : type);
+  if (target && typeof target === 'object' && !Array.isArray(target)) return target;
+  return typeof target === 'string' && Object.hasOwn(state.config.components || {}, target) ? state.config.components[target] : undefined;
+}
 function descriptor(field) { return field.component ? { ...state.config.components[field.component], ...field } : field; }
 function defaultValue(input, key = input.name) {
   const field = descriptor(input);
@@ -137,6 +147,7 @@ function renderPages() {
 }
 function selectDocument(id) {
   if (!documentById(id) || !flushInlineEdit()) return false;
+  if (sectionLibrary) { disposeSectionLibrary(); $('#modal').close(); }
   navigationIntent++;
   lastEdit = { path: '', at: 0 };
   inlineEditing = null;
@@ -172,7 +183,7 @@ function renderInspector() {
   });
   holder.append(list, button('+ Add a section', showPalette, { class: 'add-button' }));
   if (state.selected === null || !sections[state.selected]) { holder.append(node('p', { class: 'empty', text: 'Select something on the page, or choose a section above.' })); return; }
-  const block = sections[state.selected]; const component = state.config.components?.[block.type];
+  const block = sections[state.selected]; const component = sectionComponent(block.type);
   holder.append(node('div', { class: 'inspector-heading' }, [node('h2', { text: names[block.type] || block.type }), node('div', {}, [button('⧉', duplicateBlock, { class: 'mini-button', title: 'Duplicate section' }), button('×', removeBlock, { class: 'mini-button', title: 'Remove section — undo is available' })])]));
   for (const field of component?.fields || []) holder.append(renderField(field, ['sections', String(state.selected), field.name]));
 }
@@ -182,8 +193,18 @@ function selectBlock(index, scroll = false, path) {
   if (path) { const el = [...$('#inspector').querySelectorAll('[data-field-path]')].find(e => e.dataset.fieldPath === JSON.stringify(path)); if (el) { let parent = el.parentElement; while (parent && parent !== $('#inspector')) { if (parent.tagName === 'DETAILS') parent.open = true; parent = parent.parentElement; } el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('field-highlight'); } }
 }
 function moveBlock(index, delta) { mutate(data => { const [moved] = data.sections.splice(index, 1); data.sections.splice(index + delta, 0, moved); state.selected = index + delta; }, { render: true }); }
-function duplicateBlock() { mutate(data => { const copy = clone(data.sections[state.selected]); if (copy.id) copy.id += `-${Date.now().toString(36)}`; data.sections.splice(state.selected + 1, 0, copy); state.selected++; }, { render: true }); }
-function removeBlock() { mutate(data => { data.sections.splice(state.selected, 1); state.selected = null; }, { render: true }); toast('Section removed. Undo can bring it back.'); }
+function duplicateBlock() {
+  if (!flushInlineEdit() || !draft()?.data.sections?.[state.selected]) return;
+  const limit = docFields().find(field => field.name === 'sections')?.list?.max ?? Infinity;
+  if (draft().data.sections.length >= limit) { toast(`This page is limited to ${limit} sections. Remove one before making a copy.`, true); return; }
+  mutate(data => { const copy = clone(data.sections[state.selected]); if (copy.id) { const base = copy.id; let suffix = 2; while (data.sections.some(section => section.id === copy.id)) copy.id = `${base}-${suffix++}`; } data.sections.splice(state.selected + 1, 0, copy); state.selected++; }, { render: true });
+}
+function removeBlock() {
+  if (!flushInlineEdit() || !draft()?.data.sections?.[state.selected]) return;
+  const minimum = docFields().find(field => field.name === 'sections')?.list?.min ?? 0;
+  if (draft().data.sections.length <= minimum) { toast(`This page needs at least ${minimum} section${minimum === 1 ? '' : 's'}.`, true); return; }
+  mutate(data => { data.sections.splice(state.selected, 1); state.selected = null; }, { render: true }); toast('Section removed. Undo can bring it back.');
+}
 function renderField(input, path) {
   const field = descriptor(input); const value = getAt(draft().data, path); const label = field.label || input.name?.replace(/([A-Z])/g, ' $1').replaceAll('_', ' ') || 'Item';
   const wrapper = node('div', { class: 'field', 'data-field-path': JSON.stringify(path) });
@@ -228,21 +249,43 @@ function renderField(input, path) {
   if (field.description) wrapper.append(node('p', { class: 'field-help', text: field.description }));
   return wrapper;
 }
-function openModal(title, content) { if (!flushInlineEdit()) return; $('#modal-title').textContent = title; $('#modal-content').replaceChildren(content); if (!$('#modal').open) $('#modal').showModal(); }
+function openModal(title, content) { if (!flushInlineEdit()) return false; disposeSectionLibrary(); $('#modal-title').textContent = title; $('#modal-content').replaceChildren(content); if (!$('#modal').open) $('#modal').showModal(); return true; }
 function showPalette() {
-  const allowed = docFields().find(f => f.name === 'sections'); const holder = node('div');
-  holder.append(node('p', { class: 'modal-intro', text: 'A small set of considered layouts. Each one inherits your website’s typography, spacing and colours.' }));
-  const palette = node('div', { class: 'palette' });
-  (allowed?.blocks || []).forEach(ref => {
-    const type = ref.name; palette.append(button('', () => {
-      const component = state.config.components[ref.component || type]; const block = { type, ...defaultValue(component) };
-      if (type === 'marquee' && !block.items?.length) block.items = ['THINGS WORTH KEEPING'];
-      if (type === 'profile' && !block.paragraphs?.length) block.paragraphs = ['Write a little about yourself.'];
-      if (block.id && draft().data.sections.some(section => section.id === block.id)) block.id += `-${Date.now().toString(36)}`;
-      mutate(data => { data.sections.push(block); state.selected = data.sections.length - 1; }, { render: true }); $('#modal').close();
-    }, { class: 'palette-card', disabled: draft().data.sections.length >= (allowed.list?.max || Infinity) }));
-    palette.lastChild.append(node('span', { class: 'palette-icon', text: icons[type] || '▱' }), node('strong', { text: names[type] || type }), node('small', { text: descriptions[type] || 'A new part of your page.' }));
-  }); holder.append(palette); openModal('Make a little space', holder);
+  if (!draft() || !Array.isArray(draft().data.sections) || !flushInlineEdit()) return;
+  const documentId = state.current, sourceDraft = draft(), sourceData = sourceDraft.data;
+  const allowed = docFields().find(f => f.name === 'sections');
+  const entries = [], refs = new Map();
+  for (const ref of allowed?.blocks || []) {
+    if (typeof ref.name !== 'string' || refs.has(ref.name) || !Object.hasOwn(state.config.components || {}, ref.component || ref.name)) continue;
+    const component = state.config.components[ref.component || ref.name];
+    if (!component || component.type !== 'object' || !Array.isArray(component.fields)) continue;
+    refs.set(ref.name, component);
+    entries.push({ type: ref.name, label: names[ref.name] || component.label || ref.name, description: descriptions[ref.name] || 'A layout supplied by this project. Complete its fields in the inspector.' });
+  }
+  const selectedBlock = Number.isInteger(state.selected) ? sourceData.sections[state.selected] : undefined;
+  const positions = [{ value: 'end', label: 'At the end of this page' }, { value: 'start', label: 'At the beginning of this page' }];
+  if (selectedBlock) positions.unshift({ value: 'after-selected', label: `After section ${state.selected + 1} · ${selectedBlock.heading || names[selectedBlock.type] || selectedBlock.type}` });
+  const holder = node('div');
+  if (!openModal('Add a section', holder)) return;
+  $('#modal').classList.add('section-library-modal');
+  const limit = Number.isInteger(allowed?.list?.max) ? allowed.list.max : Infinity;
+  sectionLibrary = mountSectionLibrary({ container: holder, entries, positions, defaultPosition: selectedBlock ? 'after-selected' : 'end',
+    disabledReason: sourceData.sections.length >= limit ? `This page has reached its limit of ${limit} sections. Remove a section before adding another.` : undefined,
+    onInsert({ type, position }) {
+      if (!$('#modal').open || !holder.isConnected || state.current !== documentId || draft() !== sourceDraft || draft().data !== sourceData) throw new Error('This page changed while the library was open. Close and reopen the library before adding a section.');
+      if (!flushInlineEdit()) return false;
+      if (!refs.has(type) || sourceData.sections.length >= limit) throw new Error('This section is unavailable or the page section limit was reached. Reopen the library to review the page.');
+      let insertion = position === 'start' ? 0 : position === 'end' ? sourceData.sections.length : -1;
+      if (position === 'after-selected' && selectedBlock) insertion = sourceData.sections.indexOf(selectedBlock) + 1;
+      if (insertion < 0 || (position === 'after-selected' && insertion === 0)) throw new Error('The selected insertion point is no longer available. Reopen the library.');
+      const block = createSectionDraft({ type, component: refs.get(type), components: state.config.components, media: state.media, sections: sourceData.sections });
+      mutate(data => { data.sections.splice(insertion, 0, block); state.selected = insertion; }, { render: true });
+      $('#modal').close(); disposeSectionLibrary();
+      toast('Section added to your browser draft. Complete its fields, then save locally when ready.');
+      return true;
+    }
+  });
+  sectionLibrary.focus();
 }
 function bridge(message) { $('#preview').contentWindow?.postMessage({ source: 'will-studio', ...message }, location.origin); }
 function previewInlineSession() {
@@ -335,8 +378,26 @@ function newPage() {
   const kind = node('select', { name: 'kind' }, [node('option', { value: 'page', text: 'Page — build with sections' }), node('option', { value: 'note', text: 'Note — write visually or in Markdown' })]); const route = node('p', { class: 'notice', text: 'New pages start as drafts. Their URL can include folders.' }); let slugTouched = false;
   slug.addEventListener('input', () => { slugTouched = true; }); title.addEventListener('input', () => { if (!slugTouched) slug.value = title.value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); });
   content.addEventListener('input', () => route.textContent = `/${kind.value === 'note' ? 'notes/' : ''}${slug.value || 'your-page'} · starts as a draft`);
-  for (const [label, control] of [['Type', kind], ['Page title', title], ['Address / slug', slug]]) content.append(node('div', { class: 'field' }, [node('label', { text: label }, control)])); content.append(route, node('div', { class: 'modal-actions' }, [button('Cancel', () => $('#modal').close(), { class: 'quiet-button' }), node('button', { type: 'submit', class: 'primary-button', text: 'Create draft' })]));
-  content.addEventListener('submit', async event => { event.preventDefault(); try { const result = await api('/api/document', 'POST', { kind: kind.value, slug: slug.value, title: title.value }); const doc = result.document || result; state.documents.push(doc); $('#modal').close(); selectDocument(doc.id); toast('Your new draft is ready.'); } catch (error) { toast(error.message, true); } }); openModal('Start a new page', content);
+  const dismiss = button('Cancel', () => $('#modal').close(), { class: 'quiet-button' });
+  const create = node('button', { type: 'submit', class: 'primary-button', text: 'Create draft' });
+  let pending = false;
+  for (const [label, control] of [['Type', kind], ['Page title', title], ['Address / slug', slug]]) content.append(node('div', { class: 'field' }, [node('label', { text: label }, control)])); content.append(route, node('div', { class: 'modal-actions' }, [dismiss, create]));
+  const ownsModal = () => content.isConnected && $('#modal').open && $('#modal-content').contains(content);
+  content.addEventListener('submit', async event => {
+    event.preventDefault(); if (pending || !ownsModal()) return;
+    const intent = navigationIntent, payload = { kind: kind.value, slug: slug.value, title: title.value };
+    pending = true; [title, slug, kind, create].forEach(control => control.disabled = true);
+    create.textContent = 'Creating draft…'; dismiss.textContent = 'Close dialog';
+    route.textContent = 'Creating a local draft. Closing this dialog will not cancel the request; the new draft will appear in the page list.';
+    try {
+      const result = await api('/api/document', 'POST', payload), doc = result.document || result;
+      if (!doc?.id || !doc.data) throw new Error('The server returned an incomplete document. Reload Studio to check whether the draft was created.');
+      if (!documentById(doc.id)) state.documents.push(doc);
+      if (ownsModal() && intent === navigationIntent) { $('#modal').close(); selectDocument(doc.id); toast('Your new draft is ready.'); }
+      else { renderPages(); toast('The requested draft was created and added to the page list. Your current work is unchanged.'); }
+    } catch (error) { toast(error.message, true); if (ownsModal()) route.textContent = 'The draft could not be created. Check the address and try again.'; }
+    finally { pending = false; [title, slug, kind, create].forEach(control => control.disabled = false); create.textContent = 'Create draft'; dismiss.textContent = 'Cancel'; }
+  }); openModal('Start a new page', content);
 }
 async function renderHistory(holder) {
   const historyId = state.current;
@@ -436,6 +497,7 @@ const commandPalette = createCommandPalette({
   ]
 });
 function openCommands() { if (!$('#modal').open && flushInlineEdit()) commandPalette.open(); }
+$('#modal').addEventListener('close', () => { if (!$('#modal').open) disposeSectionLibrary(); });
 $('#commands').onclick = openCommands;
 $('#workspace-launchpad').onclick = event => { if (!flushInlineEdit()) event.preventDefault(); };
 document.addEventListener('keydown', event => {
@@ -471,4 +533,4 @@ async function start() {
   catch (error) { $('#preview-loading').hidden = true; $('#save-state').textContent = 'Could not open workspace'; toast(error.message, true); }
 }
 start();
-export { selectDocument, save, openModal, flushInlineEdit, openSearchDocument };
+export { selectDocument, save, openModal, flushInlineEdit, openSearchDocument, showPalette };

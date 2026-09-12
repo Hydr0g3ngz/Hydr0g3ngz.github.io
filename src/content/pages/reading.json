@@ -61,28 +61,40 @@
           "author": "Su Shi · 苏轼",
           "work": "临江仙 · 夜饮东坡醒复醉",
           "sourceLabel": "Chinese text · 唐宋名家词选",
-          "sourceUrl": "https://longyusheng.org/ci/sushi/25.html"
+          "sourceUrl": "https://longyusheng.org/ci/sushi/25.html",
+          "context": "Written during Su Shi’s exile in Huangzhou, this lyric opens with a late return from drinking at Dongpo. The anthology glosses yingying as the pursuit of status and profit. The final lines turn to a small boat and a wish to entrust the remaining years to rivers and seas.",
+          "contextSourceLabel": "Background notes · 唐宋名家词选",
+          "contextSourceUrl": "https://longyusheng.org/ci/sushi/25.html"
         },
         {
           "text": "忆昔午桥桥上饮，\n坐中多是豪英。\n长沟流月去无声。\n杏花疏影里，\n吹笛到天明。\n\n二十馀年如一梦，\n此身虽在堪惊。\n闲登小阁看新晴。\n古今多少事，\n渔唱起三更。",
           "author": "Chen Yuyi · 陈与义",
           "work": "临江仙 · 忆昔午桥桥上饮",
           "sourceLabel": "Chinese text · 唐宋名家词选",
-          "sourceUrl": "https://longyusheng.org/ci/chenyuyi/3.html"
+          "sourceUrl": "https://longyusheng.org/ci/chenyuyi/3.html",
+          "context": "The poem’s prefatory note describes climbing a small pavilion at night and remembering earlier days in Luoyang. The first stanza recalls drinking with companions and flute music until dawn; the second looks back across more than twenty years, ending with a fisherman’s song in the night.",
+          "contextSourceLabel": "Background notes · 唐宋名家词选",
+          "contextSourceUrl": "https://longyusheng.org/ci/chenyuyi/3.html"
         },
         {
           "text": "别馆寒砧，\n孤城画角，\n一派秋声入寥廓。\n东归燕从海上去，\n南来雁向沙头落。\n楚台风，\n庾楼月，\n宛如昨。\n\n无奈被些名利缚！\n无奈被它情担阁！\n可惜风流总闲却！\n当初谩留华表语，\n而今误我秦楼约。\n梦阑时，\n酒醒后，\n思量着。",
           "author": "Wang Anshi · 王安石",
           "work": "千秋岁引 · 别馆寒砧",
           "sourceLabel": "Chinese text · 唐宋名家词选",
-          "sourceUrl": "https://longyusheng.org/ci/wanganshi/4.html"
+          "sourceUrl": "https://longyusheng.org/ci/wanganshi/4.html",
+          "context": "The anthology subtitles this lyric “Autumn Scene.” Its notes identify the opening sounds as cloth being beaten on a stone and a painted horn used in military life. Swallows and geese cross the landscape before the poem turns to the constraints of reputation, attachment, and missed promises.",
+          "contextSourceLabel": "Background notes · 唐宋名家词选",
+          "contextSourceUrl": "https://longyusheng.org/ci/wanganshi/4.html"
         },
         {
           "text": "天接云涛连晓雾，\n星河欲转千帆舞。\n仿佛梦魂归帝所。\n闻天语，\n殷勤问我归何处？\n\n我报路长嗟日暮，\n学诗漫有惊人句。\n九万里风鹏正举。\n风休住，\n蓬舟吹取三山去。",
           "author": "Li Qingzhao · 李清照",
           "work": "渔家傲 · 天接云涛连晓雾",
           "sourceLabel": "Chinese text · 唐宋名家词选",
-          "sourceUrl": "https://longyusheng.org/ci/liqingzhao/10.html"
+          "sourceUrl": "https://longyusheng.org/ci/liqingzhao/10.html",
+          "context": "This lyric takes the form of a dream journey: the speaker reaches a celestial court and is asked where she wishes to go. The closing “three mountains” are not an ordinary destination; the anthology identifies them as Fangzhang, Yingzhou, and Penglai, the three mythical mountains of immortals in the Bohai Sea.",
+          "contextSourceLabel": "Background notes · 唐宋名家词选",
+          "contextSourceUrl": "https://longyusheng.org/ci/liqingzhao/10.html"
         }
       ]
     }

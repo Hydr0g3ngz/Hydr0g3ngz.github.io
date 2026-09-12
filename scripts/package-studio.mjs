@@ -4,13 +4,13 @@ import { dirname, isAbsolute, join, parse, relative, resolve, sep } from 'node:p
 import { pathToFileURL } from 'node:url';
 
 const runtime = ['astro-preview', 'cli', 'content-search', 'document-lifecycle', 'inline-session', 'launchpad', 'project-config', 'project-tools', 'server-core', 'server'];
-const web = ['app.js', 'command-palette.js', 'command-palette.css', 'draft-reconcile.js', 'index.html', 'launchpad.html', 'launchpad.js', 'launchpad.css', 'lifecycle.js', 'lifecycle.css', 'studio.css', 'workspace-storage.js', 'writer.js', 'writer.css'];
+const web = ['app.js', 'command-palette.js', 'command-palette.css', 'draft-reconcile.js', 'index.html', 'launchpad.html', 'launchpad.js', 'launchpad.css', 'lifecycle.js', 'lifecycle.css', 'section-library.js', 'section-library.css', 'section-draft.js', 'studio.css', 'workspace-storage.js', 'writer.js', 'writer.css'];
 export const STUDIO_TEST_FILES = Object.freeze([
   'studio-server.test.mjs', 'document-lifecycle.test.mjs', 'lifecycle-ui.test.mjs', 'draft-reconcile.test.mjs',
   'studio-writer.test.mjs', 'studio-inline.test.mjs', 'studio-launch.test.mjs', 'studio-cli.test.mjs',
   'markdown.test.mjs', 'content-validation.test.mjs', 'redirects.test.mjs', 'redirect-build.test.mjs',
   'project-config.test.mjs', 'command-palette.test.mjs', 'content-search.test.mjs', 'workspace-storage.test.mjs',
-  'multi-project.test.mjs', 'launchpad.test.mjs', 'launchpad-ui.test.mjs'
+  'multi-project.test.mjs', 'launchpad.test.mjs', 'launchpad-ui.test.mjs', 'section-library.test.mjs', 'section-draft.test.mjs', 'section-insert.test.mjs'
 ]);
 export const PACKAGE_DEPENDENCIES = Object.freeze([
   '@astrojs/sitemap', 'astro', 'marked', 'sanitize-html', '@astrojs/check',
@@ -93,7 +93,7 @@ function manifest(source) {
     (section === 'dependencies' ? dependencies : devDependencies)[name] = value;
   }
   return {
-    name: '@willqing/will-studio', version: '0.3.0', private: true, type: 'module', license: 'UNLICENSED',
+    name: '@willqing/will-studio', version: '0.4.0', private: true, type: 'module', license: 'UNLICENSED',
     description: 'A local visual content workspace for compatible will-astro-v1 websites.', engines: { node: '>=24' },
     repository: { type: 'git', url: 'https://github.com/Hydr0g3ngz/will-studio.git' },
     homepage: 'https://github.com/Hydr0g3ngz/will-studio#readme',

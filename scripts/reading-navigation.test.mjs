@@ -78,7 +78,9 @@ test('permalinks leave original headings, full stanzas, books and reflections un
   assert.deepEqual([...document.querySelectorAll('.book-copy h3')].map((node) => node.textContent), block.books.map((book) => book.title));
   assert.deepEqual([...document.querySelectorAll('.book-blurb')].map((node) => node.textContent), block.books.map((book) => book.blurb));
   assert.deepEqual([...document.querySelectorAll('.personal-reflection > p:last-child')].map((node) => node.textContent), [block.books[0].reflection, block.excerpts[0].reflection]);
-  assert.equal(document.querySelectorAll('details, [hidden], script').length, 0, 'poems remain expanded, without a script or disclosure');
+  assert.equal(document.querySelectorAll('.poem-stanzas').length, 4);
+  assert.ok([...document.querySelectorAll('.poem-stanzas')].every(poem => !poem.closest('details, [hidden]')), 'the complete poems stay expanded, independently of optional background disclosures');
+  assert.equal(document.querySelectorAll('script').length, 0, 'reading navigation needs no script');
 });
 
 test('named block anchors are distinct and stable when reading blocks are reordered', async (t) => {

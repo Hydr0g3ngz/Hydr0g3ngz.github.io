@@ -73,6 +73,11 @@ const poemTitleId = (index: number) => poemIds[index] && `${poemIds[index]}-titl
       </blockquote>
       {excerpt.translation?.trim() && <p class="excerpt-translation">{excerpt.translation}</p>}
       <a class="culture-source poem-source" href={excerpt.sourceUrl} target="_blank" rel="noopener noreferrer">{excerpt.sourceLabel}<span aria-hidden="true"> ↗</span></a>
+      {excerpt.context?.trim() && <details class="poem-context">
+        <summary data-studio-ignore>About this poem</summary>
+        <p class="poem-context-body">{excerpt.context}</p>
+        {excerpt.contextSourceUrl && <a class="culture-source poem-context-source" href={excerpt.contextSourceUrl} target="_blank" rel="noopener noreferrer">{excerpt.contextSourceLabel?.trim() || 'Background source'}<span aria-hidden="true"> ↗</span></a>}
+      </details>}
       {excerpt.reflection && <div class="personal-reflection"><p class="eyebrow">WILL’S MARGIN NOTE</p><p>{excerpt.reflection}</p></div>}
     </figure>)}</div>
   </div>}

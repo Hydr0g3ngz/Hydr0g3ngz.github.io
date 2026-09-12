@@ -222,6 +222,9 @@ export const readingBlockSchema = z.object({
     work: z.string().min(1),
     sourceLabel: z.string().min(1),
     sourceUrl: httpsUrl,
+    context: z.string().max(2000).optional(),
+    contextSourceLabel: z.string().min(1).optional(),
+    contextSourceUrl: httpsUrl.optional(),
     reflection: z.string().optional()
   })).max(24).default([])
 });

@@ -4,7 +4,7 @@ A local workspace for your website: direct page editing, reusable sections, draf
 media, history, project health, snapshots, and content export. The public site remains
 an independently built static website. Studio and its local state are not deployed.
 
-The Launchpad instructions below apply to **version 0.3.0**.
+These instructions describe **version 0.4.0**.
 
 ## Open it
 
@@ -136,10 +136,41 @@ bounded, and the panel asks you to narrow the query when more matches may exist.
 
 ## Add and arrange content
 
-Choose **Add a section** for one of the layouts available to that page. All layouts
-use the website's existing typography and spacing. Drag sections to reorder them, or
-use the up/down buttons. The inspector also offers duplicate, remove, and visibility
-controls. Removing a section can be undone immediately.
+Choose **Add a section** to open the Section Library. It lists only the layouts
+configured for the current page, using the website's existing typography and spacing.
+
+1. Search by layout name or description, or use the available **Basics**,
+   **Collections**, and **Personal** category filters. **Clear filters** restores
+   the full list for this page.
+2. Select a card to read its description. **Selecting a card does not insert it.**
+   The small thumbnail is a layout sketch, not a complete template preview; the
+   real page preview is the source of truth.
+3. Choose **Insert position**: at the beginning, at the end, or after the currently
+   selected section. The default is after the selected section when one is selected,
+   otherwise at the end.
+4. Choose **Add section** to insert it into the **browser draft**. Complete its
+   fields in the inspector and check the real preview. Use **Save locally** when
+   ready to write the changes to disk; insertion does not publish anything.
+
+Arrow keys move and select layout cards; Enter or Space selects the focused card,
+but still does not add it. Use the separate **Add section** button to confirm.
+Closing the library before confirmation makes no change. If a filter hides your
+chosen layout, clear the filter or select a visible card before adding. The page's
+configured section limit is enforced; remove a section before inserting another
+when that limit is reached. If the page changes while the library is open, close
+and reopen it to choose a valid insertion point.
+
+New sections use images only from the **current project's Media library**, including
+image fields nested inside a section. An image-dependent layout needs an available
+project image: if the library is empty, upload one in **Media**, then reopen the
+Section Library. Images from the original homepage are not substituted into another
+project. Review every image, its alt text, and any credits before saving.
+A new **Profile** includes an editable starter paragraph rather than an invalid
+empty paragraph list; replace the placeholder with your own introduction.
+
+After insertion, drag sections to reorder them or use the up/down buttons. The
+inspector also offers duplicate, remove, and visibility controls. Adding, moving,
+duplicating, and removing sections can be undone with Studio's **Undo** control.
 
 Nested collections—books, songs, quotations, links, image credits—have their own
 add, duplicate, reorder, and remove controls. Optional fields can be cleared.
@@ -151,6 +182,14 @@ The plus button beside page search creates a page or Markdown note. A slug such 
 Use **Page details** to edit titles, descriptions, publication state, and navigation.
 Drafts can be previewed without publishing them. Changing a title does not silently
 change its URL.
+
+Submitting **Create draft** requests a new unpublished **local file**, unlike adding
+a section to a browser draft. While creation is pending, its inputs and submit
+button are disabled to prevent duplicate submissions. **Close dialog** dismisses
+the window but does not cancel an already-sent creation request. If it succeeds
+after you close the dialog or move to other work, the new document is added to the
+page list without switching away from your current work. Check that list before
+retrying an uncertain request.
 
 ### Write without Markdown syntax
 
@@ -229,8 +268,16 @@ separately. These are local recovery tools, not a replacement for a second backu
 
 Reading entries distinguish short editorial book introductions from personal
 reflections. The four Song ci poems are complete, preserve both stanzas, and link
-to their source edition. English renderings are optional; no personal notes are
-filled in on your behalf.
+to their source edition. Each poem also has a short, sourced English background
+under **About this poem**. This native disclosure starts collapsed; it hides only
+the background, never the Chinese poem's full text.
+
+The background and its source fields are editable in the Reading block's poem
+entry. In the preview, open **About this poem** and double-click its paragraph to
+edit supported plain text directly. This editorial context is separate from
+**Your margin note**, which appears as **WILL'S MARGIN NOTE** only when you write one.
+Leave the background empty to omit the disclosure. English renderings are optional;
+no personal notes or opinions are filled in on your behalf.
 
 Listening is a compact list of Will's selected songs. Each current entry has a
 verified YouTube link and a NetEase Music link; playback happens on those platforms,
@@ -291,11 +338,10 @@ The independent default opens Launchpad; use `--project "D:\will-homepage"` when
 you deliberately want to bypass the chooser and open that trusted project directly.
 
 Packaging does not create a repository, install dependencies, or publish anything.
-The public [standalone repository](https://github.com/Hydr0g3ngz/will-studio) has been
-published with the 0.2.0 source, setup instructions, security notes, and CI.
-The 0.3.0 Launchpad update is being prepared and has not yet been declared published.
-These instructions describe local source extraction; Studio is not a hosted service
-or an npm-published package.
+The [standalone repository](https://github.com/Hydr0g3ngz/will-studio) is separate
+from this homepage. These instructions describe 0.4.0 source and local extraction,
+not the status of an online deployment. Studio is not a hosted service or an
+npm-published package.
 
 This is an evolving local Studio product. Complete release management,
 import/restore of full project bundles, starter-project creation, richer workspace

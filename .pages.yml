@@ -630,6 +630,18 @@ components:
             label: Source HTTPS link
             type: string
             required: true
+          - name: context
+            label: About this poem (optional)
+            type: text
+            description: Brief sourced background, separate from your personal margin note. Appears in a collapsed disclosure; leave blank to omit it.
+          - name: contextSourceLabel
+            label: Background source label (optional)
+            type: string
+            description: A label for the background reference. Defaults to Background source when a link is provided without a label.
+          - name: contextSourceUrl
+            label: Background source HTTPS link (optional)
+            type: string
+            description: The reference supporting the background, not a personal review.
           - name: reflection
             label: Your margin note
             type: text

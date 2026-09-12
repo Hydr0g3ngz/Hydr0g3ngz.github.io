@@ -35,6 +35,28 @@ The listening room has five chosen songs with YouTube/NetEase links, not embedde
 players. Homepage card links replace duplicate room entrances. Films and artists
 follow Will's supplied list; personal reasons remain unwritten until supplied.
 
+## Section Library and reading context — September 2026
+
+Reading now includes short, sourced English background notes for all four selected
+Song ci works. Native, initially collapsed disclosures keep the complete poems
+visible and separate editorial context from Will's still-empty personal reflections.
+The optional fields are editable in Studio and their text is included in saved-content
+search. Stable poem permalinks and the mobile reading layout remain intact.
+
+Studio 0.4.0 introduces a searchable Section Library with category filters and
+code-native layout sketches. Choosing a card is separate from adding it to the
+browser draft; insertion position is explicit, undoable, and never publishes or
+saves by itself. New sections use the target project's schema descriptors and
+media library, including custom component aliases. Profile defaults, unique anchors,
+configured section bounds, and stale draft protection have regression coverage.
+
+Pending page creation cannot double-submit, close a newer dialog, or navigate away
+from newer work. Closing its dialog does not cancel a local-file request already
+sent; the UI explains that distinction. Main-suite verification: 225 passing tests
+plus project-tools checks; production build: five validated static pages and no
+Astro diagnostics. Real-browser checks covered section insertion/undo, layout search,
+the narrow library dialog, and expanded poem notes at a 390-pixel viewport.
+
 ## Current standalone foundations
 
 The local editor now has a separate search/command panel, opened from the sidebar
@@ -128,10 +150,11 @@ copied lockfile aligns it with the generated manifest. The exporter itself does
 not install dependencies, initialise Git, commit, push, or deploy.
 
 The public [independent repository](https://github.com/Hydr0g3ngz/will-studio) now
-contains the 0.2.0 source with setup instructions, security notes, and CI. This is
+contains the Studio source with setup instructions, security notes, and CI. This is
 an early contract-limited source distribution, not a hosted service, npm release,
-or universal editing product. The 0.3.0 Launchpad source and documentation are being
-prepared for acceptance checks; this document does not claim that update is published.
+or universal editing product. The 0.3.0 Launchpad was published as commit d9538f7;
+Windows and Ubuntu CI passed in run 34678121589. This is a source release, not a
+GitHub Release artifact or an installer.
 
 ## Remaining work toward the full goal
 
@@ -146,7 +169,8 @@ prepared for acceptance checks; this document does not claim that update is publ
 4. Design tools: controlled typography/colour/spacing variants, accessible themes,
    preview comparison, and reusable component templates without breaking layouts.
 5. Media: metadata, alt-text coverage, image optimisation, and convenient source/link
-   maintenance. Any future audio feature or playlist addition must follow Will's
+   maintenance. Guard media-dialog upload completion against stale dialog/field
+   state before expanding that workflow. Any future audio feature or playlist addition must follow Will's
    explicit selection, not invent a listening profile or add synthetic experiments.
 6. Whole-project management: portable asset-inclusive bundles, previewable import,
    snapshot comparison and full restore, a publish queue, and useful diagnostics.
@@ -156,9 +180,9 @@ prepared for acceptance checks; this document does not claim that update is publ
 9. Product direction explicitly requested by the user: a standalone Will Studio,
    usable beyond this homepage. The shell/website adapter boundary, versioned
    will-astro-v1 contract, external-project launch, workspace-scoped browser storage,
-   and an independent source repository now exist. The 0.3.0 candidate adds a browser
+   and an independent source repository now exist. The released 0.3.0 adds a browser
    chooser for existing compatible projects, explicit trust, and owned-workspace
-   lifecycle handling. Next: acceptance/release of that candidate, starter-project
+   lifecycle handling. Next: starter-project
    onboarding, richer workspace management, additional adapters, deployment
    providers, upgrade/migration, and diagnostics. Expand proven workflows
    incrementally rather than claiming universal compatibility.

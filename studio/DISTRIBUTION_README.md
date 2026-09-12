@@ -1,7 +1,8 @@
 # Will Studio
 
 A local visual content workspace for compatible **will-astro-v1** websites.
-**Version 0.3.0** adds Launchpad, a browser project chooser.
+**Version 0.4.0** adds a searchable Section Library with explicit insertion positions,
+alongside Launchpad, the browser project chooser.
 Studio is an independent editor project, not a hosted
 CMS or a universal website builder. It has an explicit compatibility contract,
 not drag-and-drop editing for arbitrary webpages. The website and editor live in
@@ -92,8 +93,9 @@ permission to execute somebody else's project. See the
   for sections, images, links, and publication settings.
 - Write Markdown notes with a visual editor or source view, including lists,
   links, images, and code blocks.
-- Add and reorder supported sections, create nested pages or notes, and keep new
-  documents unpublished until they are ready.
+- Browse supported sections by search and category, compare layout sketches, and
+  explicitly choose where to insert a section. Reorder sections and create nested
+  pages or notes, keeping new documents unpublished until they are ready.
 - Search content and navigate with a command palette.
 - Review page moves, copy a page as a draft, use recoverable Trash, and maintain
   redirects for previously published addresses.
@@ -105,6 +107,36 @@ Studio listens on loopback. Editing, drafts, snapshots, and local preview do not
 require a cloud account. Installing dependencies, opening external links, or
 using a site's external media can still require network access. Saving locally
 does not publish to GitHub; deployment remains a separate website workflow.
+
+## Add sections and pages
+
+Choose **Add a section** to open the Section Library for the current page. Search
+layout names or descriptions, or filter the categories that are available. Select
+a card to see its description: selection alone makes no content change. Thumbnails
+are **layout sketches**, not complete template previews. The real website preview
+shows the actual result with that project's components and styles.
+
+Choose an **Insert position**: the beginning, the end, or after the selected section.
+The default is after the selected section when available, otherwise the end.
+Only **Add section** confirms insertion. The result is a browser-draft change,
+supports **Undo**, and still needs its fields completed and **Save locally** before
+it is written to disk. Closing the library without adding changes nothing. A hidden
+selection must be made visible or replaced before insertion; configured page section
+limits also prevent further additions. Reopen the library if the page or insertion
+point has changed.
+
+New section image fields, including nested ones, use only the selected project's
+Media library. If an image-dependent layout has no available project image, upload
+one in **Media** before adding that layout. Studio does not borrow an image from
+the original homepage. Review the image, alt text, and credits in the inspector.
+New Profile sections include an editable starter paragraph; it is a placeholder,
+not personal information supplied on your behalf.
+
+**Create draft** for a new page or note creates an unpublished local file. Its
+submit controls are disabled while the request is pending. **Close dialog** does
+not cancel a request that has already been sent. If it completes after dismissal
+or after you have moved elsewhere, the document joins the page list without
+replacing your current work. Check the list before retrying an uncertain creation.
 
 ## Compatibility and limits
 
