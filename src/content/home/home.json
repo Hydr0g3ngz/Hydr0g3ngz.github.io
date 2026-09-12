@@ -8,7 +8,7 @@
       "eyebrow": "PERSONAL HOMEPAGE",
       "heading": "Hi, I’m Will Qing.",
       "lede": "I’m an undergraduate in Information Engineering at Shanghai Jiao Tong University.",
-      "intro": "I’m interested in how machine learning can be used to understand signals and physical systems, and I’m currently exploring optical computing. Outside research, I spend most of my time reading, listening to music, and, more recently, watching films.",
+      "intro": "My interests lie around machine learning, signals, and physical systems. I have also worked on optical computing. Outside research, I spend most of my time reading, listening to music, and, more recently, watching films.",
       "links": [
         {
           "label": "More about me",
@@ -29,7 +29,6 @@
       "items": [
         "MACHINE LEARNING",
         "SIGNALS & PHYSICAL SYSTEMS",
-        "OPTICAL COMPUTING",
         "BOOKS",
         "MUSIC",
         "FILM"
