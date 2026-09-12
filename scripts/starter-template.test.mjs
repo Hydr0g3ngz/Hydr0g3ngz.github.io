@@ -113,7 +113,10 @@ test('the package contains only exact proven website dependencies and no editor 
   assert.equal(STARTER_FILES.some(path => path === 'package-lock.json'), false, 'The selected installation generates its own matching lockfile.');
   assert.doesNotMatch(await read('astro.config.mjs'), /\bsite\s*:|@astrojs\/sitemap/);
   const ignored = await read('.gitignore');
-  for (const path of ['.studio/', '.astro/', 'node_modules/', 'dist/', '.env']) assert.ok(ignored.split('\n').includes(path));
+  for (const lineEnding of ['\n', '\r\n']) {
+    const lines = ignored.replace(/\r?\n/g, lineEnding).split(/\r?\n/);
+    for (const path of ['.studio/', '.astro/', 'node_modules/', 'dist/', '.env']) assert.ok(lines.includes(path));
+  }
 });
 
 test('template code and field descriptions contain no copied personal identity or selected works', async () => {
