@@ -1,7 +1,23 @@
 ---
+import { createHash } from 'node:crypto';
 import type { ReadingBlock } from '../../content-schema';
 interface Props { block: ReadingBlock; }
 const { block } = Astro.props;
+// An explicit section ID enables shareable links. Author/work identity keeps a
+// poem's link stable when the collection is reordered; duplicates get a suffix.
+const anchorPrefix = block.id ? `${block.id}-reading` : undefined;
+const booksId = anchorPrefix && `${anchorPrefix}-books`;
+const poemsId = anchorPrefix && `${anchorPrefix}-song-ci`;
+const poemOccurrences = new Map<string, number>();
+const poemIds = block.excerpts.map((excerpt) => {
+  if (!anchorPrefix) return undefined;
+  const identity = JSON.stringify([excerpt.author.normalize('NFC'), excerpt.work.normalize('NFC')]);
+  const digest = createHash('sha256').update(identity).digest('hex').slice(0, 12);
+  const occurrence = (poemOccurrences.get(digest) ?? 0) + 1;
+  poemOccurrences.set(digest, occurrence);
+  return `${anchorPrefix}-poem-${digest}${occurrence > 1 ? `-${occurrence}` : ''}`;
+});
+const poemTitleId = (index: number) => poemIds[index] && `${poemIds[index]}-title`;
 ---
 <section id={block.id} class="section culture-section reading-section wrap">
   <div class="culture-heading">
@@ -9,7 +25,17 @@ const { block } = Astro.props;
     <h2>{block.heading}</h2>
     <p>{block.intro}</p>
   </div>
-  {block.books.length > 0 && <div class="book-grid">
+  {anchorPrefix && (block.books.length > 0 || block.excerpts.length > 0) && <nav class="reading-nav" aria-label={`Contents · ${block.heading}`} data-studio-ignore>
+    <p class="reading-nav-label">ON THIS PAGE</p>
+    <ul class="reading-nav-sections">
+      {block.books.length > 0 && <li><a href={`#${booksId}`}>Books</a></li>}
+      {block.excerpts.length > 0 && <li><a href={`#${poemsId}`}>Song ci</a></li>}
+    </ul>
+    {block.excerpts.length > 0 && <ol class="reading-nav-poems" aria-label="Poems">
+      {block.excerpts.map((excerpt, index) => <li><a href={`#${poemIds[index]}`}><span class="reading-nav-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span><span lang="zh-Hans">{excerpt.work}</span></a></li>)}
+    </ol>}
+  </nav>}
+  {block.books.length > 0 && <div id={booksId} class="book-grid reading-anchor" tabindex={booksId ? '-1' : undefined} aria-label="Books">
     {block.books.map((book, index) => <article class="book-card">
       <div class:list={['book-jacket', `jacket-${book.color}`]} aria-hidden="true">
         <span class="jacket-number">{String(index + 1).padStart(2, '0')}</span>
@@ -28,16 +54,19 @@ const { block } = Astro.props;
       </div>
     </article>)}
   </div>}
-  {block.excerpts.length > 0 && <div class="commonplace poetry-collection">
+  {block.excerpts.length > 0 && <div id={poemsId} class="commonplace poetry-collection reading-anchor" tabindex={poemsId ? '-1' : undefined} aria-label="Song ci">
     <div class="commonplace-heading">
       <p class="eyebrow">SONG CI · COMPLETE TEXTS</p>
       <h2>Poems to return to.</h2>
       <p>Song ci in full, with room for both stanzas. Each text links back to its source.</p>
     </div>
-    <div class="excerpt-list poem-grid">{block.excerpts.map((excerpt, index) => <figure class="excerpt-card poem-card">
+    <div class="excerpt-list poem-grid">{block.excerpts.map((excerpt, index) => <figure id={poemIds[index]} class="excerpt-card poem-card reading-anchor" tabindex={poemIds[index] ? '-1' : undefined} aria-labelledby={poemTitleId(index)}>
       <figcaption class="poem-caption">
         <p class="poem-byline"><span class="poem-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span><span>{excerpt.author}</span></p>
-        <h3 lang="zh-Hans"><cite>{excerpt.work}</cite></h3>
+        <div class="poem-title-line">
+          <h3 id={poemTitleId(index)} lang="zh-Hans"><cite>{excerpt.work}</cite></h3>
+          {poemIds[index] && <a class="poem-permalink" href={`#${poemIds[index]}`} aria-label={`Permalink to ${excerpt.work}`} title="Link to this poem" data-studio-ignore><span aria-hidden="true">#</span></a>}
+        </div>
       </figcaption>
       <blockquote class="poem-stanzas" lang="zh-Hans" cite={excerpt.sourceUrl}>
         {excerpt.text.split(/\n\s*\n/).map(stanza => <p class="excerpt-original">{stanza}</p>)}

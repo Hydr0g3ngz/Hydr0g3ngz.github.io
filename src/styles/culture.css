@@ -6,6 +6,21 @@
 .culture-source { display: inline-block; font-size: .73rem; color: var(--muted); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 4px; }
 .culture-source:hover { color: var(--ink); text-decoration-color: var(--ink); }
 .culture-section a:focus-visible, .culture-section button:focus-visible, .culture-section input:focus-visible { outline: 2px solid #526650; outline-offset: 5px; }
+.reading-nav { margin: -8px 0 42px; padding: 18px 0 20px; border-block: 1px solid var(--line); }
+.reading-nav-label { margin: 0 0 4px; color: var(--muted); font-size: .58rem; letter-spacing: .16em; }
+.reading-nav ul, .reading-nav ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0 26px; }
+.reading-nav li { min-width: 0; max-width: 100%; }
+.reading-nav a { display: inline-flex; align-items: center; min-height: 44px; gap: 9px; color: var(--ink); font-size: .78rem; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 5px; overflow-wrap: anywhere; }
+.reading-nav a:hover { text-decoration-color: var(--line); }
+.reading-nav .reading-nav-poems { column-gap: 24px; }
+.reading-nav-poems a { color: var(--muted); font-size: .76rem; }
+.reading-nav-number { flex: none; font: .62rem Georgia, serif; font-variant-numeric: tabular-nums; color: #929284; }
+.reading-anchor { scroll-margin-top: 32px; }
+.reading-anchor:focus-visible { outline: 2px solid #526650; outline-offset: 8px; }
+.poem-title-line { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.poem-title-line h3 { min-width: 0; overflow-wrap: anywhere; }
+.poem-permalink { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin-block: -10px; flex: none; color: var(--muted); font: 1rem Georgia, serif; text-decoration: none; }
+.poem-permalink:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
 .book-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px 44px; }
 .book-card { display: grid; grid-template-columns: 138px minmax(0, 1fr); gap: 28px; align-items: start; padding-top: 28px; border-top: 1px solid var(--line); min-width: 0; }
 .book-jacket { --jacket-color: #596552; position: relative; aspect-ratio: 2/3; display: flex; flex-direction: column; padding: 17px 14px 15px 20px; color: #fff8e9; background: var(--jacket-color); box-shadow: inset 5px 0 0 #0002, 3px 4px 0 #e7e0d3, 4px 5px 0 #17171326; transform: rotate(-2deg); transition: transform .25s ease; }

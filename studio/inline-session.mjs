@@ -38,6 +38,7 @@ export function installInlineEditing({ window, identity, isEditMode, send }) {
 
   function start(event) {
     if (!isEditMode() || !(event.target instanceof window.Element)) return;
+    if (event.target.closest('[data-studio-ignore]')) return;
     const element = event.target.closest('[data-studio-path]');
     if (!element || element.children.length || element.closest('.note-body')) return;
     if (active?.element === element) return;

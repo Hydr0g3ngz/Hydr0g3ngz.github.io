@@ -43,7 +43,9 @@ test('explicit allowlist exports only generic runtime, reference code, tests and
   for (const path of forbidden) await assert.rejects(access(join(out, path)));
   const data = JSON.parse(await readFile(join(out, 'package.json'), 'utf8'));
   assert.equal(data.name, '@willqing/will-studio');
-  assert.equal(data.version, '0.2.0');
+  assert.equal(data.version, '0.3.0');
+  assert.ok(result.files.includes('studio/launchpad.mjs'));
+  assert.ok(result.files.includes('studio/web/launchpad.html'));
   assert.equal(data.private, true);
   assert.equal(data.license, 'UNLICENSED');
   assert.equal(data.engines.node, '>=24');

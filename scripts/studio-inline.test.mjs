@@ -9,7 +9,7 @@ const built = await build({ entryPoints: ['studio/preview-bridge.js'], bundle: t
 const bridgeScript = built.outputFiles[0].text;
 const identity = { id: 'home/home.json', rev: 'a'.repeat(24) };
 
-function preparePreview(window, data = { sections: [{ heading: 'First version' }] }, activeIdentity = identity) {
+function preparePreview(window, data = { sections: [{ heading: 'First version' }] }, activeIdentity = identity, beforeBridge = () => {}) {
   const document = window.document;
   document.open();
   document.write('<!doctype html><html><body><section data-studio-block="0"><h2></h2></section></body></html>');
@@ -19,6 +19,7 @@ function preparePreview(window, data = { sections: [{ heading: 'First version' }
   content.type = 'application/json'; content.id = 'studio-content-data';
   content.dataset.documentId = activeIdentity.id; content.dataset.previewRev = activeIdentity.rev;
   content.textContent = JSON.stringify(data); document.body.append(content);
+  beforeBridge(document);
   window.eval(bridgeScript);
   return document.querySelector('h2');
 }
@@ -98,6 +99,26 @@ test('only uniquely matched content paths become inline editable', () => {
   } finally { browser.window.close(); }
 });
 
+test('reading navigation is not editable and cannot steal a matching content field', () => {
+  const browser = new JSDOM('', { url: 'http://127.0.0.1:4310/preview/', runScripts: 'outside-only' });
+  try {
+    const { window } = browser;
+    const element = preparePreview(window, undefined, identity, document => {
+      const nav = document.createElement('nav'); nav.dataset.studioIgnore = '';
+      const jump = document.createElement('a'); jump.textContent = 'First version'; jump.href = '#first'; nav.append(jump);
+      document.querySelector('section').append(nav);
+    });
+    const jump = window.document.querySelector('nav a');
+    assert.equal(jump.hasAttribute('data-studio-path'), false);
+    assert.equal(element.dataset.studioPath, '["sections","0","heading"]');
+    const click = new window.MouseEvent('click', { bubbles: true, cancelable: true });
+    jump.dispatchEvent(click); assert.equal(click.defaultPrevented, false, 'Native fragment navigation remains available in edit mode.');
+    jump.dataset.studioPath = element.dataset.studioPath;
+    begin(window, jump); assert.equal(jump.hasAttribute('contenteditable'), false, 'Even an already marked ignored navigation leaf is not editable.');
+    begin(window, element); assert.equal(element.getAttribute('contenteditable'), 'true');
+  } finally { browser.window.close(); }
+});
+
 test('real Studio page switch, Save locally and modal opening synchronously keep the last inline text', async () => {
   const html = await readFile(new URL('../studio/web/index.html', import.meta.url), 'utf8');
   const browser = new JSDOM(html, { url: 'http://127.0.0.1:4310/', runScripts: 'outside-only', pretendToBeVisual: true });
@@ -115,7 +136,7 @@ test('real Studio page switch, Save locally and modal opening synchronously keep
     { id: identity.id, kind: 'home', name: 'Home', route: '/', revision: 'home-1', data: { title: 'Home', sections: [{ type: 'text', heading: 'First version' }] } },
     { id: 'pages/about.json', kind: 'page', name: 'About', route: '/about/', revision: 'about-1', data: { title: 'About', sections: [{ type: 'text', heading: 'About version' }] } }
   ];
-  const workspace = { id: 'a'.repeat(24), project: { name: 'Test project' }, originalProject: false };
+  const workspace = { id: 'a'.repeat(24), project: { name: 'Test project' }, originalProject: false, launchpadUrl: 'http://127.0.0.1:4410' };
   const scopedStorage = workspaceStorage(window.localStorage, workspace.id);
   const requests = []; let previewNumber = 0; let saveGate;
   globalThis.fetch = async (url, options = {}) => {
@@ -144,7 +165,13 @@ test('real Studio page switch, Save locally and modal opening synchronously keep
   try {
     const app = await import(`../studio/web/app.js?inline-regression=${Date.now()}`);
     await waitForPreview('about:blank');
+    const chooser = window.document.querySelector('#workspace-launchpad');
+    assert.equal(chooser.hidden, false); assert.equal(chooser.href, workspace.launchpadUrl + '/'); assert.equal(chooser.target, '_blank'); assert.match(chooser.rel, /noopener/);
     let { element, frame } = installCurrent();
+    begin(frame.contentWindow, element); type(frame.contentWindow, element, 'Kept before returning to project chooser');
+    chooser.dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+    assert.equal(JSON.parse(scopedStorage.getItem(`will-studio-v1:${identity.id}`)).data.sections[0].heading, 'Kept before returning to project chooser');
+    assert.equal(requests.filter(item => item.url === '/api/document').length, 0, 'Opening the chooser does not save or publish.');
     begin(frame.contentWindow, element); type(frame.contentWindow, element, 'Kept when switching directly');
     assert.equal(window.document.querySelector('#save').disabled, false);
     const previous = frame.src;

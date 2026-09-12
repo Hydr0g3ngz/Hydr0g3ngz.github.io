@@ -437,6 +437,7 @@ const commandPalette = createCommandPalette({
 });
 function openCommands() { if (!$('#modal').open && flushInlineEdit()) commandPalette.open(); }
 $('#commands').onclick = openCommands;
+$('#workspace-launchpad').onclick = event => { if (!flushInlineEdit()) event.preventDefault(); };
 document.addEventListener('keydown', event => {
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k' && !event.defaultPrevented && !event.target.closest?.('.studio-writer')) { event.preventDefault(); openCommands(); }
 });
@@ -455,6 +456,13 @@ async function start() {
     catch { toast('Older browser drafts could not be migrated. Their original data is still kept in this browser; save new edits locally.', true); }
     Object.assign(state, { documents: result.documents, media: result.media, config: result.config, token: result.token, workspace: result.workspace });
     $('#workspace-title').textContent = result.workspace.project.name;
+    const projectChooser = $('#workspace-launchpad');
+    try {
+      const destination = new URL(result.workspace.launchpadUrl);
+      if (destination.protocol === 'http:' && destination.hostname === '127.0.0.1' && !destination.username && !destination.password && !destination.search && !destination.hash && destination.pathname === '/') {
+        projectChooser.href = destination.origin; projectChooser.hidden = false;
+      }
+    } catch { /* Direct-project launches have no chooser. Never invent its address. */ }
     document.title = `${result.workspace.project.name} · Will Studio`;
     const live = $('#live-site'); live.hidden = !result.workspace.project.siteUrl;
     if (result.workspace.project.siteUrl) live.href = result.workspace.project.siteUrl;

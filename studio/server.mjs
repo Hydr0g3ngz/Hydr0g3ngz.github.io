@@ -9,7 +9,7 @@ import { createProjectSnapshot, exportContentBundle, getProjectOverview, listPro
 import { createDocumentLifecycle } from './document-lifecycle.mjs';
 import { loadProjectConfig } from './project-config.mjs';
 import { searchContent } from './content-search.mjs';
-import { parseStudioArguments, STUDIO_HELP } from './cli.mjs';
+import { defaultStudioProject, parseStudioArguments, STUDIO_HELP } from './cli.mjs';
 
 const runtimeRoot = resolve(import.meta.dirname, '..');
 
@@ -69,11 +69,16 @@ async function validateBuild(root) {
   });
 }
 
-export async function startStudioServer({ root = runtimeRoot, port = 4310, astroPort = 4311, noAstro = false, schemas, projectConfig, editorRoot = runtimeRoot } = {}) {
+export async function startStudioServer({ root = runtimeRoot, port = 4310, astroPort = 4311, noAstro = false, schemas, projectConfig, editorRoot = runtimeRoot, launchpadUrl } = {}) {
+  if (launchpadUrl !== undefined) {
+    const destination = new URL(launchpadUrl);
+    if (destination.protocol !== 'http:' || destination.hostname !== '127.0.0.1' || destination.username || destination.password || destination.search || destination.hash || destination.pathname !== '/') throw new Error('The project chooser must be a loopback Studio address.');
+    launchpadUrl = destination.origin;
+  }
   const configuration = projectConfig ?? await loadProjectConfig(root);
   const store = await createStudioStore({ root, schemas });
   const normalizedRoot = process.platform === 'win32' ? store.root.toLowerCase() : store.root;
-  const workspace = { ...configuration, id: createHash('sha256').update(normalizedRoot).digest('hex').slice(0, 24), originalProject: normalizedRoot === (process.platform === 'win32' ? runtimeRoot.toLowerCase() : runtimeRoot) };
+  const workspace = { ...configuration, id: createHash('sha256').update(normalizedRoot).digest('hex').slice(0, 24), originalProject: normalizedRoot === (process.platform === 'win32' ? runtimeRoot.toLowerCase() : runtimeRoot), ...(launchpadUrl ? { launchpadUrl } : {}) };
   const lifecycle = await createDocumentLifecycle(store, { siteUrl: configuration.project?.siteUrl });
   try {
     await access(join(editorRoot, 'studio/web/writer.js'));
@@ -86,6 +91,7 @@ export async function startStudioServer({ root = runtimeRoot, port = 4310, astro
   let astroChild;
   let buildPromise;
   let stopping = false;
+  let closingPromise;
   let effectivePort = port;
   let resolvePreview;
   const previewStarted = new Promise((resolveStarted) => { resolvePreview = resolveStarted; });
@@ -266,18 +272,23 @@ export async function startStudioServer({ root = runtimeRoot, port = 4310, astro
   return {
     server, store, token, port: effectivePort,
     url: `http://127.0.0.1:${effectivePort}`,
-    async close() {
-      stopping = true;
-      if (astroChild && astroChild.exitCode === null) {
-        astroChild.disconnect();
-        const child = astroChild;
-        await new Promise((resolveExit) => {
-          const timer = setTimeout(() => { child.kill(); resolveExit(); }, 5_000);
-          child.once('exit', () => { clearTimeout(timer); resolveExit(); });
-        });
-      }
-      server.closeAllConnections();
-      await new Promise((resolveClosed) => server.close(resolveClosed));
+    ready: noAstro ? Promise.resolve(true) : previewStarted,
+    previewStatus: () => ({ ready: noAstro || previewReady, error: previewError }),
+    close() {
+      return closingPromise ??= (async () => {
+        stopping = true;
+        resolvePreview(false);
+        if (astroChild && astroChild.exitCode === null) {
+          if (astroChild.connected) astroChild.disconnect();
+          const child = astroChild;
+          await new Promise((resolveExit) => {
+            const timer = setTimeout(() => { child.kill(); resolveExit(); }, 5_000);
+            child.once('exit', () => { clearTimeout(timer); resolveExit(); });
+          });
+        }
+        server.closeAllConnections();
+        await new Promise((resolveClosed) => server.close(resolveClosed));
+      })();
     }
   };
 }
@@ -285,9 +296,10 @@ export async function startStudioServer({ root = runtimeRoot, port = 4310, astro
 if (import.meta.url === pathToFileURL(resolve(process.argv[1] ?? '')).href) {
   const args = process.argv.slice(2);
   try {
-    const options = parseStudioArguments(args, { defaultProject: runtimeRoot });
+    const options = parseStudioArguments(args, { defaultProject: await defaultStudioProject(runtimeRoot) });
     if (options.help) { console.log(STUDIO_HELP); process.exit(0); }
-    const studio = await startStudioServer(options);
+    const studio = options.root ? await startStudioServer(options)
+      : await (await import('./launchpad.mjs')).startLaunchpad({ runtimeRoot, port: options.port, startWorkspace: startStudioServer });
     console.log(`\nWill Studio is ready at ${studio.url}\nKeep this terminal open while editing. Press Ctrl+C to stop.\n`);
     if (options.open) {
       const browser = process.platform === 'win32'
@@ -301,7 +313,7 @@ if (import.meta.url === pathToFileURL(resolve(process.argv[1] ?? '')).href) {
     process.on('SIGINT', close);
     process.on('SIGTERM', close);
   } catch (error) {
-    console.error(error.code === 'EADDRINUSE' ? 'Studio is already running on this port. Open http://127.0.0.1:4310, or choose another port with --port.' : error.message);
+    console.error(error.code === 'EADDRINUSE' ? 'The selected port is already in use. Keep the existing service running and choose another port with --port.' : error.message);
     process.exitCode = 1;
   }
 }

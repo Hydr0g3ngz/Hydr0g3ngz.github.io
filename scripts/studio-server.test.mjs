@@ -112,12 +112,15 @@ test('path escapes, prototype properties, linked directories, and fake images ar
 
 test('HTTP API rejects foreign origins/hosts and requires the matching session token', async (t) => {
   const { root } = await fixture(t);
-  const studio = await startStudioServer({ root, port: 0, noAstro: true, schemas, editorRoot: root, projectConfig: { version: 1, adapter: 'will-astro-v1', project: { name: 'Test project' } } });
+  const studio = await startStudioServer({ root, port: 0, noAstro: true, schemas, editorRoot: root, launchpadUrl: 'http://127.0.0.1:4410', projectConfig: { version: 1, adapter: 'will-astro-v1', project: { name: 'Test project' } } });
   t.after(() => studio.close());
   const state = await (await fetch(`${studio.url}/api/state`)).json();
   assert.equal(state.documents.length, 3);
   assert.ok(state.config);
   assert.equal(typeof state.token, 'string');
+  assert.equal(state.workspace.launchpadUrl, 'http://127.0.0.1:4410');
+  assert.equal(await studio.ready, true);
+  assert.deepEqual(studio.previewStatus(), { ready: true, error: '' });
   const body = JSON.stringify({ kind: 'page', slug: 'browser-created', title: 'Browser created' });
   for (const headers of [
     { origin: 'https://example.com', 'x-studio-token': state.token },
@@ -151,4 +154,12 @@ test('HTTP API rejects foreign origins/hosts and requires the matching session t
   assert.equal((await bundleResponse.json()).format, 'will-studio-content-v1');
   const project = await (await fetch(`${studio.url}/api/project`)).json();
   assert.equal(project.content.drafts, 1);
+  await Promise.all([studio.close(), studio.close()]);
+  assert.equal(studio.server.listening, false);
+});
+
+test('a project chooser address cannot introduce external, credentialed, or scripted navigation', async () => {
+  for (const launchpadUrl of ['https://evil.example/', 'javascript:alert(1)', 'http://user:secret@127.0.0.1:4410/', 'http://127.0.0.1:4410/?path=elsewhere', 'http://127.0.0.1:4410/#x', 'http://127.0.0.1:4410/external', '//evil.example/']) {
+    await assert.rejects(startStudioServer({ root: 'not-a-project', launchpadUrl }), /project chooser|Invalid URL/);
+  }
 });

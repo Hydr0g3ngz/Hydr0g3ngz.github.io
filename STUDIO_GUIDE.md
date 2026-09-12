@@ -4,10 +4,13 @@ A local workspace for your website: direct page editing, reusable sections, draf
 media, history, project health, snapshots, and content export. The public site remains
 an independently built static website. Studio and its local state are not deployed.
 
+The Launchpad instructions below apply to **version 0.3.0**.
+
 ## Open it
 
-On Windows, double-click **Start Studio.cmd** in this folder. It opens Studio in your
-browser. Keep its terminal open while working; close it to stop the local service.
+On Windows, double-click **Start Studio.cmd** in this homepage folder. The bundled
+editor still opens this project by default. Keep its terminal open while working;
+save your work, then press Ctrl+C in that terminal to stop the local service.
 The launcher verifies the Node version and locked dependencies. After a dependency
 update it installs the exact locked packages; subsequent launches skip installation.
 Before replacing dependencies, it checks for a running Studio/Astro preview and
@@ -28,7 +31,17 @@ instance first or use `npm run studio -- --port 4410 --astro-port 4411`.
 
 ### Open another compatible local project
 
-Studio can now run separately from the website it edits. From this checkout:
+For the browser-based project chooser, explicitly select **Launchpad** from this
+bundled checkout:
+
+```powershell
+npm run studio -- --choose-project --open
+```
+
+In the independent Studio distribution, `npm start` selects Launchpad by default;
+open the local address printed in the terminal, or use `npm start -- --open` to
+open a browser automatically. Its **Start Studio.cmd** launcher also opens Launchpad.
+An explicit `--project` skips the chooser and directly opens the trusted target:
 
 ```powershell
 npm run studio -- --project "D:\another-compatible-site" --open
@@ -39,11 +52,44 @@ the [will-astro-v1 project contract](studio/PROJECT_CONTRACT.md). Its
 `will-studio.config.json` supplies the workspace name and optional live-site link.
 This metadata does not change Astro's publication settings.
 
+In Launchpad:
+
+1. Enter the website's absolute local directory and choose **Check project**.
+2. Review its name, path, compatibility, and installed-dependency checks. This is
+   read-only: it does not execute project code or install the target's dependencies.
+3. Only if you trust that code, select **I trust this project and allow its local
+   code to run**, then choose **Open in Studio**. Passing checks is not proof of safety.
+4. Use **Open editor** to continue in a new tab. The chooser remains open, without
+   replacing another editor tab. Running entries offer **Return to editor**.
+
+Changing the path clears the check and trust confirmation. If the project changes
+after checking, or the check expires, check it again. Selecting a recent project
+only fills its path and checks it again; it never starts code automatically.
+
+Recent directories and their preferred ports are recorded privately in the editor
+runtime's `.studio/projects.json`, not in the selected site's content. Do not commit
+or publish this registry: local paths can reveal personal information. **Forget**
+removes only the shortcut; it neither deletes project files nor stops a running editor.
+
+One Launchpad manages at most **three running workspaces**. Closing browser tabs
+does not stop them, and forgetting a shortcut does not free a workspace slot. Save
+in every editor, then press **Ctrl+C in the Launchpad terminal** to stop that chooser
+and the workspaces it started. It does not stop unrelated servers. Restart the
+chooser to open a different set of projects.
+
+Launchpad remembers each project's port pair and tries to reuse it when available,
+which helps retain the same browser-draft origin. If a port is occupied, it can
+choose another pair without stopping the other application. Different ports,
+hostnames, browsers, and profiles do not automatically share or migrate drafts;
+save before changing them.
+
 Only open **trusted local projects**. Their schema, Astro configuration, and build
 scripts are executable code. This is not an editor for an arbitrary website URL,
 unrelated Astro template, or downloaded project that you have not reviewed. For
-simultaneous Studio sessions, give each one distinct `--port` and `--astro-port`
-values. `node studio/server.mjs --help` lists the available launch options.
+direct CLI sessions, give each one distinct `--port` and `--astro-port` values.
+Launchpad manages its workspace ports; only its own `--port` is configurable in
+chooser mode. `--choose-project` and `--project` cannot be combined.
+`node studio/server.mjs --help` lists the available launch options.
 
 ## Make your first edit
 
@@ -232,7 +278,7 @@ npm install --package-lock-only
 npm ci
 npm test
 npm run build:writer
-npm start -- --project "D:\will-homepage" --open
+npm start -- --open
 ```
 
 The first command copies an explicit list of editor source, tests, and adapter
@@ -241,15 +287,20 @@ dependencies, and `.studio` recovery state. It will not overwrite a nonempty out
 folder. The lockfile refresh matches the standalone package's generated manifest;
 install and test that package before using it. The reference adapter is not a
 complete website template, and the selected target still needs its own dependencies.
+The independent default opens Launchpad; use `--project "D:\will-homepage"` when
+you deliberately want to bypass the chooser and open that trusted project directly.
 
 Packaging does not create a repository, install dependencies, or publish anything.
 The public [standalone repository](https://github.com/Hydr0g3ngz/will-studio) has been
 published with the 0.2.0 source, setup instructions, security notes, and CI.
+The 0.3.0 Launchpad update is being prepared and has not yet been declared published.
 These instructions describe local source extraction; Studio is not a hosted service
 or an npm-published package.
 
 This is an evolving local Studio product. Complete release management,
-import/restore of full project bundles, guided project onboarding/switching, support
-for other adapters, and broader layout/theme tools remain development work.
+import/restore of full project bundles, starter-project creation, richer workspace
+management, support for other adapters, and broader layout/theme tools remain
+development work. Launchpad opens compatible existing projects; it does not create
+or adapt an arbitrary website for you.
 The long-term goal is a complete, easy-to-use website workspace; this release does
 not establish a claim of superiority over every existing tool.

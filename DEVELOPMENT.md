@@ -51,6 +51,34 @@ browser-origin-specific; copying/moving a project or changing the local port doe
 not migrate browser drafts automatically. Legacy unscoped drafts are claimed only
 by the original homepage checkout, and their original bytes are retained.
 
+### 0.3.0 Launchpad — September 2026
+
+The independent runtime now defaults to the browser project chooser when no
+`--project` is supplied. `npm start` serves its local address; `--open` or the Windows
+launcher opens the browser. The bundled homepage still defaults to its own project.
+Use `--choose-project` to explicitly select Launchpad there; it cannot be combined
+with `--project`. Direct `--project` remains an explicit selection of trusted code.
+
+Launchpad first performs read-only project-structure and installed-dependency
+checks. It does not import the selected schema, run Astro, or install target
+dependencies at this step. Opening requires a successful check and a separate
+trust checkbox. The server rechecks the ticket before executing the project;
+compatibility checks are not a security sandbox or a successful production build.
+The editor appears through an explicit new-tab link, leaving existing tabs intact.
+
+Recent projects live in the **runtime's** `.studio/projects.json`, with local paths,
+display metadata, timestamps, and preferred port pairs. This registry is private
+local state, excluded from publishing and source packaging. Selecting a shortcut
+rechecks it without execution; forgetting it removes only the registry entry and
+does not delete files, stop an editor, or free an active workspace slot.
+
+Each Launchpad owns at most three active workspaces. Closing a browser tab does
+not stop a server. Save all editor tabs before Ctrl+C in the Launchpad terminal;
+shutdown closes the chooser and its owned workspaces, not unrelated services.
+Saved port pairs are reused when free to help retain browser-draft origins, but
+conflicts may require different ports. Drafts are not automatically migrated
+between origins; that includes different ports or `localhost` versus `127.0.0.1`.
+
 The runtime can target an external compatible checkout:
 
 ```powershell
@@ -90,7 +118,7 @@ npm install --package-lock-only
 npm ci
 npm test
 npm run build:writer
-npm start -- --project "D:\will-homepage" --open
+npm start -- --open
 ```
 
 The output must be separate from the source and its ancestors/descendants. It
@@ -102,7 +130,8 @@ not install dependencies, initialise Git, commit, push, or deploy.
 The public [independent repository](https://github.com/Hydr0g3ngz/will-studio) now
 contains the 0.2.0 source with setup instructions, security notes, and CI. This is
 an early contract-limited source distribution, not a hosted service, npm release,
-or universal editing product.
+or universal editing product. The 0.3.0 Launchpad source and documentation are being
+prepared for acceptance checks; this document does not claim that update is published.
 
 ## Remaining work toward the full goal
 
@@ -127,10 +156,12 @@ or universal editing product.
 9. Product direction explicitly requested by the user: a standalone Will Studio,
    usable beyond this homepage. The shell/website adapter boundary, versioned
    will-astro-v1 contract, external-project launch, workspace-scoped browser storage,
-   and an independent source repository now exist. Next: guided
-   onboarding and project switching, additional adapters, deployment providers,
-   upgrade/migration, and diagnostics. Expand proven workflows incrementally rather
-   than claiming universal compatibility.
+   and an independent source repository now exist. The 0.3.0 candidate adds a browser
+   chooser for existing compatible projects, explicit trust, and owned-workspace
+   lifecycle handling. Next: acceptance/release of that candidate, starter-project
+   onboarding, richer workspace management, additional adapters, deployment
+   providers, upgrade/migration, and diagnostics. Expand proven workflows
+   incrementally rather than claiming universal compatibility.
 
 Do not mark the full active goal complete based only on green checks for this first
 release. Validate newly added workflows against their actual intended behaviour.

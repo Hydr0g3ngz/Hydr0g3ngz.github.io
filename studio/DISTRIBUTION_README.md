@@ -1,8 +1,9 @@
 # Will Studio
 
 A local visual content workspace for compatible **will-astro-v1** websites.
-Version 0.2.0 is an independent editor project, not a hosted CMS or a universal
-website builder. This is an early release with an explicit compatibility contract,
+**Version 0.3.0** adds Launchpad, a browser project chooser.
+Studio is an independent editor project, not a hosted
+CMS or a universal website builder. It has an explicit compatibility contract,
 not drag-and-drop editing for arbitrary webpages. The website and editor live in
 separate folders.
 
@@ -12,13 +13,58 @@ Use Node.js 24 or newer. Install this editor's locked dependencies:
 
 ```sh
 npm ci
+npm start -- --open
+```
+
+The independent distribution defaults to **Launchpad**, a project chooser in your
+browser. Plain `npm start` starts that chooser and prints its local address; `--open`
+opens the browser automatically. On Windows, `Start Studio.cmd` verifies the editor's
+locked dependencies and opens Launchpad. It may install the editor's dependencies,
+but Launchpad never installs dependencies in a selected website.
+
+1. Enter an absolute local folder, such as `D:\my-website`, and choose **Check project**.
+2. Review the project name, path, compatibility, and installed-dependency checks.
+   Checking is read-only and does not execute the selected project's code.
+3. Only if you trust that code, select **I trust this project and allow its local
+   code to run**, then choose **Open in Studio**.
+4. Choose **Open editor** to continue in a new tab. The chooser and existing editor
+   tabs stay in place. A running recent project offers **Return to editor**.
+
+The website must already have its own dependencies installed and its will-astro-v1
+adapter. Failed or expired checks need a new check, not an automatic install or
+execution attempt. The editor does not ship with personal pages or a complete
+starter website.
+
+To deliberately open a trusted project directly, bypassing the chooser:
+
+```sh
 npm start -- --project "/absolute/path/to/a-trusted-website" --open
 ```
 
-On Windows, `Start Studio.cmd` offers a guided launch and can ask for the website
-folder. It also accepts `--project "D:\path\to\trusted-website"`. The website
-must already have its own dependencies installed and its will-astro-v1 adapter.
-The editor does not ship with personal pages or a complete starter website.
+The launcher also accepts `--project "D:\path\to\trusted-website"`. Studio bundled
+inside a compatible website still opens that project by default. Use
+`--choose-project` to force Launchpad, including in a bundled checkout; do not combine
+it with `--project`. `node studio/server.mjs --help` lists launch options.
+
+### Recent projects and stopping work
+
+Recent directories are kept in the **editor runtime's** `.studio/projects.json`.
+This is private local state, not website content; do not commit or publish it.
+Choosing a recent project only fills its path and checks it again. **Forget** removes
+the shortcut only: no project files are deleted and no running editor is stopped.
+
+One Launchpad supports at most **three running workspaces**. Closing browser tabs
+does not stop their servers; forgetting a shortcut does not free a workspace slot.
+Save in every editor, then press **Ctrl+C in the Launchpad terminal** to stop that
+chooser and the workspaces it started. Other servers are not stopped. Restart it
+to choose a different set of projects.
+
+Launchpad remembers preferred port pairs and reuses them when available. This helps
+keep a project's browser-draft origin stable. If another application occupies a
+port, a different pair may be used instead; the other application is not stopped.
+Browser drafts do not migrate between ports, hostnames, browsers, or profiles.
+Save before changing addresses. In chooser mode, `--port` sets the chooser's own
+address; workspace preview ports are managed automatically.
 
 After dependencies are installed, independent workspaces can run side by side
 through the direct CLI, using different ports for each Studio and preview:
@@ -28,9 +74,10 @@ node studio/server.mjs --project "/trusted/first-site" --port 4310 --astro-port 
 node studio/server.mjs --project "/trusted/second-site" --port 4410 --astro-port 4411
 ```
 
-The guided launcher conservatively refuses to run while another instance uses
+The guided launcher conservatively refuses a new launch while another instance uses
 the editor runtime, to keep dependency installation safe. Use the direct CLI for
-simultaneous workspaces after installation is complete.
+separate CLI workspaces after installation is complete, or use the already-running
+Launchpad to open up to three workspaces without restarting the launcher.
 
 Only open a project you trust. Its schema module, Astro configuration, and build
 scripts are executable local code. A repository link or configuration file is not
@@ -39,6 +86,8 @@ permission to execute somebody else's project. See the
 
 ## What is available
 
+- Select existing compatible projects through Launchpad, review checks, explicitly
+  confirm trust, and keep recent local folders without automatic execution.
 - Edit supported text directly in a real website preview; use structured fields
   for sections, images, links, and publication settings.
 - Write Markdown notes with a visual editor or source view, including lists,

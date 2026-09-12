@@ -21,7 +21,7 @@ document.querySelectorAll('[data-studio-block]').forEach(section => {
   const assigned = new Set();
   const candidates = [...section.querySelectorAll('h1,h2,h3,h4,p,li,span,a,blockquote,figcaption,strong,cite')].reverse();
   for (const element of candidates) {
-    if (element.querySelector('[data-studio-path]') || element.closest('.note-body')) continue;
+    if (element.querySelector('[data-studio-path]') || element.closest('.note-body, [data-studio-ignore]')) continue;
     const matches = records.filter(record => record.value === element.textContent.trim());
     if (matches.length === 1) {
       const path = JSON.stringify(matches[0].path);
@@ -33,6 +33,7 @@ document.addEventListener('click', event => {
   if (mode !== 'edit') return;
   const element = event.target instanceof Element ? event.target : null;
   if (!element) return;
+  if (element.closest('[data-studio-ignore]')) return;
   if (element.closest('[contenteditable="true"]')) return;
   event.preventDefault(); event.stopImmediatePropagation();
   const section = element.closest('[data-studio-block]');
