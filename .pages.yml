@@ -812,9 +812,13 @@ components:
             label: Original height
             type: number
           - name: listenUrl
-            label: Album link
+            label: Spotify album link
             type: string
-            description: Optional HTTPS link to the complete album.
+            description: Optional HTTPS Spotify link to the complete album.
+          - name: neteaseUrl
+            label: NetEase Cloud Music album link
+            type: string
+            description: Optional HTTPS NetEase Cloud Music link to the complete album.
           - name: coverSourceUrl
             label: Cover source link
             type: string

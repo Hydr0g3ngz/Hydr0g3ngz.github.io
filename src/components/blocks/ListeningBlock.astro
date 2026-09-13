@@ -64,7 +64,12 @@ const albumsId = `${block.id || 'listening'}-albums`;
               {album.originalTitle && <p class="album-original" lang="zh-Hans">{album.originalTitle}</p>}
               {album.favoriteTrack && <p class="album-favorite"><span>Favorite track</span>{album.favoriteTrack}</p>}
               {album.note && <p class="album-note">{album.note}</p>}
-              {album.listenUrl && <a class="album-listen" href={album.listenUrl} target="_blank" rel="noopener noreferrer">Spotify <span aria-hidden="true">↗</span></a>}
+              {(album.listenUrl || album.neteaseUrl) && (
+                <div class="album-links" aria-label={`Listen to ${album.title}`}>
+                  {album.listenUrl && <a href={album.listenUrl} target="_blank" rel="noopener noreferrer">Spotify <span aria-hidden="true">↗</span></a>}
+                  {album.neteaseUrl && <a href={album.neteaseUrl} target="_blank" rel="noopener noreferrer"><span lang="zh-Hans">网易云音乐</span> <span aria-hidden="true">↗</span></a>}
+                </div>
+              )}
             </div>
           </li>
         ))}
@@ -106,9 +111,10 @@ const albumsId = `${block.id || 'listening'}-albums`;
   .album-favorite { margin: 1rem 0 0; color: var(--ink); font: 400 .95rem/1.45 var(--font-serif, Georgia, serif); }
   .album-favorite span { display: block; margin-bottom: .2rem; color: var(--muted); font: 400 .62rem/1.4 var(--font-sans, Inter, sans-serif); letter-spacing: .1em; text-transform: uppercase; }
   .album-note { max-width: 36rem; line-height: 1.65; }
-  .album-listen { display: inline-block; margin-top: 1rem; padding-bottom: .15rem; border-bottom: 1px solid var(--line); color: var(--ink); font-size: .74rem; text-decoration: none; }
-  .album-listen span { margin-left: .35rem; }
-  .album-listen:hover { border-color: currentColor; }
+  .album-links { display: flex; flex-wrap: wrap; gap: .55rem 1rem; margin-top: 1rem; }
+  .album-links a { display: inline-block; padding-bottom: .15rem; border-bottom: 1px solid var(--line); color: var(--ink); font-size: .74rem; text-decoration: none; }
+  .album-links a > span:last-child { margin-left: .25rem; }
+  .album-links a:hover { border-color: currentColor; }
   @media (max-width: 680px) {
     .rotation-track { grid-template-columns: 1.5rem minmax(0, 1fr); gap: .8rem; padding: 1.5rem 0; }
     .rotation-links { grid-column: 2; justify-content: flex-start; }

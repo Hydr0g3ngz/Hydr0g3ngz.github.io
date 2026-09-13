@@ -252,6 +252,7 @@ const albumSchema = z.object({
   imageWidth: z.number().int().positive().optional(),
   imageHeight: z.number().int().positive().optional(),
   listenUrl: httpsUrl.optional(),
+  neteaseUrl: httpsUrl.optional(),
   coverSourceUrl: httpsUrl.optional(),
   note: z.string().optional()
 });
