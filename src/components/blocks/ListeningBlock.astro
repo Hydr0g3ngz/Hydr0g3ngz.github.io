@@ -45,12 +45,27 @@ const albumsId = `${block.id || 'listening'}-albums`;
       </div>
       <ol class="album-grid" aria-label="Will's selected albums">
         {block.albums.map((album, index) => (
-          <li class="album-card">
-            <span class="album-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-            <p class="culture-meta">{album.artist}</p>
-            <h4>{album.title}</h4>
-            {album.originalTitle && <p class="album-original" lang="zh-Hans">{album.originalTitle}</p>}
-            {album.note && <p class="album-note">{album.note}</p>}
+          <li class="album-card" data-cover-source={album.coverSourceUrl}>
+            {album.image && (
+              <figure class="album-cover">
+                <img
+                  src={album.image}
+                  alt={album.imageAlt || `Album cover for ${album.title} by ${album.artist}`}
+                  width={album.imageWidth || 300}
+                  height={album.imageHeight || 300}
+                  loading="lazy"
+                />
+              </figure>
+            )}
+            <div class="album-copy">
+              <span class="album-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+              <p class="culture-meta">{album.artist}</p>
+              <h4>{album.title}</h4>
+              {album.originalTitle && <p class="album-original" lang="zh-Hans">{album.originalTitle}</p>}
+              {album.favoriteTrack && <p class="album-favorite"><span>Favorite track</span>{album.favoriteTrack}</p>}
+              {album.note && <p class="album-note">{album.note}</p>}
+              {album.listenUrl && <a class="album-listen" href={album.listenUrl} target="_blank" rel="noopener noreferrer">Spotify <span aria-hidden="true">↗</span></a>}
+            </div>
           </li>
         ))}
       </ol>
@@ -78,22 +93,31 @@ const albumsId = `${block.id || 'listening'}-albums`;
   .album-heading h3 { margin: .55rem 0 0; font: 400 clamp(2.2rem, 4vw, 3.5rem)/1.05 var(--font-serif, Georgia, serif); }
   .album-heading > p { max-width: 540px; margin: 0; color: var(--muted); }
   .album-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 2.5rem 0 0; padding: 0; border-top: 1px solid var(--line); list-style: none; }
-  .album-card { position: relative; min-height: 170px; padding: 1.75rem 3.5rem 1.8rem 0; border-bottom: 1px solid var(--line); }
-  .album-card:nth-child(odd) { padding-right: 2rem; border-right: 1px solid var(--line); }
-  .album-card:nth-child(even) { padding-left: 2rem; }
-  .album-number { position: absolute; top: 1.75rem; right: 0; color: var(--muted); font: .7rem/1.5 var(--font-mono, monospace); }
-  .album-card:nth-child(odd) .album-number { right: 2rem; }
+  .album-card { display: grid; grid-template-columns: minmax(110px, 145px) minmax(0, 1fr); gap: 1.4rem; min-height: 210px; padding: 1.75rem 2rem 1.8rem 0; border-bottom: 1px solid var(--line); }
+  .album-card:nth-child(odd) { border-right: 1px solid var(--line); }
+  .album-card:nth-child(even) { padding-left: 2rem; padding-right: 0; }
+  .album-cover { align-self: start; aspect-ratio: 1; margin: 0; overflow: hidden; background: rgba(89, 101, 71, .06); }
+  .album-cover img { width: 100%; height: 100%; display: block; object-fit: cover; filter: saturate(.78) contrast(.98); transition: filter .18s ease; }
+  .album-card:hover .album-cover img { filter: saturate(.98) contrast(1); }
+  .album-copy { position: relative; min-width: 0; padding-right: 2rem; }
+  .album-number { position: absolute; top: 0; right: 0; color: var(--muted); font: .7rem/1.5 var(--font-mono, monospace); }
   .album-card h4 { max-width: 90%; margin: .55rem 0 0; font: 400 clamp(1.45rem, 2.4vw, 2rem)/1.2 var(--font-serif, Georgia, serif); }
   .album-original, .album-note { margin: .55rem 0 0; color: var(--muted); font-size: .88rem; }
+  .album-favorite { margin: 1rem 0 0; color: var(--ink); font: 400 .95rem/1.45 var(--font-serif, Georgia, serif); }
+  .album-favorite span { display: block; margin-bottom: .2rem; color: var(--muted); font: 400 .62rem/1.4 var(--font-sans, Inter, sans-serif); letter-spacing: .1em; text-transform: uppercase; }
   .album-note { max-width: 36rem; line-height: 1.65; }
+  .album-listen { display: inline-block; margin-top: 1rem; padding-bottom: .15rem; border-bottom: 1px solid var(--line); color: var(--ink); font-size: .74rem; text-decoration: none; }
+  .album-listen span { margin-left: .35rem; }
+  .album-listen:hover { border-color: currentColor; }
   @media (max-width: 680px) {
     .rotation-track { grid-template-columns: 1.5rem minmax(0, 1fr); gap: .8rem; padding: 1.5rem 0; }
     .rotation-links { grid-column: 2; justify-content: flex-start; }
     .album-heading { display: block; }
     .album-heading > p { margin-top: 1rem; }
     .album-grid { grid-template-columns: 1fr; }
-    .album-card, .album-card:nth-child(odd), .album-card:nth-child(even) { min-height: 0; padding: 1.5rem 2.5rem 1.55rem 0; border-right: 0; }
-    .album-card:nth-child(odd) .album-number, .album-number { right: 0; }
+    .album-card, .album-card:nth-child(odd), .album-card:nth-child(even) { grid-template-columns: 98px minmax(0, 1fr); gap: 1rem; min-height: 0; padding: 1.35rem 0; border-right: 0; }
+    .album-copy { padding-right: 1.75rem; }
+    .album-card h4 { max-width: 100%; font-size: 1.35rem; }
   }
-  @media (prefers-reduced-motion: reduce) { .rotation-links a { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .rotation-links a, .album-cover img { transition: none; } }
 </style>

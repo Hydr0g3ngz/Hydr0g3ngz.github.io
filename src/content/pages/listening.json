@@ -64,20 +64,48 @@
       "albums": [
         {
           "artist": "Lorde",
-          "title": "Pure Heroine"
+          "title": "Pure Heroine",
+          "favoriteTrack": "Ribs",
+          "image": "/uploads/albums/pure-heroine.jpg",
+          "imageAlt": "The black album cover for Pure Heroine by Lorde.",
+          "imageWidth": 300,
+          "imageHeight": 300,
+          "listenUrl": "https://open.spotify.com/album/3Ywlsvgu3H6L3q9NHydNR3",
+          "coverSourceUrl": "https://open.spotify.com/album/3Ywlsvgu3H6L3q9NHydNR3"
         },
         {
           "artist": "Linkin Park",
-          "title": "A Thousand Suns"
+          "title": "A Thousand Suns",
+          "favoriteTrack": "Waiting for the End",
+          "image": "/uploads/albums/a-thousand-suns.jpg",
+          "imageAlt": "The abstract black-and-white album cover for A Thousand Suns by Linkin Park.",
+          "imageWidth": 300,
+          "imageHeight": 300,
+          "listenUrl": "https://open.spotify.com/album/5uvXx5ZQswNRFCdHR521YZ",
+          "coverSourceUrl": "https://open.spotify.com/album/5uvXx5ZQswNRFCdHR521YZ"
         },
         {
           "artist": "Olivia Dean",
-          "title": "The Art of Loving"
+          "title": "The Art of Loving",
+          "favoriteTrack": "I've Seen It",
+          "image": "/uploads/albums/the-art-of-loving.jpg",
+          "imageAlt": "The black-and-white portrait album cover for The Art of Loving by Olivia Dean.",
+          "imageWidth": 300,
+          "imageHeight": 300,
+          "listenUrl": "https://open.spotify.com/album/0l8zYqoUeBYg47Gmevq9HZ",
+          "coverSourceUrl": "https://open.spotify.com/album/0l8zYqoUeBYg47Gmevq9HZ"
         },
         {
           "artist": "Stefanie Sun / 孙燕姿",
           "title": "A Dancing Van Gogh",
-          "originalTitle": "《跳舞的梵谷》"
+          "originalTitle": "《跳舞的梵谷》",
+          "favoriteTrack": "平日快乐",
+          "image": "/uploads/albums/a-dancing-van-gogh.jpg",
+          "imageAlt": "The album cover for A Dancing Van Gogh, showing Stefanie Sun before a red background.",
+          "imageWidth": 300,
+          "imageHeight": 300,
+          "listenUrl": "https://open.spotify.com/album/2YA1bt9t2gBAxOx5kPZoE3",
+          "coverSourceUrl": "https://open.spotify.com/album/2YA1bt9t2gBAxOx5kPZoE3"
         }
       ]
     },

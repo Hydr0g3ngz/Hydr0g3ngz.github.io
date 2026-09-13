@@ -11,6 +11,12 @@ media:
     output: /uploads/live
     extensions: [jpg, jpeg, png, webp, avif]
     rename: safe
+  - name: album-covers
+    label: Album covers
+    input: public/uploads/albums
+    output: /uploads/albums
+    extensions: [jpg, jpeg, png, webp, avif]
+    rename: safe
 
 settings:
   content:
@@ -785,6 +791,34 @@ components:
           - name: originalTitle
             label: Original-language title
             type: string
+          - name: favoriteTrack
+            label: Favorite track
+            type: string
+          - name: image
+            label: Album cover
+            type: image
+            options:
+              media: album-covers
+              extensions: [jpg, jpeg, png, webp, avif]
+              rename: safe
+          - name: imageAlt
+            label: Cover description
+            type: string
+            description: Describe the cover for visitors using screen readers.
+          - name: imageWidth
+            label: Original width
+            type: number
+          - name: imageHeight
+            label: Original height
+            type: number
+          - name: listenUrl
+            label: Album link
+            type: string
+            description: Optional HTTPS link to the complete album.
+          - name: coverSourceUrl
+            label: Cover source link
+            type: string
+            description: Stored as hidden source metadata and not shown as visible page copy.
           - name: note
             label: Your note (optional)
             type: text

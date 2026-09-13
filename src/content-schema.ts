@@ -246,6 +246,13 @@ const albumSchema = z.object({
   artist: z.string().min(1),
   title: z.string().min(1),
   originalTitle: z.string().optional(),
+  favoriteTrack: z.string().min(1).optional(),
+  image: localImage.optional(),
+  imageAlt: z.string().min(1).optional(),
+  imageWidth: z.number().int().positive().optional(),
+  imageHeight: z.number().int().positive().optional(),
+  listenUrl: httpsUrl.optional(),
+  coverSourceUrl: httpsUrl.optional(),
   note: z.string().optional()
 });
 
