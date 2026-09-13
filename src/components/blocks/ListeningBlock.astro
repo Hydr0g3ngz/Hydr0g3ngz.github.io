@@ -3,6 +3,7 @@ import type { ListeningBlock } from '../../content-schema';
 interface Props { block: ListeningBlock; }
 const { block } = Astro.props;
 const youtubeLink = (song: ListeningBlock['artists'][number]) => song.youtubeUrl || (song.videoId ? `https://www.youtube.com/watch?v=${song.videoId}` : undefined);
+const albumsId = `${block.id || 'listening'}-albums`;
 ---
 <section id={block.id} class="section culture-section listening-section wrap">
   <div class="culture-heading">
@@ -33,6 +34,28 @@ const youtubeLink = (song: ListeningBlock['artists'][number]) => song.youtubeUrl
     </li>)}
   </ol>
   <p class="rotation-footnote">Listen on the platform you prefer. Links open in a new tab; availability may vary by region or account.</p>
+  {block.albums.length > 0 && (
+    <section class="album-shelf" aria-labelledby={albumsId}>
+      <div class="album-heading">
+        <div>
+          <p class="eyebrow">ALBUMS</p>
+          <h3 id={albumsId}>{block.albumsHeading}</h3>
+        </div>
+        {block.albumsIntro && <p>{block.albumsIntro}</p>}
+      </div>
+      <ol class="album-grid" aria-label="Will's selected albums">
+        {block.albums.map((album, index) => (
+          <li class="album-card">
+            <span class="album-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+            <p class="culture-meta">{album.artist}</p>
+            <h4>{album.title}</h4>
+            {album.originalTitle && <p class="album-original" lang="zh-Hans">{album.originalTitle}</p>}
+            {album.note && <p class="album-note">{album.note}</p>}
+          </li>
+        ))}
+      </ol>
+    </section>
+  )}
 </section>
 
 <style>
@@ -50,6 +73,27 @@ const youtubeLink = (song: ListeningBlock['artists'][number]) => song.youtubeUrl
   .rotation-links a:hover { background: rgba(89, 101, 71, .08); }
   .rotation-links a span { margin-left: .5rem; }
   .rotation-footnote { font-size: .8rem; color: var(--muted); line-height: 1.7; margin-top: 1.25rem; }
-  @media (max-width: 680px) { .rotation-track { grid-template-columns: 1.5rem minmax(0, 1fr); gap: .8rem; padding: 1.5rem 0; } .rotation-links { grid-column: 2; justify-content: flex-start; } }
+  .album-shelf { margin-top: clamp(4.5rem, 8vw, 7rem); padding-top: 3rem; border-top: 1px solid var(--line); }
+  .album-heading { display: grid; grid-template-columns: minmax(0, .75fr) minmax(0, 1.25fr); gap: 54px; align-items: end; }
+  .album-heading h3 { margin: .55rem 0 0; font: 400 clamp(2.2rem, 4vw, 3.5rem)/1.05 var(--font-serif, Georgia, serif); }
+  .album-heading > p { max-width: 540px; margin: 0; color: var(--muted); }
+  .album-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 2.5rem 0 0; padding: 0; border-top: 1px solid var(--line); list-style: none; }
+  .album-card { position: relative; min-height: 170px; padding: 1.75rem 3.5rem 1.8rem 0; border-bottom: 1px solid var(--line); }
+  .album-card:nth-child(odd) { padding-right: 2rem; border-right: 1px solid var(--line); }
+  .album-card:nth-child(even) { padding-left: 2rem; }
+  .album-number { position: absolute; top: 1.75rem; right: 0; color: var(--muted); font: .7rem/1.5 var(--font-mono, monospace); }
+  .album-card:nth-child(odd) .album-number { right: 2rem; }
+  .album-card h4 { max-width: 90%; margin: .55rem 0 0; font: 400 clamp(1.45rem, 2.4vw, 2rem)/1.2 var(--font-serif, Georgia, serif); }
+  .album-original, .album-note { margin: .55rem 0 0; color: var(--muted); font-size: .88rem; }
+  .album-note { max-width: 36rem; line-height: 1.65; }
+  @media (max-width: 680px) {
+    .rotation-track { grid-template-columns: 1.5rem minmax(0, 1fr); gap: .8rem; padding: 1.5rem 0; }
+    .rotation-links { grid-column: 2; justify-content: flex-start; }
+    .album-heading { display: block; }
+    .album-heading > p { margin-top: 1rem; }
+    .album-grid { grid-template-columns: 1fr; }
+    .album-card, .album-card:nth-child(odd), .album-card:nth-child(even) { min-height: 0; padding: 1.5rem 2.5rem 1.55rem 0; border-right: 0; }
+    .album-card:nth-child(odd) .album-number, .album-number { right: 0; }
+  }
   @media (prefers-reduced-motion: reduce) { .rotation-links a { transition: none; } }
 </style>

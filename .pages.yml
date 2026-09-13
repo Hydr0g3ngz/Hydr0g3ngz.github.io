@@ -757,6 +757,37 @@ components:
             label: Earlier-format source link (optional)
             type: string
             description: Kept for older saved entries. Used only when there is no Bilibili or NetEase Music link.
+      - name: albumsHeading
+        label: Albums heading
+        type: string
+        required: true
+        default: Albums
+      - name: albumsIntro
+        label: Albums introduction
+        type: text
+      - name: albums
+        label: Favorite albums
+        type: object
+        list:
+          max: 12
+          collapsible:
+            collapsed: true
+            summary: "{title} — {artist}"
+        fields:
+          - name: artist
+            label: Artist
+            type: string
+            required: true
+          - name: title
+            label: Album title
+            type: string
+            required: true
+          - name: originalTitle
+            label: Original-language title
+            type: string
+          - name: note
+            label: Your note (optional)
+            type: text
 
   now:
     type: object

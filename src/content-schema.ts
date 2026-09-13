@@ -242,6 +242,13 @@ export const readingBlockSchema = z.object({
   })).max(24).default([])
 });
 
+const albumSchema = z.object({
+  artist: z.string().min(1),
+  title: z.string().min(1),
+  originalTitle: z.string().optional(),
+  note: z.string().optional()
+});
+
 export const listeningBlockSchema = z.object({
   type: z.literal('listening'),
   ...baseBlock,
@@ -259,7 +266,10 @@ export const listeningBlockSchema = z.object({
     alternateUrl: httpsUrl.optional(),
     alternateLabel: z.string().min(1).optional(),
     reflection: z.string().optional()
-  })).max(24).default([])
+  })).max(24).default([]),
+  albumsHeading: z.string().min(1).default('Albums'),
+  albumsIntro: z.string().optional(),
+  albums: z.array(albumSchema).max(12).default([])
 });
 
 const nowEntrySchema = z.object({
