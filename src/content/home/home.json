@@ -1,6 +1,6 @@
 {
   "title": "Will Qing — personal homepage",
-  "description": "A personal homepage for research, books, music, film, and things worth remembering.",
+  "description": "A personal homepage for research, books, music, film, television, and things worth remembering.",
   "sections": [
     {
       "type": "hero",
@@ -8,7 +8,7 @@
       "eyebrow": "PERSONAL HOMEPAGE",
       "heading": "Hi, I’m Will Qing.",
       "lede": "I’m an undergraduate in Information Engineering at Shanghai Jiao Tong University.",
-      "intro": "My interests lie around machine learning, signals, and physical systems. I have also worked on optical computing. Outside research, I spend most of my time reading, listening to music, and, more recently, watching films.",
+      "intro": "My interests lie around machine learning, signals, and physical systems. I have also worked on optical computing. Outside research, I spend most of my time reading, listening to music, and, more recently, watching films and series.",
       "links": [
         {
           "label": "More about me",
@@ -16,7 +16,7 @@
           "style": "primary"
         },
         {
-          "label": "Books, music & film",
+          "label": "Browse the shelf",
           "href": "#shelf",
           "style": "secondary"
         }
@@ -31,7 +31,7 @@
         "SIGNALS & PHYSICAL SYSTEMS",
         "BOOKS",
         "MUSIC",
-        "FILM"
+        "FILM & TELEVISION"
       ]
     },
     {
@@ -62,12 +62,12 @@
           "label": "LISTENING",
           "entries": [
             {
-              "title": "petal",
-              "meta": "Ariana Grande"
+              "title": "The Secret of Us",
+              "meta": "Gracie Abrams · Favorite track: Risk"
             },
             {
-              "title": "Butterfly Season",
-              "meta": "Ella Langley & Miranda Lambert"
+              "title": "petal",
+              "meta": "Ariana Grande · Favorite track: petal"
             }
           ]
         },
@@ -76,11 +76,13 @@
           "entries": [
             {
               "title": "All Wishes Come True!",
-              "originalTitle": "《八仙！》"
+              "originalTitle": "《八仙！》",
+              "meta": "Film"
             },
             {
-              "title": "Once Upon a Time in the Middle East",
-              "originalTitle": "《欢迎来龙餐馆》"
+              "title": "Stranger Things",
+              "originalTitle": "《怪奇物语》",
+              "meta": "Series"
             }
           ]
         }
@@ -92,7 +94,7 @@
       "visible": true,
       "eyebrow": "02 / THINGS I KEEP AROUND",
       "heading": "Shelf",
-      "intro": "Reading, music, and film are what I return to most often outside research.",
+      "intro": "Reading, music, film, and television are what I return to most often outside research.",
       "categories": [
         {
           "tag": "BOOKS",
@@ -156,9 +158,9 @@
           "linkLabel": "See the current rotation"
         },
         {
-          "tag": "FILM",
-          "title": "Three recent films",
-          "summary": "I have only recently started paying closer attention to film.",
+          "tag": "FILM & TELEVISION",
+          "title": "Recent films and series",
+          "summary": "I have only recently started paying closer attention to what I watch.",
           "image": "/images/film-cinema.jpg",
           "imageAlt": "Empty seats in a softly lit cinema",
           "imageWidth": 1280,
@@ -174,11 +176,19 @@
             {
               "title": "The Passengers of the Night",
               "originalTitle": "《巴黎夜旅人》"
+            },
+            {
+              "title": "Stranger Things",
+              "originalTitle": "《怪奇物语》"
+            },
+            {
+              "title": "Hawkeye",
+              "originalTitle": "《鹰眼》"
             }
           ],
-          "future": "The film page holds brief introductions and official links.",
+          "future": "The film and television page holds brief introductions and official links.",
           "href": "/film",
-          "linkLabel": "Open the film list"
+          "linkLabel": "Open the watch list"
         }
       ],
       "following": {
