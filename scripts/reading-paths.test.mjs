@@ -18,7 +18,16 @@ const compiled = compileAstro(await readFile(componentUrl, 'utf8'), {
 const javascript = await transform(compiled.code, { loader: 'ts', format: 'esm', target: 'es2022' });
 const { default: ReadingBlock } = await import(`data:text/javascript;base64,${Buffer.from(javascript.code).toString('base64')}`);
 const page = JSON.parse(await readFile(new URL('../src/content/pages/reading.json', import.meta.url), 'utf8'));
-const reading = page.sections.find((block) => block.type === 'reading');
+const publishedReading = page.sections.find((block) => block.type === 'reading');
+// Exercise the optional component using fixtures, not unwanted public copy.
+const reading = {
+  ...publishedReading,
+  readingPaths: [
+    { title: 'First pair', description: 'Fixture connecting two books.', bookTitles: [publishedReading.books[0].title, publishedReading.books[3].title], includePoems: false },
+    { title: 'Second pair', description: 'Another fixture connection.', bookTitles: [publishedReading.books[1].title, publishedReading.books[2].title], includePoems: false },
+    { title: 'Books and poems', description: 'Fixture with a poetry link.', bookTitles: [publishedReading.books[2].title, publishedReading.books[3].title], includePoems: true },
+  ],
+};
 const css = await readFile(new URL('../src/styles/culture.css', import.meta.url), 'utf8');
 
 async function render(blocks = [reading]) {
@@ -48,7 +57,20 @@ function bookIdentities(document) {
   ]));
 }
 
-test('three editable reading paths link only to the four selected books and the existing Song ci collection', async (t) => {
+test('published reading page moves directly from books to poems and keeps every personal note', async (t) => {
+  const dom = await render([publishedReading]); t.after(() => dom.window.close());
+  const { document } = dom.window;
+  assert.equal(publishedReading.readingPaths, undefined);
+  assert.equal(document.querySelector('.reading-paths'), null);
+  assert.equal(document.querySelector('.book-grid').nextElementSibling, document.querySelector('.poetry-collection'));
+  assert.equal(document.querySelectorAll('.book-card').length, 4);
+  assert.equal(document.querySelectorAll('.poem-card').length, 4);
+  assert.deepEqual([...document.querySelectorAll('.book-card .personal-reflection > p:last-child')].map((el) => el.textContent), publishedReading.books.map((book) => book.reflection));
+  assert.deepEqual([...document.querySelectorAll('.excerpt-original')].map((el) => el.textContent), publishedReading.excerpts.flatMap((poem) => poem.text.split(/\n\s*\n/)));
+  assertTargets(document);
+});
+
+test('optional reading paths link only to selected books and the existing Song ci collection', async (t) => {
   const dom = await render(); t.after(() => dom.window.close());
   const { document } = dom.window;
   assert.equal(reading.readingPaths.length, 3);

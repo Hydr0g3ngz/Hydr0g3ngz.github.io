@@ -457,6 +457,17 @@ components:
               label: Two columns
             - name: three
               label: Three columns
+      - name: presentation
+        label: Display style
+        type: select
+        default: text
+        description: Poster rows use one column with a compact cover image.
+        options:
+          values:
+            - name: text
+              label: Text list
+            - name: posters
+              label: Poster rows
       - name: items
         type: object
         list:
@@ -476,6 +487,24 @@ components:
           - name: href
             label: Optional link
             type: string
+          - name: image
+            label: Poster image
+            type: image
+            options:
+              media: images
+          - name: imageAlt
+            label: Poster description
+            type: string
+          - name: imageWidth
+            label: Image width
+            type: number
+          - name: imageHeight
+            label: Image height
+            type: number
+          - name: imageSourceUrl
+            label: Poster source
+            type: string
+            description: Official source page, stored as metadata rather than displayed as a credit line.
 
   quote:
     type: object

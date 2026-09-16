@@ -5,7 +5,8 @@ import { transform as compileAstro } from '@astrojs/compiler-rs';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import { transform } from 'esbuild';
 import { JSDOM } from 'jsdom';
-import { profileBlockSchema, siteSettingsSchema, listeningBlockSchema, liveBlockSchema } from '../src/content-schema.ts';
+import { load } from 'js-yaml';
+import { profileBlockSchema, siteSettingsSchema, listeningBlockSchema, liveBlockSchema, listBlockSchema } from '../src/content-schema.ts';
 import { mountLiveGallery } from '../src/lib/live-gallery.mjs';
 
 async function component(path) {
@@ -18,8 +19,9 @@ async function component(path) {
   const js = await transform(code, { loader: 'ts', format: 'esm', target: 'es2022' });
   return (await import(`data:text/javascript;base64,${Buffer.from(js.code).toString('base64')}`)).default;
 }
-const [Navigation, Listening, Live, SocialMeta] = await Promise.all([
+const [Navigation, Listening, Live, SocialMeta, List] = await Promise.all([
   component('MusicNavigation'), component('blocks/ListeningBlock'), component('blocks/LiveBlock'), component('SocialMeta'),
+  component('blocks/ListBlock'),
 ]);
 const music = listeningBlockSchema.parse({
   type: 'listening', id: 'songs', heading: 'Songs', intro: 'Selected music.',
@@ -173,4 +175,74 @@ test('sharing metadata has a text-only fallback when no image is configured', as
   t.after(() => dom.window.close());
   assert.equal(dom.window.document.querySelector('meta[name="twitter:card"]').content, 'summary');
   assert.equal(dom.window.document.querySelector('meta[property="og:image"]'), null);
+});
+
+test('poster lists keep images, descriptions and accessible official links together', async (t) => {
+  const block = listBlockSchema.parse({
+    type: 'list', id: 'films', heading: 'Films', presentation: 'posters', columns: 'one',
+    items: [{ title: 'Film title', text: 'An introduction.', meta: 'Directed by a director', href: 'https://example.test/film', image: '/images/poster.webp', imageAlt: 'A film poster', imageWidth: 312, imageHeight: 468, imageSourceUrl: 'https://example.test/source' }],
+  });
+  const dom = await render([[List, { block }]]);
+  t.after(() => dom.window.close());
+  const { document } = dom.window;
+  assert.equal(document.querySelector('h2').textContent, 'Films');
+  assert.equal(document.querySelectorAll('h3').length, 1);
+  assert.equal(document.querySelector('.screen-summary').textContent, block.items[0].text);
+  const img = document.querySelector('img');
+  assert.equal(img.getAttribute('src'), block.items[0].image);
+  assert.equal(img.alt, block.items[0].imageAlt);
+  assert.equal(img.width, 312);
+  assert.equal(img.height, 468);
+  assert.equal(img.getAttribute('loading'), 'lazy');
+  const [link] = document.querySelectorAll('a');
+  assert.equal(document.querySelectorAll('a').length, 1);
+  assert.equal(link.href, block.items[0].href);
+  assert.equal(link.target, '_blank');
+  assert.equal(link.rel, 'noopener noreferrer');
+  assert.match(link.getAttribute('aria-label'), /opens in a new tab/);
+  assert.equal(document.querySelector('article').dataset.imageSource, block.items[0].imageSourceUrl);
+  assert.equal(document.body.textContent.includes(block.items[0].imageSourceUrl), false);
+});
+
+test('poster list presentation is optional, and entries without a poster still render', async (t) => {
+  const input = { type: 'list', heading: 'List', items: [{ title: 'Title', text: 'Description.', href: '/about/' }] };
+  const legacy = listBlockSchema.parse(input);
+  assert.equal(legacy.presentation, 'text');
+  assert.equal(listBlockSchema.safeParse({ ...input, presentation: 'unknown' }).success, false);
+  for (const presentation of ['text', 'posters']) {
+    const dom = await render([[List, { block: { ...legacy, presentation } }]]);
+    t.after(() => dom.window.close());
+    const { document } = dom.window;
+    assert.equal(document.querySelectorAll('img').length, 0);
+    assert.equal(document.querySelector('a').getAttribute('target'), null);
+    assert.equal(document.querySelector('h3').textContent.trim().replace(/\s*↗$/, ''), 'Title');
+    assert.ok(document.querySelector(presentation === 'text' ? '.content-list-item' : '.screen-entry--text'));
+  }
+});
+
+test('film page groups the existing five titles and keeps poster metadata through schema parsing', async () => {
+  const page = JSON.parse(await readFile(new URL('../src/content/pages/film.json', import.meta.url), 'utf8'));
+  assert.deepEqual(page.sections.map((section) => section.heading), ['Films', 'Series']);
+  assert.deepEqual(page.sections.map((section) => section.items.length), [3, 2]);
+  for (const section of page.sections) {
+    const parsed = listBlockSchema.parse(section);
+    assert.equal(parsed.presentation, 'posters');
+    for (const [index, item] of parsed.items.entries()) {
+      assert.deepEqual(item, section.items[index]);
+      assert.ok(item.image && item.imageAlt && item.imageWidth && item.imageHeight && item.imageSourceUrl);
+      assert.ok(item.href.startsWith('https://'));
+    }
+  }
+});
+
+test('Studio exposes the poster presentation and every poster field in its list editor', async () => {
+  const config = load(await readFile(new URL('../.pages.yml', import.meta.url), 'utf8'));
+  const fields = config.components.list.fields;
+  const presentation = fields.find((field) => field.name === 'presentation');
+  assert.equal(presentation.default, 'text');
+  assert.deepEqual(presentation.options.values.map((option) => option.name), ['text', 'posters']);
+  const itemFields = fields.find((field) => field.name === 'items').fields;
+  for (const name of ['image', 'imageAlt', 'imageWidth', 'imageHeight', 'imageSourceUrl']) {
+    assert.ok(itemFields.some((field) => field.name === name), name);
+  }
 });

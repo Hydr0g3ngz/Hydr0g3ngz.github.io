@@ -180,13 +180,19 @@ export const listBlockSchema = z.object({
   heading: z.string().min(1),
   intro: z.string().optional(),
   columns: z.enum(['one', 'two', 'three']).default('two'),
+  presentation: z.enum(['text', 'posters']).default('text'),
   items: z
     .array(
       z.object({
         title: z.string().min(1),
         text: z.string().min(1),
         meta: z.string().optional(),
-        href: safeLink.optional()
+        href: safeLink.optional(),
+        image: localImage.optional(),
+        imageAlt: z.string().min(1).optional(),
+        imageWidth: z.number().int().positive().optional(),
+        imageHeight: z.number().int().positive().optional(),
+        imageSourceUrl: httpsUrl.optional()
       })
     )
     .default([])
