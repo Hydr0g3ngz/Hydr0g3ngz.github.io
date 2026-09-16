@@ -69,7 +69,11 @@ const { block } = Astro.props;
           />
           <div>
             <p class="tag">{item.tag}</p>
-            <h4>{item.title}</h4>
+            <h4>
+              {item.href ? (
+                <a class="following-link" href={item.href}>{item.title} <span aria-hidden="true">↗</span></a>
+              ) : item.title}
+            </h4>
             <p>{item.summary}</p>
           </div>
         </div>
@@ -93,4 +97,8 @@ const { block } = Astro.props;
 <style>
   .shelf-room-link { display: inline-flex; align-items: center; gap: .65rem; margin-top: 1.2rem; font-size: .84rem; border-bottom: 1px solid currentColor; padding-bottom: .2rem; text-decoration: none; }
   .shelf-room-link:hover { color: var(--muted); }
+  .following-link { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+  .following-link:hover { color: var(--muted); }
+  .following-link:focus-visible { outline: 2px solid currentColor; outline-offset: 5px; }
+  .following-link span { display: inline-block; font-family: system-ui, sans-serif; font-size: .8em; }
 </style>

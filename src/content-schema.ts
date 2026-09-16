@@ -93,6 +93,7 @@ const followingItemSchema = z.object({
   tag: z.string().min(1),
   title: z.string().min(1),
   summary: z.string().min(1),
+  href: safeLink.optional(),
   image: localImage,
   imageAlt: z.string().min(1),
   imageWidth: z.number().int().positive().optional(),

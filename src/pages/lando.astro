@@ -1,0 +1,89 @@
+---
+import '../styles/lando.css';
+
+const canonicalUrl = new URL('/lando/', Astro.site).href;
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f2eb">
+  <meta name="description" content="Being a nice guy. Carlos Sainz on Lando Norris, with Norris's own words before and after his first world championship.">
+  <title>Lando Norris · Being a nice guy · Will Qing</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href={canonicalUrl}>
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Being a nice guy — Lando Norris · Will Qing">
+  <meta property="og:description" content="and being a world champion. Carlos Sainz on Lando Norris, alongside Norris's own words before and after his first title.">
+  <meta property="og:url" content={canonicalUrl}>
+  <!-- Sources for this personal-interest page:
+  The title and subtitle are editorial headings, not quotations.
+  Sainz's lead passage is unchanged from v5: the entire English passage corresponding
+  to the user's supplied five-line subtitle screenshot, with no internal omission.
+  Original interview: 7 December 2025; Sky article updated 8 December.
+  Norris excerpts: 17 quoted words from Giles Richards / The Guardian, 4 April 2025,
+  and 14 words from the FIA post-race transcript, 7 December 2025.
+  Poster: Formula 1 (@F1), official championship announcement, 7 December 2025.
+  https://x.com/F1/status/1997675056730706156
+  Official media asset: https://pbs.twimg.com/media/G7kqxXzW0AE8M54.jpg
+  Provenance verified through X's public syndication response for this post.
+  The full poster is displayed without cropping or alteration.
+  Poster artwork belongs to Formula 1; the source link is shown with the image.
+  No open licence or affiliation with Formula 1 is claimed.
+  -->
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header wrap">
+    <a class="brand" href="/" aria-label="Will Qing — home">WQ</a>
+    <a class="back" href="/#shelf-following-title">← Back to the homepage</a>
+  </header>
+  <main id="main" class="wrap" tabindex="-1">
+    <div class="opening">
+      <div class="page-title">
+        <p class="name">Lando Norris</p>
+        <h1>Being a <span>nice guy</span></h1>
+        <p class="subtitle">and being a world champion</p>
+      </div>
+      <section class="lead clipping" aria-labelledby="sainz-title">
+        <header class="attribution">
+          <h2 id="sainz-title">Carlos Sainz on Norris</h2>
+          <p>Abu Dhabi · <time datetime="2025-12-07">7 December 2025</time></p>
+        </header>
+        <blockquote class="sainz-quote" cite="https://www.skysports.com/f1/news/12433/13480429/lando-norris-max-verstappen-lewis-hamilton-carlos-sainz-hail-new-f1-world-champion-after-abu-dhabi-gp">
+          <p>“because he’s a driver that doesn’t follow the typical stereotypes of a world champion, he’s always <em>stayed true to himself</em>, very honest, very open about his own struggles and proven to everyone you can be world champion being a nice guy”</p>
+        </blockquote>
+        <p class="source"><a href="https://www.skysports.com/f1/news/12433/13480429/lando-norris-max-verstappen-lewis-hamilton-carlos-sainz-hail-new-f1-world-champion-after-abu-dhabi-gp" target="_blank" rel="noopener noreferrer">Sky Sports · interview &amp; video ↗</a></p>
+      </section>
+    </div>
+    <div class="fragments">
+      <section class="before" aria-labelledby="before-title">
+        <header class="attribution">
+          <h2 id="before-title">Lando Norris</h2>
+          <p>Suzuka · <time datetime="2025-04-04">4 April 2025</time></p>
+        </header>
+        <blockquote cite="https://www.theguardian.com/sport/2025/apr/04/lando-norris-you-dont-need-a-killer-instinct-to-be-world-champion">“I still believe I can be a world champion but doing it by being a nice guy.”</blockquote>
+        <p class="source"><a href="https://www.theguardian.com/sport/2025/apr/04/lando-norris-you-dont-need-a-killer-instinct-to-be-world-champion" target="_blank" rel="noopener noreferrer">The Guardian ↗</a></p>
+      </section>
+      <figure class="poster">
+        <a class="poster-image" href="/images/f1-norris-world-champion-2025.jpg" target="_blank" rel="noopener noreferrer" aria-label="View the full F1 championship poster (opens in a new tab)">
+          <img src="/images/f1-norris-world-champion-2025.jpg" width="960" height="1200" fetchpriority="high" alt="F1's gold collage poster of Lando Norris, with the words World Champion and First-Time Champion.">
+        </a>
+        <figcaption><span><time datetime="2025-12-07">7 December 2025</time></span><a href="https://x.com/F1/status/1997675056730706156" target="_blank" rel="noopener noreferrer" aria-label="Original poster by Formula 1 (opens in a new tab)">Formula 1 ↗</a></figcaption>
+      </figure>
+    </div>
+    <section class="closing" aria-labelledby="closing-title">
+      <header class="attribution">
+        <h2 id="closing-title">Lando Norris</h2>
+        <p>After winning the championship<br> <time datetime="2025-12-07">7 December 2025</time></p>
+      </header>
+      <div>
+        <blockquote cite="https://www.fia.com/news/f1-2025-abu-dhabi-grand-prix-post-race-press-conference-transcript">“I’m happy I could go out and be myself and win it <em>Lando’s way</em>”</blockquote>
+        <p class="source"><a href="https://www.fia.com/news/f1-2025-abu-dhabi-grand-prix-post-race-press-conference-transcript" target="_blank" rel="noopener noreferrer">FIA press conference ↗</a></p>
+      </div>
+    </section>
+  </main>
+  <footer class="wrap"><span>Will Qing</span><a href="/">Home</a></footer>
+</body>
+</html>

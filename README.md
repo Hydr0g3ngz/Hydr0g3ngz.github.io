@@ -26,6 +26,11 @@ The ongoing product roadmap is recorded in [DEVELOPMENT.md](./DEVELOPMENT.md).
 Content is managed with [Pages CMS](https://app.pagescms.org/) and stored in this repository.
 The editor configuration lives in `.pages.yml`; validated content lives in `src/content/`.
 
+The Lando Norris interest page at `/lando/` has a custom editorial layout in
+`src/pages/lando.astro` and `src/styles/lando.css`. Its interview and poster sources
+are recorded in the page markup. The homepage entry link can be edited in the
+Shelf section's “Also following” items; the custom page itself is maintained in code.
+
 See [CMS_GUIDE.md](./CMS_GUIDE.md) for setup, editing, publishing, image, and recovery
 instructions.
 
