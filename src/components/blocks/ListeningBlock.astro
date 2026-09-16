@@ -5,7 +5,7 @@ const { block } = Astro.props;
 const youtubeLink = (song: ListeningBlock['artists'][number]) => song.youtubeUrl || (song.videoId ? `https://www.youtube.com/watch?v=${song.videoId}` : undefined);
 const albumsId = `${block.id || 'listening'}-albums`;
 ---
-<section id={block.id} class="section culture-section listening-section wrap">
+<section id={block.id} tabindex={block.id ? -1 : undefined} class="section culture-section listening-section wrap">
   <div class="culture-heading">
     <p class="eyebrow">{block.eyebrow}</p>
     <h2>{block.heading}</h2>
@@ -39,7 +39,7 @@ const albumsId = `${block.id || 'listening'}-albums`;
       <div class="album-heading">
         <div>
           <p class="eyebrow">ALBUMS</p>
-          <h3 id={albumsId}>{block.albumsHeading}</h3>
+          <h3 id={albumsId} tabindex="-1">{block.albumsHeading}</h3>
         </div>
         {block.albumsIntro && <p>{block.albumsIntro}</p>}
       </div>
@@ -79,6 +79,8 @@ const albumsId = `${block.id || 'listening'}-albums`;
 </section>
 
 <style>
+  .listening-section, .album-heading h3 { scroll-margin-top: 28px; }
+  .listening-section:focus-visible, .album-heading h3:focus-visible { outline: 1px solid var(--muted); outline-offset: 8px; }
   .rotation-list { list-style: none; margin: 2.5rem 0 0; padding: 0; border-top: 1px solid var(--line, #d9d5c9); }
   .rotation-track { display: grid; grid-template-columns: 2.25rem minmax(0, 1fr) auto; align-items: start; gap: 1.75rem; padding: 2.15rem 0; border-bottom: 1px solid var(--line, #d9d5c9); }
   .rotation-number { align-self: start; padding-top: .2rem; color: var(--muted); font: .75rem/1.6 var(--font-mono, monospace); }

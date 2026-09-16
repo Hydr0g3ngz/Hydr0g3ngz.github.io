@@ -5,6 +5,7 @@ import { getEntry } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import BlockRenderer from '../components/BlockRenderer.astro';
 import PageHeader from '../components/PageHeader.astro';
+import MusicNavigation from '../components/MusicNavigation.astro';
 import { homeSchema, pageSchema, noteSchema, siteSettingsSchema } from '../content-schema';
 
 export const prerender = false;
@@ -23,6 +24,7 @@ const wireData = JSON.stringify(preview.data).replaceAll('<', '\\u003c');
 ---
 <Base title={data.title ?? data.defaultTitle} description={data.description} settingsOverride={settingsOverride}>
   {kind === 'page' && <div data-studio-block="page"><PageHeader eyebrow={data.eyebrow} heading={data.heading} /></div>}
+  {kind === 'page' && <MusicNavigation sections={sections} />}
   {sections.map((block: any, index: number) => <div class="studio-section" data-studio-block={index}><BlockRenderer block={block} /></div>)}
   {kind === 'note' && <article class="note-article wrap" data-studio-block="page">
     <header class="note-header"><div class="note-list-meta"><span>{data.category}</span><time datetime={data.date.toISOString()}>{data.date.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}</time></div><h1>{data.title}</h1><p>{data.description}</p></header>

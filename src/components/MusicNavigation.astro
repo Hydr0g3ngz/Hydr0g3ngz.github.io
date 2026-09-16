@@ -1,0 +1,25 @@
+---
+import type { Block } from '../content-schema';
+
+interface Props { sections: Block[]; }
+const visible = Astro.props.sections.filter((block) => block.visible !== false);
+const music = visible.find((block) => block.type === 'listening' && block.id);
+const live = visible.find((block) => block.type === 'live' && block.id && block.records.length);
+const links: { label: string; href: string }[] = [];
+if (music?.type === 'listening') {
+  if (music.artists.length) links.push({ label: 'Songs', href: `#${music.id}` });
+  if (music.albums.length) links.push({ label: 'Albums', href: `#${music.id}-albums` });
+}
+if (live) links.push({ label: 'Live', href: `#${live.id}` });
+---
+{links.length > 1 && (
+  <nav class="music-nav wrap" aria-label="On this music page" data-studio-ignore>
+    {links.map((link) => <a href={link.href}>{link.label}</a>)}
+  </nav>
+)}
+<style>
+  .music-nav { display: flex; flex-wrap: wrap; gap: 0 28px; max-width: none; overflow: visible; padding-block: 4px; border-block: 1px solid var(--line); }
+  .music-nav a { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); }
+  .music-nav a:hover { color: var(--ink); opacity: 1; text-decoration: underline; text-underline-offset: 5px; }
+  .music-nav a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+</style>

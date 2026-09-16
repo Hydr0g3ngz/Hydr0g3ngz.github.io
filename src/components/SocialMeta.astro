@@ -1,0 +1,34 @@
+---
+interface Props {
+  site?: URL;
+  pathname: string;
+  title: string;
+  description: string;
+  image?: string;
+  imageAlt?: string;
+}
+
+const { site, pathname, title, description, image, imageAlt } = Astro.props;
+// A production origin keeps local preview URLs and tracking queries out of shares.
+const canonical = site ? new URL(pathname, site) : undefined;
+if (canonical) {
+  canonical.search = '';
+  canonical.hash = '';
+  if (!canonical.pathname.endsWith('/') && !/\.[^/]+$/.test(canonical.pathname)) canonical.pathname += '/';
+}
+const imageUrl = site && image ? new URL(image, site).href : undefined;
+---
+{canonical && <link rel="canonical" href={canonical.href} />}
+<meta property="og:type" content="website" />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+{canonical && <meta property="og:url" content={canonical.href} />}
+<meta name="twitter:card" content={imageUrl ? 'summary_large_image' : 'summary'} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+{imageUrl && <>
+  <meta property="og:image" content={imageUrl} />
+  <meta property="og:image:alt" content={imageAlt || title} />
+  <meta name="twitter:image" content={imageUrl} />
+  <meta name="twitter:image:alt" content={imageAlt || title} />
+</>}

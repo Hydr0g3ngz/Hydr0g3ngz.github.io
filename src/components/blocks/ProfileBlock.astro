@@ -24,3 +24,8 @@ const { block } = Astro.props;
     </aside>
   )}
 </section>
+<style>
+  .facts a { text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 4px; overflow-wrap: anywhere; }
+  .facts a:hover { text-decoration-color: currentColor; }
+  .facts a:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+</style>

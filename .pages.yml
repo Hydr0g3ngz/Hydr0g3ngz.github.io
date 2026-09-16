@@ -1117,6 +1117,16 @@ content:
             type: string
             required: true
             pattern: "^#[0-9a-fA-F]{6}$"
+          - name: shareImage
+            label: Sharing card image
+            type: image
+            description: Optional. A 1200 × 630 image used when sharing a page link.
+            options:
+              media: images
+          - name: shareImageAlt
+            label: Sharing card description
+            type: string
+            description: Required when a sharing card image is set.
           - name: homeLinks
             label: Homepage navigation links
             type: object

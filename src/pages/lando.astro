@@ -1,7 +1,9 @@
 ---
 import '../styles/lando.css';
+import { getEntry } from 'astro:content';
+import SocialMeta from '../components/SocialMeta.astro';
 
-const canonicalUrl = new URL('/lando/', Astro.site).href;
+const settings = (await getEntry('settings', 'site'))?.data;
 ---
 <!doctype html>
 <html lang="en">
@@ -12,11 +14,7 @@ const canonicalUrl = new URL('/lando/', Astro.site).href;
   <meta name="description" content="Being a nice guy. Carlos Sainz on Lando Norris, with Norris's own words before and after his first world championship.">
   <title>Lando Norris · Being a nice guy · Will Qing</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="canonical" href={canonicalUrl}>
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Being a nice guy — Lando Norris · Will Qing">
-  <meta property="og:description" content="and being a world champion. Carlos Sainz on Lando Norris, alongside Norris's own words before and after his first title.">
-  <meta property="og:url" content={canonicalUrl}>
+  <SocialMeta site={Astro.site} pathname="/lando/" title="Being a nice guy — Lando Norris · Will Qing" description="and being a world champion. Carlos Sainz on Lando Norris, alongside Norris's own words before and after his first title." image={settings?.shareImage} imageAlt={settings?.shareImageAlt} />
   <!-- Sources for this personal-interest page:
   The title and subtitle are editorial headings, not quotations.
   Sainz's lead passage is unchanged from v5: the entire English passage corresponding

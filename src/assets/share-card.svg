@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#f5f1e8"/>
+  <g fill="#171713">
+    <text x="82" y="104" font-family="Georgia, serif" font-size="30" font-weight="bold">WQ</text>
+    <path d="M82 143H1118" stroke="#171713" stroke-opacity=".18"/>
+    <text x="77" y="323" font-family="Georgia, serif" font-size="104" letter-spacing="-3">Will Qing</text>
+    <text x="82" y="387" font-family="Arial, sans-serif" font-size="27" fill="#706e66">Reading, music, film, and research.</text>
+    <path d="M82 497H1118" stroke="#171713" stroke-opacity=".18"/>
+    <text x="82" y="547" font-family="Arial, sans-serif" font-size="21" fill="#526147">hydr0g3ngz.github.io</text>
+  </g>
+</svg>

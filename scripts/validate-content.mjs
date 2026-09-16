@@ -141,7 +141,7 @@ export function validateContent({ root = resolve(import.meta.dirname, '..') } = 
     if (!value || typeof value !== 'object' || value instanceof Date) return;
     if (Array.isArray(value)) { value.forEach((child, index) => walkImages(child, `${source}[${index}]`, visible)); return; }
     const shown = visible && value.visible !== false;
-    for (const [field, alt] of [['image', 'imageAlt'], ['cover', 'coverAlt']]) {
+    for (const [field, alt] of [['image', 'imageAlt'], ['cover', 'coverAlt'], ['shareImage', 'shareImageAlt']]) {
       if (typeof value[field] === 'string') validateImage(value[field], value[alt], `${source}.${field}`, { visible: shown });
     }
     if (typeof value.video === 'string') validateVideo(value.video, `${source}.video`, { visible: shown });

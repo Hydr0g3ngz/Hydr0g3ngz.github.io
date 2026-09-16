@@ -34,6 +34,14 @@ const safeLink = z.string().min(1).refine(
   'Links must be internal paths, page anchors, or HTTPS URLs.'
 );
 
+// Contact links accept a single address, not arbitrary mail headers or schemes.
+const contactLink = z.union([safeLink, z.string().refine(
+  (value) => value.startsWith('mailto:')
+    && !/[\s%?#\\\u0000-\u001f\u007f]/.test(value)
+    && z.email().safeParse(value.slice(7)).success,
+  'Use a single email address after mailto:.'
+)]);
+
 const baseBlock = {
   id: anchorId,
   visible: z.boolean().default(true)
@@ -200,7 +208,7 @@ export const profileBlockSchema = z.object({
       z.object({
         label: z.string().min(1),
         value: z.string().min(1),
-        href: safeLink.optional()
+        href: contactLink.optional()
       })
     )
     .default([])
@@ -389,6 +397,8 @@ export const siteSettingsSchema = z.object({
   defaultTitle: z.string().min(1),
   description: z.string().min(1),
   themeColor: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+  shareImage: localImage.optional(),
+  shareImageAlt: z.string().trim().min(1).optional(),
   homeLinks: z
     .array(
       z.object({
@@ -408,10 +418,14 @@ export const siteSettingsSchema = z.object({
     .array(
       z.object({
         label: z.string().min(1),
-        href: safeLink
+        href: contactLink
       })
     )
     .default([])
+}).superRefine((value, context) => {
+  if (value.shareImage && !value.shareImageAlt) {
+    context.addIssue({ code: 'custom', path: ['shareImageAlt'], message: 'Describe the sharing image.' });
+  }
 });
 
 export type Block = z.infer<typeof blockSchema>;

@@ -55,6 +55,16 @@ test('published live videos require a safe existing local media file', async (t)
   assert.ok(check().errors.some((error) => error.includes('video file does not exist')));
 });
 
+test('sharing images require existing, safe local assets and alternative text', async (t) => {
+  const { put, check } = await fixture(t);
+  await put('src/content/settings/site.json', { ...settings, shareImage: '/images/picture.png', shareImageAlt: 'Sharing card' });
+  assert.equal(check().ok, true, check().errors.join('\n'));
+  for (const shareImage of ['/images/missing.png', '/images/../secret.png', '/images/%2e%2e/secret.png']) {
+    await put('src/content/settings/site.json', { ...settings, shareImage, shareImageAlt: 'Sharing card' });
+    assert.equal(check().ok, false, shareImage);
+  }
+});
+
 test('the shared schema catches malformed JSON content and invalid note metadata', async (t) => {
   const { put, putNote, check } = await fixture(t);
   await put('src/content/pages/about.json', { ...page, sections: [{ type: 'not-a-block' }] });

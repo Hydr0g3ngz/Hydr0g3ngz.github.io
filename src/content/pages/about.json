@@ -2,7 +2,7 @@
   "title": "About",
   "description": "About Will Qing, an Information Engineering undergraduate at Shanghai Jiao Tong University.",
   "eyebrow": "ABOUT",
-  "heading": "A person before a profile.",
+  "heading": "About me.",
   "published": true,
   "navigation": {
     "show": true,
@@ -28,12 +28,9 @@
           "value": "Information Engineering at SJTU"
         },
         {
-          "label": "Usually listening to",
-          "value": "something too many times"
-        },
-        {
           "label": "Contact",
-          "value": "yunshuqing@gmail.com"
+          "value": "yunshuqing@gmail.com",
+          "href": "mailto:yunshuqing@gmail.com"
         }
       ]
     }

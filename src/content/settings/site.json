@@ -3,6 +3,8 @@
   "defaultTitle": "Will Qing — personal homepage",
   "description": "A personal homepage for research, books, music, film, television, and things worth remembering.",
   "themeColor": "#f5f1e8",
+  "shareImage": "/images/share-card.png",
+  "shareImageAlt": "Will Qing — personal homepage. Reading, music, film, and research.",
   "homeLinks": [
     {
       "label": "Work",
@@ -17,6 +19,10 @@
   },
   "footerText": "Will Qing · Personal homepage.",
   "footerLinks": [
+    {
+      "label": "Email",
+      "href": "mailto:yunshuqing@gmail.com"
+    },
     {
       "label": "GitHub",
       "href": "https://github.com/Hydr0g3ngz"

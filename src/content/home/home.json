@@ -273,7 +273,7 @@
     },
     {
       "type": "closing",
-      "visible": true,
+      "visible": false,
       "eyebrow": "04 / CURRENTLY",
       "heading": "I’m still figuring out what deserves to stay here.",
       "body": "That is part of the point. This site is not meant to prove that I have already become something. It is a place to leave a trail while I’m becoming it."

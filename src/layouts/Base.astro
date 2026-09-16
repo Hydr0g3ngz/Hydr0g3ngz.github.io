@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import '../styles/culture.css';
 import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
+import SocialMeta from '../components/SocialMeta.astro';
 
 interface Props {
   title?: string;
@@ -59,6 +60,7 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
     <meta name="theme-color" content={settings.themeColor} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>{title}</title>
+    <SocialMeta site={Astro.site} pathname={Astro.url.pathname} title={title} description={description} image={settings.shareImage} imageAlt={settings.shareImageAlt} />
   </head>
   <body>
     <div class="noise"></div>
