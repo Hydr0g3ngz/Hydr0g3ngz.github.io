@@ -8,7 +8,7 @@ interface Props {
 const { block } = Astro.props;
 ---
 {block.presentation === 'posters' ? (
-  <section id={block.id} class="screen-list wrap" aria-label={block.heading}>
+  <section id={block.id} tabindex={block.id ? -1 : undefined} class="screen-list wrap" aria-label={block.heading}>
     <header class="screen-group-heading">
       {block.eyebrow && <p class="eyebrow">{block.eyebrow}</p>}
       <h2>{block.heading}</h2>
@@ -24,13 +24,14 @@ const { block } = Astro.props;
               <h3>{item.href ? <a href={item.href} target={item.href.startsWith('https://') ? '_blank' : undefined} rel={item.href.startsWith('https://') ? 'noopener noreferrer' : undefined} aria-label={item.href.startsWith('https://') ? `${item.title} (opens in a new tab)` : undefined}><span>{item.title}</span> <span class="screen-link-arrow" aria-hidden="true" data-studio-ignore>↗</span></a> : item.title}</h3>
             </div>
             <p class="screen-summary">{item.text}</p>
+            {item.favoriteTrack && <p class="list-favorite"><span class="list-favorite-label" data-studio-ignore>Favorite song</span><span>{item.favoriteTrack}</span></p>}
           </div>
         </article>
       ))}
     </div>
   </section>
 ) : (
-<section id={block.id} class:list={['section', 'list-section', 'wrap', { 'film-list-section': block.id === 'film-list' }]}>
+<section id={block.id} tabindex={block.id ? -1 : undefined} class:list={['section', 'list-section', 'wrap', { 'film-list-section': block.id === 'film-list' }]}>
   <div class="content-section-head">
     {block.eyebrow && <p class="eyebrow">{block.eyebrow}</p>}
     <h2>{block.heading}</h2>
@@ -42,6 +43,7 @@ const { block } = Astro.props;
         {item.meta && <p class="tag">{item.meta}</p>}
         <h3>{item.href ? <a href={item.href}>{item.title}</a> : item.title}</h3>
         <p>{item.text}</p>
+        {item.favoriteTrack && <p class="list-favorite"><span class="list-favorite-label" data-studio-ignore>Favorite song</span><span>{item.favoriteTrack}</span></p>}
       </article>
     ))}
   </div>
@@ -50,6 +52,9 @@ const { block } = Astro.props;
 
 <style>
   .screen-list { padding-top: 52px; }
+  .screen-list, .list-section { scroll-margin-top: 28px; }
+  .screen-list:focus-visible, .list-section:focus-visible { outline: 1px solid var(--muted); outline-offset: 8px; }
+  .screen-list#musicals .screen-group-heading h2 { font-size: clamp(2.2rem, 4vw, 3.5rem); }
   .screen-list + .screen-list { padding-top: 48px; }
   .screen-list:last-child { padding-bottom: 88px; }
   .screen-group-heading { margin-bottom: 20px; }
@@ -68,6 +73,8 @@ const { block } = Astro.props;
   .screen-entry h3 a:focus-visible { outline: 2px solid var(--ink); outline-offset: 5px; }
   .screen-link-arrow { flex-shrink: 0; color: var(--muted); font: normal .85rem/1 system-ui, sans-serif; }
   .screen-summary { max-width: 72ch; margin: 14px 0 0; color: var(--muted); font-size: .96rem; line-height: 1.65; }
+  .list-favorite { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .75rem; margin: 14px 0 0; color: var(--ink); font: 400 1rem/1.5 Georgia, serif; }
+  .list-favorite-label { color: var(--muted); font: 400 .75rem/1.5 var(--font-sans, Inter, sans-serif); }
   @media (max-width: 560px) {
     .screen-list { padding-top: 38px; }
     .screen-list + .screen-list { padding-top: 36px; }
@@ -76,6 +83,7 @@ const { block } = Astro.props;
     .screen-copy { display: contents; }
     .screen-entry h3 { font-size: 1.3rem; }
     .screen-summary { grid-column: 1 / -1; margin: 0; }
+    .screen-entry .list-favorite { grid-column: 1 / -1; margin: 0; }
     .screen-entry--text { grid-template-columns: 1fr; }
   }
 </style>

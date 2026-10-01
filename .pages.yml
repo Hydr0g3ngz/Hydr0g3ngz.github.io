@@ -484,6 +484,10 @@ components:
           - name: meta
             label: Small label
             type: string
+          - name: favoriteTrack
+            label: Favorite song
+            type: string
+            description: Optional song title for musical entries; leave blank for other lists.
           - name: href
             label: Optional link
             type: string

@@ -36,6 +36,8 @@ const live = liveBlockSchema.parse({
     { title: 'No dimensions', video: '/uploads/live/other.mp4', image: '/images/other.jpg', imageAlt: 'A stage' },
   ],
 });
+const listeningPage = JSON.parse(await readFile(new URL('../src/content/pages/listening.json', import.meta.url), 'utf8'));
+const musicals = listBlockSchema.parse(listeningPage.sections.find((block) => block.id === 'musicals'));
 
 async function render(fragments) {
   const container = await AstroContainer.create();
@@ -69,6 +71,42 @@ test('music navigation omits hidden, empty or unanchored sections and single-des
     if (sections[0] === music) assert.deepEqual(links.map((a) => a.textContent), ['Songs', 'Albums']);
     else assert.equal(links.length, 0);
   }
+});
+
+test('musicals use the film poster layout with a working jump between albums and live', async (t) => {
+  assert.deepEqual(listeningPage.sections.map((block) => block.type), ['listening', 'list', 'live']);
+  assert.equal(musicals.presentation, 'posters');
+  assert.deepEqual(musicals.items.map((item) => item.title), ['The Phantom of the Opera', 'Matilda The Musical', 'Molière, le spectacle musical']);
+  assert.deepEqual(musicals.items.map((item) => item.favoriteTrack), ['The Phantom of the Opera', 'When I Grow Up', 'Regardez-moi']);
+  const dom = await render([[Navigation, { sections: [music, musicals, live] }], [Listening, { block: music }], [List, { block: musicals }], [Live, { block: live }]]);
+  t.after(() => dom.window.close());
+  const { document } = dom.window;
+  assert.deepEqual([...document.querySelectorAll('.music-nav a')].map((a) => a.textContent), ['Songs', 'Albums', 'Musicals', 'Live']);
+  for (const link of document.querySelectorAll('.music-nav a')) assert.equal(document.getElementById(link.hash.slice(1)).tabIndex, -1);
+  const section = document.getElementById('musicals');
+  assert.equal(section.querySelectorAll('.screen-entry').length, 3);
+  assert.equal(section.querySelectorAll('.screen-poster img').length, 3);
+  assert.equal(section.querySelectorAll('video, audio, iframe, time, .personal-reflection').length, 0);
+  for (const [index, item] of [...section.querySelectorAll('.screen-entry')].entries()) {
+    const link = item.querySelector('h3 a');
+    assert.equal(link.href, musicals.items[index].href);
+    assert.equal(link.target, '_blank');
+    assert.equal(item.querySelector('img').alt, musicals.items[index].imageAlt);
+    assert.equal(item.querySelector('.list-favorite-label').textContent, 'Favorite song');
+    assert.ok(item.querySelector('.list-favorite-label').hasAttribute('data-studio-ignore'));
+    assert.equal(item.querySelector('.list-favorite > span:last-child').textContent, musicals.items[index].favoriteTrack);
+  }
+});
+
+test('music navigation omits hidden or empty musicals and follows section order', async (t) => {
+  for (const block of [{ ...musicals, visible: false }, { ...musicals, items: [] }, { ...musicals, id: undefined }]) {
+    const dom = await render([[Navigation, { sections: [music, block, live] }]]);
+    t.after(() => dom.window.close());
+    assert.equal(dom.window.document.querySelector('.music-nav a[href="#musicals"]'), null);
+  }
+  const dom = await render([[Navigation, { sections: [live, musicals, music] }]]);
+  t.after(() => dom.window.close());
+  assert.deepEqual([...dom.window.document.querySelectorAll('.music-nav a')].map((a) => a.textContent), ['Live', 'Musicals', 'Songs', 'Albums']);
 });
 
 test('concert gallery uses uniform image links and keeps natural-ratio players in closed dialogs', async (t) => {
@@ -217,6 +255,20 @@ test('poster list presentation is optional, and entries without a poster still r
     assert.equal(document.querySelector('a').getAttribute('target'), null);
     assert.equal(document.querySelector('h3').textContent.trim().replace(/\s*↗$/, ''), 'Title');
     assert.ok(document.querySelector(presentation === 'text' ? '.content-list-item' : '.screen-entry--text'));
+    assert.equal(document.querySelector('.list-favorite'), null);
+  }
+});
+
+test('optional favorite songs survive schema parsing in both list layouts and remain plain text', async (t) => {
+  for (const presentation of ['text', 'posters']) {
+    const favoriteTrack = 'Song <em>title</em> & refrain';
+    const block = listBlockSchema.parse({ type: 'list', heading: 'Musicals', presentation, items: [{ title: 'Musical', text: 'Description.', favoriteTrack }] });
+    assert.equal(block.items[0].favoriteTrack, favoriteTrack);
+    const dom = await render([[List, { block }]]);
+    t.after(() => dom.window.close());
+    const favorite = dom.window.document.querySelector('.list-favorite');
+    assert.equal(favorite.querySelector('span:last-child').textContent, favoriteTrack);
+    assert.equal(favorite.querySelector('em, a'), null);
   }
 });
 
@@ -242,7 +294,7 @@ test('Studio exposes the poster presentation and every poster field in its list 
   assert.equal(presentation.default, 'text');
   assert.deepEqual(presentation.options.values.map((option) => option.name), ['text', 'posters']);
   const itemFields = fields.find((field) => field.name === 'items').fields;
-  for (const name of ['image', 'imageAlt', 'imageWidth', 'imageHeight', 'imageSourceUrl']) {
+  for (const name of ['image', 'imageAlt', 'imageWidth', 'imageHeight', 'imageSourceUrl', 'favoriteTrack']) {
     assert.ok(itemFields.some((field) => field.name === name), name);
   }
 });

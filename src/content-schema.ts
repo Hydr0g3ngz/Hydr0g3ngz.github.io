@@ -187,6 +187,7 @@ export const listBlockSchema = z.object({
         title: z.string().min(1),
         text: z.string().min(1),
         meta: z.string().optional(),
+        favoriteTrack: z.string().min(1).optional(),
         href: safeLink.optional(),
         image: localImage.optional(),
         imageAlt: z.string().min(1).optional(),

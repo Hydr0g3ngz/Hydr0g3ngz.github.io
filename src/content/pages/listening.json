@@ -1,6 +1,6 @@
 {
   "title": "Listening",
-  "description": "Selected songs and albums, and concert clips recorded from the audience.",
+  "description": "Selected songs, albums and musicals, and concert clips recorded from the audience.",
   "eyebrow": "MUSIC / CURRENT ROTATION",
   "heading": "In rotation.",
   "published": true,
@@ -110,6 +110,53 @@
           "listenUrl": "https://open.spotify.com/album/2YA1bt9t2gBAxOx5kPZoE3",
           "neteaseUrl": "https://music.163.com/#/album?id=36714070",
           "coverSourceUrl": "https://open.spotify.com/album/2YA1bt9t2gBAxOx5kPZoE3"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "id": "musicals",
+      "visible": true,
+      "heading": "Musicals",
+      "intro": "Three musicals I like.",
+      "columns": "one",
+      "presentation": "posters",
+      "items": [
+        {
+          "title": "The Phantom of the Opera",
+          "meta": "Music by Andrew Lloyd Webber",
+          "favoriteTrack": "The Phantom of the Opera",
+          "text": "Beneath the Paris Opera House, a masked musician becomes fascinated with the young soprano Christine Daaé. As he guides her voice, his devotion turns to obsession, drawing her into conflict with the world above.",
+          "href": "https://www.phantomoftheopera.com/",
+          "image": "/images/musicals/phantom-of-the-opera.webp",
+          "imageAlt": "The Phantom of the Opera stage musical poster, with a white mask and a red rose on black",
+          "imageWidth": 312,
+          "imageHeight": 462,
+          "imageSourceUrl": "https://www.affiches-et-posters.com/musique-at-6/comedies-musicales-t-6_232_1781.html"
+        },
+        {
+          "title": "Matilda The Musical",
+          "meta": "Book by Dennis Kelly · Music and lyrics by Tim Minchin",
+          "favoriteTrack": "When I Grow Up",
+          "text": "A book-loving girl with an extraordinary imagination refuses to accept the rules imposed by the adults around her. Adapted from Roald Dahl’s novel, the musical follows Matilda as she finds the courage to change her own story.",
+          "href": "https://uk.matildathemusical.com/",
+          "image": "/images/musicals/matilda.webp",
+          "imageAlt": "Matilda The Musical stage poster, with Matilda standing beneath a blue glow and floating letters",
+          "imageWidth": 312,
+          "imageHeight": 468,
+          "imageSourceUrl": "https://www.broadwayworld.com/shows/Matilda-The-Musical-334293.html"
+        },
+        {
+          "title": "Molière, le spectacle musical",
+          "meta": "French-language musical · Dove Attia",
+          "favoriteTrack": "Regardez-moi",
+          "text": "Jean-Baptiste Poquelin leaves a secure future to form a theatre company with Madeleine Béjart. The show follows the man who becomes Molière through the struggles, relationships, and opposition that shape his life in theatre.",
+          "href": "https://moliere-spectacle.com/",
+          "image": "/images/musicals/moliere.webp",
+          "imageAlt": "Molière, le spectacle musical promotional artwork with gold lettering on blue",
+          "imageWidth": 312,
+          "imageHeight": 413,
+          "imageSourceUrl": "https://moliere-spectacle.com/"
         }
       ]
     },

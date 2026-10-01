@@ -3,14 +3,18 @@ import type { Block } from '../content-schema';
 
 interface Props { sections: Block[]; }
 const visible = Astro.props.sections.filter((block) => block.visible !== false);
-const music = visible.find((block) => block.type === 'listening' && block.id);
-const live = visible.find((block) => block.type === 'live' && block.id && block.records.length);
 const links: { label: string; href: string }[] = [];
-if (music?.type === 'listening') {
-  if (music.artists.length) links.push({ label: 'Songs', href: `#${music.id}` });
-  if (music.albums.length) links.push({ label: 'Albums', href: `#${music.id}-albums` });
+for (const block of visible) {
+  if (!block.id) continue;
+  if (block.type === 'listening') {
+    if (block.artists.length) links.push({ label: 'Songs', href: `#${block.id}` });
+    if (block.albums.length) links.push({ label: 'Albums', href: `#${block.id}-albums` });
+  } else if (block.type === 'list' && block.id === 'musicals' && block.items.length) {
+    links.push({ label: block.heading, href: `#${block.id}` });
+  } else if (block.type === 'live' && block.records.length) {
+    links.push({ label: 'Live', href: `#${block.id}` });
+  }
 }
-if (live) links.push({ label: 'Live', href: `#${live.id}` });
 ---
 {links.length > 1 && (
   <nav class="music-nav wrap" aria-label="On this music page" data-studio-ignore>
